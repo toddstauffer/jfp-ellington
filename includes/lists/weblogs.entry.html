@@ -1,0 +1,23 @@
+{% extends "includes/lists/default.html" %}
+
+
+{% block item %}
+  {% load content markup mogrify mailfriend cached_comments %}
+
+  {% if not blog %}
+    <p><small><a class="category" href="{{ object.blog.get_absolute_url }}">{{ object.blog.title }}</a></small></p>
+    {% if object.blog.tease_image %}<a class="thumbnail" href="{{ object.blog.get_absolute_url }}"><img src="{% mogrify object.blog.tease_image.url thumbnail "150" %}" title="" alt=""></a>{% endif %}
+  {% endif %}
+  <h4 class="headline-archive"><a href="{{ object.get_absolute_url }}">{{ object.title }}</a></h4>
+  <p class="intro-type">{% if object.summary %}{{ object.summary|striptags }}{% else %}{{ object.body|markdown|striptags|truncatewords:"50" }}{% endif %}</p>
+  <ul class="footer">
+    <li class="highlight-type">By {% if object.author.staffmember %} <a class="highlight-type" href="{{ object.author.staffmember.get_absolute_url }}">{{ object.author.staffmember }}</a>
+      {% else %}
+      <a class="highlight-type" href="{{ object.author.get_absolute_url }}">{{ object.author }}</a>{% endif %}</li>
+    <li class="highlight-type">{{ object.pub_date|date }}</li>
+
+
+    {% get_cached_comment_count for object as comment_count %} 
+    {% if comment_count %}<li class="highlight-type"><a href="{{obeject.get_absolute_url}}" class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</a></li>{% endif %}
+  </ul>
+{% endblock %}

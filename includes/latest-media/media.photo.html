@@ -1,0 +1,5 @@
+{% load mogrify %}
+
+<a href="{{ object.get_absolute_url }}">
+	<img src="{% mogrify object.photo.url resize "140x92" %}" alt="">
+</a>

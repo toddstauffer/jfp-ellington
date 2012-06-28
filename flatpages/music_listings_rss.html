@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+<channel>
+<title>Jackson Free Press: Music Listings</title>
+<link>http://jacksonfreepress.www.clients.ellingtoncms.com/music/listings</link>
+<description>Jackson Free Press: Music Listings</description>
+<atom:link href="http://jacksonfreepress.www.clients.ellingtoncms.com/music/listings/rss" rel="self"></atom:link>
+<language>en-us</language>
+<lastBuildDate>{% now "r" %}</lastBuildDate>
+  
+  {% load events %}
+  {% get_events as event_list start_date now days 7 %}
+  {% if event_list %}
+    {% for obj in event_list %}
+            {% with parent="Music" %}
+            {% with category=obj.event.categories.all %}
+              {% if category.0.parent_category == parent or category.1.parent_category == parent or category.2.parent_category == parent or category.3.parent_category == parent or category.4.parent_category == parent %}
+              <item>
+                <title>{{ obj.event_date|date:"D n/j" }}: {{ obj.event.title|safe }}</title>
+                <link>http://jacksonfreepress.www.clients.ellingtoncms.com/{{ obj.get_absolute_url }}</link>
+                <description>
+            {% if obj.event.small_photo %}<img src="{{ obj.event.small_photo.url }}" align="right">{% endif %}
+            &lt;p&gt;&lt;strong&gt;When:&lt;/strong&gt; {{ obj.event_date|date:"l, N j, Y" }}, {{ obj.get_time }}&lt;/p&gt;
+            &lt;p&gt;&lt;strong&gt;Where:&lt;/strong&gt; {% if obj.event.one_off_place %}{{ obj.event.one_off_place }}{% else %}{{ obj.event.place.get_name }}, {{ obj.event.place.get_address }}{% endif %}&lt;/p&gt;
+            &lt;p&gt;&lt;strong&gt;Cost:&lt;/strong&gt; {% if obj.event.get_cost %}{{ obj.event.get_cost }}{% else %}Not available{% endif %}&lt;/p&gt;
+            &lt;p&gt;&lt;strong&gt;Age limit:&lt;/strong&gt; {{ obj.event.get_age_limit }}&lt;/p&gt;
+            {% if obj.event.long_description %}
+            &lt;p&gt;&lt;strong&gt;Description:&lt;/strong&gt; {{ obj.event.long_description|linebreaksbr|safe }}&lt;/p&gt;
+            {% endif %}
+          </description>
+          <guid>http://jacksonfreepress.www.clients.ellingtoncms.com/{{ obj.get_absolute_url }}</guid></item>
+              {% endif %}
+            {% endwith %}
+            {% endwith %}
+          {% endfor %}
+  {% endif %}
+
+
+</channel>
+</rss>

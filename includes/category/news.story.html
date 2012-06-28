@@ -1,0 +1,50 @@
+
+{% if object.categories.count > 0 %}
+    {% if object.categories.all.0.name != 'Imported' and object.categories.all.0.name != 'Noise' and object.categories.all.0.name != 'Column' %}
+
+        {% with cat=object.categories.all.0 %}
+            {% if cat %}
+                <span class="category highlight-type">
+                    <a style="text-decoration:none;" href="{% if cat.name == 'Music Listings'%}http://{{ site.domain }}/news/music/listings/{% else %}http://{{ site.domain }}/categories/news/{{ cat.slug }}/
+                    {% endif %}">
+                    {% if cat.name == 'BodySoul' %} Body/Soul {% else %} {{ cat.name }} {% endif %}
+                    </a>
+                </span>
+            {% endif %}
+        {% endwith %}
+
+    {% else %}
+        {% if object.categories.all.1.name != 'Imported' and object.categories.all.1.name != 'Noise' and object.categories.all.1.name != 'Column' %}
+
+            {% with cat=object.categories.all.1 %}
+            {% if cat %}
+                <span class="category highlight-type">
+                    <a style="text-decoration:none;" href="{% if cat.name == 'Music Listings'%}http://{{ site.domain }}/news/music/listings/{% else %}http://{{ site.domain }}/categories/news/{{ cat.slug }}/
+                    {% endif %}">
+                    {% if cat.name == 'BodySoul' %} Body/Soul {% else %} {{ cat.name }} {% endif %}
+                    </a>
+                </span>
+            {% endif %}
+            {% endwith %}
+
+        {% else %}
+
+            {% if object.categories.all.2.name != 'Imported' and object.categories.all.2.name != 'Noise' and object.categories.all.2.name != 'Column' %}
+
+                {% with cat=object.categories.all.2 %}
+                {% if cat %}
+                    <span class="category highlight-type">
+                        <a style="text-decoration:none;" href="{% if cat.name == 'Music Listings'%}http://{{ site.domain }}/news/music/listings/{% else %}http://{{ site.domain }}/categories/news/{{ cat.slug }}/
+                    {% endif %}">
+                        {% if cat.name == 'BodySoul' %} Body/Soul {% else %} {{ cat.name }} {% endif %}
+                        </a>
+                    </span>
+                {% endif %}
+                {% endwith %}
+
+            {% endif %}
+
+        {% endif %}
+
+    {% endif %}
+{% endif %}

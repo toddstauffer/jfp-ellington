@@ -1,0 +1,7 @@
+  {% load mogrify %}
+
+  {% with width=140 %}
+  {% with height=92 %}
+    <a href="{{ object.get_absolute_url }}">{% include "includes/media/video_player.html" %}</a>
+  {% endwith %}
+  {% endwith %}

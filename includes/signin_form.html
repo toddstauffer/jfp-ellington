@@ -1,0 +1,90 @@
+<!-- Added site user agreement checkbox as form field. -->
+
+{% load socialregistration_tags facebook_tags twitter_tags fragments %}
+
+<div id="login">
+  <form action="/accounts/login/" method="post" class="signin_form form_toggle">{% csrf_token %}
+    <p><label for="id_username">Username</label>
+      <input type="text" name="username" value="" id="id_username"></p>
+
+    <ul>
+      <li><input type="radio" name="method" value="signin" checked="checked"> I have an account.</li>
+      <li><input type="radio" name="method" value="signup"> <strong>I'm new.</strong></li>
+    </ul>
+
+
+    <div class="signin_fields">
+      <p><label for="id_password">Password <a href="/accounts/password/reset/"><small>Forgot?</small></a></label>
+        <input type="password" name="password" value="" id="id_password"></p>
+      <p><button type="submit">Sign in</button></p>
+    </div>
+
+    <div class="signup_fields" style="display:none;">
+
+      {% fragment old_username_message as username_message %}
+      <p>{{username_message.content|safe}}</p>
+      <p><label for="id_password1">Password</label>
+        <input type="password" name="password1" value="" id="id_password1"></p>
+
+      <p><label for="id_password2">Confirm password</label>
+        <input type="password" name="password2" value="" id="id_password2"></p>
+
+      <p><label for="id_email">Email</label>
+        <input type="text" name="email" value="" id="id_email"></p>
+
+        <p class="user_agreement_field"><input type="checkbox" name="user_agreement" id="user_agreement" CHECKED class="required"><label for="user_agreement"> I accept the terms of the <a href="/user-agreement/">user agreement and privacy statement</a>.</label>
+        </p>
+      
+      {% if RECAPTCHA_PUBLIC_API_KEY %}
+      <p>
+        <script type="text/javascript" src="http://api.recaptcha.net/challenge?k={{ RECAPTCHA_PUBLIC_API_KEY }}"></script>
+        <noscript>
+           <iframe src="http://api.recaptcha.net/noscript?k={{ RECAPTCHA_PUBLIC_API_KEY }}"
+               height="300" width="500" frameborder="0"></iframe><br />
+           <textarea name="recaptcha_challenge_field" rows="3" cols="40">
+           </textarea>
+           <input type="hidden" name="recaptcha_response_field" value="manual_challenge" />
+        </noscript>
+      </p>
+      {% endif %}
+
+     
+
+      <p><button type="submit">Sign up</button></p>
+    </div>
+    <input type="hidden" name="next" value="{{ request.path }}?login" id="next">
+  </form>
+
+  <div id="openid_form" style="display:none;">
+    {% load openid_tags %}
+    {% openid_form %}
+  </div>
+
+  {% open_id_errors request %}
+  {% if openid_error %}
+    <div id="open_id_error">
+      <p class="errors">The OpenID provider {% if openid_provider %}"{{ openid_provider }}"{% else %}url{% endif %} you entered wasn't valid. <a href="#" class="openid_link">Try again</a></p>
+    </div>
+  {% endif %}
+</div>
+
+<div class="social_registration">
+  <h4>Or login with:</h4>
+  {% auth_enabled facebook as facebook_enabled %}
+  {% if facebook_enabled %}
+    {% facebook_button %}
+    {% facebook_js %}
+  {% endif %}
+
+  {% auth_enabled twitter as twitter_enabled %}
+  {% if twitter_enabled %}
+    {% twitter_button %}
+  {% endif %}
+
+  <form action="{% url openid_redirect %}" method="get" class="google_button">
+    <input type="hidden" name="openid_provider" value="https://www.google.com/accounts/o8/id" />
+    <button type="submit">Google</button>
+  </form>
+
+  <p><a class="button" href="#openid_form" onclick="$(this.hash).toggle(); return false;">OpenID</a></p>
+</div>

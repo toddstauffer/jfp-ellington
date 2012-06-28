@@ -1,0 +1,28 @@
+
+<span class="category">Audio{% if object.categories.all %} | {{ object.categories.all.0 }}{% endif %}</span>
+                <h5 class="headline-list">{{ object.title }}</h5>
+
+
+
+<h5 class="headline-list">
+  {% if object.title %}
+    <a href="object.url">{{ object.title }}</a>
+  {% else %}
+    {% if object.get_story %}
+      <a href="{{ object.get_story.get_absolute_url }}">{{ object.get_story.headline }}</a>
+    {% endif %}
+  {% endif %}
+</h5>
+
+
+                <script type="text/javascript">
+                    if (AudioPlayer.check()) {
+                        AudioPlayer.init('audio_player_{{ object.id }}', '{{ object.url }}', 'default');
+                    }
+                    else {
+                        document.write('<a class="forward lone_link" href="{{ object.url }}">Download clip</a>')
+                    }
+                </script>
+                <noscript>
+                    <a class="forward lone-link" href="{{ object.url }}">Download clip</a>
+                </noscript>

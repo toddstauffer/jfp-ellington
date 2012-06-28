@@ -1,0 +1,62 @@
+{% extends "categories/base_categories.html" %}
+
+
+{% block title %}{{ category.name }}{% endblock %}
+{% block body_class %}{{ block.super }} category_detail{% endblock %}
+{% block body_id %}category_{{ category.id }}{% endblock %}
+
+
+{% block content_title %}
+  <h2>{% if category.get_parents %}{% for parent in category.get_parents %}<a href="/categories/{{ parent.hierarchy.slug }}{{ parent.slug_path }}">{{ parent.name }}</a> / {% endfor %}{% endif %}{{ category.name }}</h2>
+{% endblock %}
+
+
+{% block breadcrumbs %}
+  <p>
+    <!-- <a href="../../">Hierarchies</a> -->
+    <!-- <a href="../">Categories</a> -->
+    {% if category.get_parents %}
+      {% for parent in category.get_parents %}<a href="{{ parent.get_absolute_url }}">{{ parent.name }}</a>{% endfor %}
+    {% endif %}
+    <span>{{ category.name }}</span>
+  </p>
+{% endblock %}
+
+
+{% block content %}
+  {% load content mailfriend listutil mogrify %}
+  
+  {% if category.children.count %}
+    <h3 class="divider">Child categories</h3>
+    <table class="category_list">
+      <tr>
+        <th>Category</th>
+        <th>Path</th>
+      </tr>
+    {% for child in category.children.on_site %}
+      <tr>
+        <td><a href="./{{ child.slug }}/">{{ child.name }}</a></td>
+        <td class="path">{{ child.path }}</td>
+      </tr>
+    {% endfor %}
+    </table>
+  {% endif %}
+  
+  {% get_latest_content_for_category category news.story as story_list limit 10 %}
+  {% get_latest_content_for_category category media.video as video_list limit 10 %}
+  {% get_latest_content_for_category category podcasts.episode as episode_list limit 10 %}
+  {% get_latest_content_for_category category photogalleries.gallery as gallery_list limit 10 %}
+  
+  {% merge_lists story_list by 'pub_date' episode_list by 'release_date' gallery_list by 'creation_date' video_list by 'creation_date' as tumble_list %}
+  
+  {% if tumble_list %}
+    <div class="list">
+      {% for item in tumble_list %}
+        {% render_template_for item in "includes/lists" %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>Currently there is no content for this category.
+      {% if category.children.count %}Try choosing a more specific category from the list above.{% endif %}</p>
+  {% endif %}
+{% endblock %}

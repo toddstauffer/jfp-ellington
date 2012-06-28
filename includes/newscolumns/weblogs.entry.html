@@ -1,0 +1,17 @@
+
+  {% load content markup mogrify %}
+
+<article class="daily_feature" style="width:100%;">
+    
+    
+    {% if not blog %}
+    <p style="margin-bottom:0;"><small><a href="{{ object.blog.get_absolute_url }}">{{ object.blog.title }}</a></small></p>
+    {% if object.blog.tease_image %}<a class="thumbnail" href="{{ object.blog.get_absolute_url }}"><img src="{% mogrify object.blog.tease_image.url thumbnail "150" %}" title="" alt=""></a>{% endif %}
+    {% endif %}
+    <h4><a href="{{ object.get_absolute_url }}">{{ object.title }}</a></h4>
+    <p>{% if object.summary %}{{ object.summary|striptags }}{% else %}{{ object.body|markdown|striptags|truncatewords:"50" }}{% endif %}</p>
+    <ul class="footer">
+        <li>{{ object.pub_date|date }}</li>
+    </ul>
+
+</article>

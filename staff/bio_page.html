@@ -1,0 +1,107 @@
+{% extends "staff/base_staff.html" %}
+
+
+{% block title %}{{ staffmember.get_full_name }} | Staff{% endblock %}
+{% block body_class %}{{ block.super }} staff_bio{% endblock %}
+{% block body_id %}staff_{{ staffmember.id }}{% endblock %}
+
+
+{% block content_title %}
+  <h2>{{ staffmember.get_full_name }}</h2>
+  <h3>{{ staffmember.get_current_position.position }}</h3>
+  {% if staffmember.phone %}
+    <p>{{ staffmember.phone }}
+    {% if staffmember.phone_extension %}
+       Extension: {{ staffmember.phone_extension }}
+    {% endif %}
+    </p>
+   {% endif %}
+{% endblock %}
+
+
+{% block subnav %}
+  <div id="subnav">
+    <div class="wrapper">
+      <ul>
+        <li><a href="{{ staffmember.get_absolute_url }}stories/">Show all stories</a></li>
+        {% if staffmember.email %}<li><a href="{{ staffmember.get_absolute_url }}contact/">Contact</a></li>{% endif %}
+        <li><a href="/rss/authors/{{ staffmember.slug }}/">Subscribe to stories</a></li>
+        <li><a href="/searchalerts/create/?query={{ staffmember.first_name }}%20{{ staffmember.last_name }}">Set up a search alert</a></li>
+      </ul>
+    </div>
+  </div>
+{% endblock %}
+
+
+{% block content %}
+  {% load mogrify content social cached_comments mailfriend %}
+
+  {% get_favorite_type for staffmember as favorite_type %}
+
+  <ul class="object_tools">
+    {% if favorite_type %}
+    <li class="favorite{% if_favorited staffmember user %} favorited{% endif_favorited %}">
+      {% if_favorited staffmember user %}
+        <a href="/social/favorites/{{ favorite_type.slug }}/delete/{{ staffmember.id }}/">Favorited</a>
+      {% else %}
+        <a href="/social/favorites/{{ favorite_type.slug }}/add/{{ staffmember.id }}/">{{ favorite_type.name }}</a>
+      {% endif_favorited %}
+      <small><a href="/social/favorites/{{ favorite_type.slug }}/">Your favorites</a></small>
+    </li>
+    {% endif %}
+    <li class="share">
+      <a href="#">Share this</a>
+      <small>
+        <a href="{% mailfriend_link for staffmember %}" rel="popup(620x650)">Email</a>,
+        <a href="http://www.facebook.com/sharer.php?u=http://{{ site.domain }}{{ staffmember.get_absolute_url }}" rel="popup(800x400)">Facebook</a>,
+        <a href="http://twitter.com/home?status=http://{{ site.domain }}{{ staffmember.get_absolute_url }}">Twitter</a>
+      </small>
+    </li>
+  </ul>
+
+  <div class="section_wrapper">
+    <div class="section">
+      {% if staffmember.mugshot and staffmember.show_mug %}
+        <p><img class="mugshot" src="{% mogrify staffmember.mugshot.url thumbnail "210" %}" alt=""></p>
+      {% endif %}
+    </div>
+    {% if staffmember.bio %}
+    <div class="section section_wide section_end">
+      <div class="bio">
+        {{ staffmember.bio|striptags|linebreaks }}
+      </div>
+      <ul class="social-networks">
+        {% for profile in staffmember.social_network_profiles.all %}
+          <li><a href="{{ profile.url }}"><img src="{{ profile.icon }}" /> {{ profile }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if story_list %}
+    <div class="section section_wide">
+      <h3>Recent Stories</h3>
+      {% if story_list %}
+        <div class="list story_list">
+          {% for story in story_list %}
+            {% render_template_for story in "includes/lists" %}
+          {% endfor %}
+        </div>
+      {% endif %}
+      <p><a class="button" href="./stories/">More stories</a></p>
+    </div>
+    {% if staffmember.user.blog_entries.count %}
+      <div class="section section_end">
+        <h3>Blog Entries</h3>
+        <ul>
+          {% for entry in staffmember.user.blog_entries.all %}
+            {% get_cached_comment_count for entry as comment_count %}
+            <li{% if forloop.last %} class="last"{% endif %}><a href="{{ entry.get_absolute_url }}">{{ entry.title|capfirst }}</a>
+              {% if comment_count %}<small>{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  {% endif %}
+{% endblock %}

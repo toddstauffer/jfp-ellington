@@ -1,0 +1,70 @@
+{% extends "flatpages/default.html" %}
+{% block body_class %}flatpage_default latest_comments{% endblock %}
+{% load content discussions threadedcomments_tags comments %}
+
+{% block content_title %}
+  <h2>Latest Comments</h2>
+{% endblock %}
+
+{% block content %}
+  <div class="section_wrapper">
+    <div class="section section_wide">
+      {% get_latest_content for comments.comment as comment_list limit 100 %}
+        <ul>
+          {% for comment in comment_list %}
+            <li class="{% if forloop.last %} last{% endif %}">
+                <p class="comment"><a href="{{ comment.content_object.get_absolute_url }}#c{{ comment.id }}">{{ comment.comment|truncatewords:"30" }}</a></p>
+                <p class="highlight-type">{{ comment.submit_date|date:"N j, P" }} on <a href="{{comment.content_object.get_absolute_url}}">{{comment.content_object }}</a>
+                </p>
+            </li>
+          {% endfor %}
+        </ul>
+    </div>
+    <div class="section section_end">
+        {% get_popular_discussions 10 as most_emailed %}
+        <h3>Active Discussions</h3>
+        <ul>
+          {% for object in most_emailed %}
+              <li class="{% if forloop.last %} last{% endif %}">
+                  {% get_comment_list for object as comment_list  %}
+                  {% get_comment_count for object as comment_count %} 
+                  <h3 class="headline-list"><a href="{{ object.get_absolute_url }}">
+                      {% if object.headline %}
+                                {{ object.headline }}
+                            {% else %}
+                                {% if object.title %}
+                                    {{ object.title }}
+                                {% else %}
+                                    {% if object.name %}
+                                        {{ object.name }}
+                                    {% else %}
+                                        {% if object.event.title %}
+                                            {{object.event.title}}
+                                        {% else %}
+                                            {% if object.username %}
+                                                {% if object.get_full_name %}
+                                                    {{ object.get_full_name }}
+                                                {% else %}
+                                                    {{ object.username }}
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                  </a></h3>
+                  {% if object.bylines.count %}
+                      <p class="byline">By {% for author in object.bylines.all %}<a href="{{ author.get_absolute_url }}">{{ author }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+                  {% else %}
+                      {% if object.author %}
+                          <p class="byline">By <a href="{{object.author.get_absolute_url}}">{{ object.author.get_full_name }}</a></p>
+                      {% endif %}
+                  {% endif %}
+                  <a class="comment-count-type" href="{{ object.get_absolute_url }}#c{{ comment_list.0.id }}">{{ comment_count }} comment{{ comment_count|pluralize }}</a>
+                  
+              </li>
+          {% endfor %}
+        </ul>
+    </div>
+  </div>
+{% endblock %}

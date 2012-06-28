@@ -1,0 +1,433 @@
+{% extends "places/base_places.html" %}
+
+{% block title %}{{ place.name }}{% endblock %}
+{% block body_class %}{{ block.super }} place_detail{% endblock %}
+{% block body_id %}place_{{ place.id }}{% endblock %}
+
+
+{% block extended_meta %}
+  <meta property="og:title" content="{{ place.name }}">
+  <meta property="og:type" content="{% if restaurant %}restaurant{% else %}company{% endif %}">
+  <meta property="og:url" content="http://{{ site.domain }}{{ place.get_absolute_url }}">
+{% endblock %}
+
+
+{% block feed_link %}
+  {% if event_time_list %}
+    <link type="application/rss+xml" rel="alternate" href="/rss/places/{{ place.slug }}">
+  {% endif %}
+{% endblock %}
+
+
+{% block content_title_wrapper %}{% endblock %}
+
+
+{% block content %}
+  {% load social mogrify banned comments mailfriend weblogs social humanize content place_tags metadata %}
+
+  {% get_favorites type "places" for place as fan_list %}
+
+  <div class="title">
+    <h2>{% if place.pre_name %}{{ place.pre_name }} {% endif %}{{ place.name }}</h2>
+  </div>
+  {% get_metadata for place as metadata %}
+
+  <ul class="title_info" {% if metadata.menu_guide %}style="float:left;width:78.5%;"{%endif%}><!-- Conditional style to move in menu guide -->
+    <li>{% if place.address1 %}{{ place.address1 }}{% endif %}
+      {{ place.city.city }}, {{ place.city.state }}{% if place.zip_code %} {{ place.zip_code }}{% endif %}</li>
+    {% if place.address_hint %}<li>({{ place.address_hint|safe }})</li>{% endif %}
+    {% if place.phone1 %}<li>{{ place.phone1 }}</li>{% endif %}
+    {% if place.phone2 %}<li>{{ place.phone2 }}</li>{% endif %}
+    {% if place.fax %}<li><strong>Fax</strong> <span>{{ place.fax }}</span></li>{% endif %}
+    {% if place.website %}<li><a href="{{ place.website }}">Visit website</a></li>{% endif %}
+    {% if place.email %}<li><a href="mailto:{{ place.email }}">E-mail this place</a></li>{% endif %}
+    {% if place.is_defunct %}
+      <li><strong>NOTE:</strong> <span>This establishment is now closed. This entry remains for historical records.</span></li>
+    {% endif %}
+  </ul>
+
+  
+  {% if metadata.menu_guide %}
+    <div class="menu_guide">
+    {% with img="http://jacksonfreepress.media.clients.ellingtoncms.com/"|add:metadata.menu_guide.content %}
+      <a class="thumbnail" href="{{ img }}" rel="shadowbox"><img src="{% mogrify img resize "110x100" %}" alt="thumbnail"></a>
+      <h5><a href="{{ img }}" rel="shadowbox">See a menu</a></h5>
+    {% endwith %}
+    </div>
+  {% endif %}
+
+
+
+  {% if place.lead_art %}<p><img src="{% mogrify place.lead_art.url thumbnail "670" %}" alt=""></p>{% endif %}
+
+  {% if movie_list %}
+    <section>
+      <h3 id="showtimes">Show times</h3>
+
+      {% if day_list %}
+        {% load humanize %}
+        <ul class="showtime_days">
+          {% for day in day_list %}
+          <li class="{{ day.day|date:"D"|lower }}">
+            <a{% if day.is_current %} class="on"{% endif %} href="?movie_day={{ day.day|date:"Y-m-d" }}">
+              {{ day.day|naturalday:"l"|capfirst }}
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <div class="list movie_list">
+        {% regroup movie_list by place as showings_regrouped %}
+        {% for place in showings_regrouped %}
+          {% regroup place.list by movie as movies_regrouped %}
+          {% for movie in movies_regrouped %}
+            <div class="item movie">
+              {% if movie.grouper.thumbnail %}
+                <a class="thumbnail" href="{{ movie.grouper.get_absolute_url }}"><img src="{% mogrify movie.grouper.thumbnail.url thumbnail "40" %}" /></a>
+              {% endif %}
+              <h4><a href="{{ movie.grouper.get_absolute_url }}">{% if movie.grouper.pre_name %}{{ movie.grouper.pre_name }} {% endif %}{{ movie.grouper.name }}</a>
+                <span class="star_rating star_rating_{{ movie.grouper.stars|slugify }}">{{ movie.grouper.stars }} stars</span></h4>
+              <p class="info">{{ movie.grouper.get_length }} {% if movie.grouper.website %}&mdash; <a href="{{ movie.grouper.website }}">Website</a>{% endif %} {% if movie.grouper.trailer %}&mdash; <a href="{{ movie.grouper.trailer }}">Trailer</a>{% endif %}</p>
+              <p>{% for showtime in movie.list %}{{ showtime.showtime|time:"g:iA"|lower }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+            </div>
+          {% endfor %}
+        {% endfor %}
+      </div>
+      <p><small>Movie showtimes are subject to change. For possible updates to this schedule, please call the theater.</small></p>
+    </section>
+  {% endif %}
+
+  {% if event_time_list %}
+    <section>
+      <h3 id="upcoming">Upcoming</h3>
+      <table class="event_list">
+        <tr>
+          <th>Event</th>
+          <th></th>
+          <th>Cost</th>
+          <th>Category</th>
+        </tr>
+        {% for event in event_time_list %}
+          <tr{% if forloop.last %} class="last"{% endif %}>
+            <td class="title">
+              <h4><a href="{{ event.event.get_absolute_url }}">{{ event.event.title }}</a></h4>
+              <h5>{{ event.event_date|date:"l, F j" }}</h5>
+            </td>
+            <td class="time">{{ event.start_time|time }}{% if event.finish_time %} &ndash; {{ event.finish_time|time }}{% endif %}</td>
+            <td class="cost">
+              {% if event.event.get_cost %}{{ event.event.get_cost }}{% else %}N/A{% endif %}
+            </td>
+            <td class="category">
+              <a href="/events/search/?category={{ event.event.categories.all.0.parent_category }}">{{ event.event.categories.all.0.parent_category }}</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+    </section>
+  {% endif %}
+
+  {% if place.description %}
+    <section>
+      <h3 id="description">Description</h3>
+      {{ place.description|safe|linebreaks }}
+    </section>
+  {% endif %}
+
+  {% if recurring_event_time_list %}
+    <section>
+      <h3 id="ongoing">Ongoing</h3>
+      {% regroup recurring_event_time_list by event as recurring_events_regrouped %}
+      <table class="event_list upcoming_events">
+        <tr>
+          <th>Event</th>
+          <th></th>
+          <th>Cost</th>
+          <th>Category</th>
+        </tr>
+        {% for event in recurring_event_time_list %}
+          <tr{% if forloop.last %} class="last"{% endif %}>
+            <td class="title">
+              <h4><a href="{{ event.get_absolute_url }}">{{ event.event.title }}</a></h4>
+              <h5>Every {{ event.get_day }}</h5>
+            </td>
+            <td class="time">{{ event.start_time|time }}{% if event.finish_time %} - {{ event.finish_time|time }}{% endif %}</td>
+            <td class="cost">
+              {% if event.event.get_cost %}{{ event.event.get_cost }}{% else %}N/A{% endif %}
+            </td>
+            <td class="category"><a href="/events/search/?category={{ event.event.categories.all.0.parent_category }}">{{ event.event.categories.all.0.parent_category }}</a></td>
+          </tr>
+        {% endfor %}
+      </table>
+    </section>
+  {% endif %}
+
+  {% if num_events_in_past %}
+    <p><a class="button" href="past_events/">Past events</a></p>
+  {% endif %}
+
+  {% render_template_for place in "includes/tools" %}
+
+  <div id="comments">
+    {% if not restaurant.disable_comments %}
+      {% get_comment_list_banned for place as comment_list %}
+    {% endif %}
+
+    {% if comment_list %}
+      {% with comment_list|dictsortreversed:"submit_date" as comment_list %}
+        {% include "comments/comment_list.html" %}
+      {% endwith %}
+    {% endif %}
+
+    {% if not restaurant.disable_comments %}
+      {% render_comment_form for place %}
+    {% endif %}
+  </div>
+{% endblock %}
+
+
+{% block sidebar_ad %}{% endblock %}
+
+
+{% block sidebar %}
+  {% if place.longitude and place.latitude %}
+    <div class="map">
+      <abbr class="geo" title="{{ place.latitude }};{{ place.longitude }}">{{ place.name }}</abbr>
+    </div>
+  {% endif %}
+
+  {% get_promoter_status request.user place as promoter_status %}
+  {% if promoter_status == "none" %}
+    <form class="promoter-form" method="post" action="{% url ellington_places_place_promoter_status place.slug %}">
+      <button type="submit">Become a promoter</button>
+    </form>
+  {% else %}
+    <p class="promoter-status">
+    {% if promoter_status == "approved" %}
+      You are a trusted promoter for {{ place.name }}
+    {% else %}
+      {% if promoter_status == "pending" %}
+        Promoter status pending
+      {% endif %}
+    {% endif %}
+    </p>
+  {% endif %}
+
+  {% include "includes/ads/300x250.html" %}
+
+  <div class="accordion">
+    {% if place.get_hours_dict.business_hours_list or place.get_hours_dict.business_open_24_hours %}<h2 class="top"><a href="#">Business hours</a></h2>{% endif %}
+    {% if place.get_hours_dict.business_open_24_hours %}
+      <p class="hours">Open 24 hours</p>
+    {% else %}
+      {% if place.get_hours_dict.business_hours_list %}
+      <div>
+        <table>
+          {% for hour in place.get_hours_dict.business_hours_list %}
+            <tr>
+              <td>{{ hour.get_day }}</td>
+              <td>{{ hour.open_time|time }} to {{ hour.close_time|time }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+      {% endif %}
+    {% endif %}
+
+    {% if place.get_hours_dict.kitchen_always_open %}
+      <h2><a href="#">Kitchen hours</a></h2>
+      <div>
+        <p>The kitchen is always open during business hours.</p>
+      </div>
+    {% else %}
+      {% if place.get_hours_dict.kitchen_hours_list or place.get_hours_dict.kitchen_open_24_hours %}
+        {% if place.get_hours_dict.kitchen_open_24_hours %}
+          <h2><a href="#">Kitchen hours</a></h2>
+          <div>
+            <p>The kitchen is open 24 hours</p>
+          </div>
+        {% else %}
+          <h2><a href="#">Kitchen hours</a></h2>
+          <div>
+            <table>
+              {% for hour in place.get_hours_dict.kitchen_hours_list %}
+                <tr>
+                  <td>{{ hour.get_day }}</td>
+                  <td>{{ hour.open_time|time }} to {{ hour.close_time|time }}</td>
+                </tr>
+              {% endfor %}
+            </table>
+          </div>
+        {% endif %}
+      {% endif %}
+    {% endif %}
+
+    {% if restaurant %}
+      <h2><a href="#">Restaurant details</a></h2>
+      <div>
+        <table>
+          <tr>
+            <td>Cuisine</td>
+            <td>{% for cuisine in restaurant.cuisines.all %}<a href="/restaurants/search/?cuisine={{ cuisine.id }}">{{ cuisine.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+          </tr>
+          {% if restaurant.get_price %}
+            <tr>
+              <td>Price range</td>
+              <td>{{ restaurant.get_price }}</td>
+            </tr>
+          {% endif %}
+          <tr>
+            <td>Delivery</td>
+            <td>{{ restaurant.has_delivery|yesno:"Yes,No,Unknown" }}</td>
+          </tr>
+          <tr>
+            <td>Buffet</td>
+            <td>{{ restaurant.has_buffet|yesno:"Yes,No,Unknown" }}</td>
+          </tr>
+          <tr>
+            <td>Local establishment</td>
+            <td>{{ restaurant.local|yesno:"Yes,No,Unknown" }}</td>
+          </tr>
+          <tr>
+            <td>Outdoor seating</td>
+            <td>{{ restaurant.outdoor_seating|yesno:"Yes,No,Unknown" }}</td>
+          </tr>
+          <tr>
+            <td>Party room</td>
+            <td>{{ restaurant.party_room|yesno:"Yes,No,Unknown" }}</td>
+          </tr>
+          <tr>
+            <td>Reservations accepted</td>
+            <td>{{ restaurant.accept_reservations|yesno:"Yes,No,Unknown" }}</td>
+          </tr>
+          <tr>
+            <td>Call-aheads accepted</td>
+            <td>{{ restaurant.accept_callaheads|yesno:"Yes,No,Unknown" }}</td>
+          </tr>
+          <tr>
+            <td>Kids menu</td>
+            <td>{{ restaurant.kids_menu|yesno:"Yes,No,Unknown" }}</td>
+          </tr>
+          <tr>
+            <td>Occasional live music</td>
+            <td>{{ restaurant.live_music|yesno:"Yes,No,Unknown" }}</td>
+          </tr>
+          {% if restaurant.num_vegetarian %}
+          <tr>
+            <td>Number of vegetarian dishes:</td>
+            <td>{{ restaurant.num_vegetarian }}</td>
+          </tr>
+          {% endif %}
+          {% if restaurant.num_vegan %}
+          <tr>
+            <td>Number of vegan dishes:</td>
+            <td>{{ restaurant.num_vegan }}</td>
+          </tr>
+          {% endif %}
+          {% if restaurant.num_tvs %}
+          <tr>
+            <td>Number of TVs:</td>
+            <td>{{ restaurant.num_tvs }}</td>
+          </tr>
+          {% endif %}
+        </table>
+      </div>
+      <h2><a href="#">Payment options</a></h2>
+      <div>
+        <ul class="payments">
+          {% if restaurant.pay_visa %}<li class="visa">Visa</li>{% endif %}
+          {% if restaurant.pay_mastercard %}<li class="mastercard">Mastercard</li>{% endif %}
+          {% if restaurant.pay_discover %}<li class="discover">Discover</li>{% endif %}
+          {% if restaurant.pay_amex %}<li class="amex">American Express</li>{% endif %}
+          {% if not restaurant.pay_visa %}{% if not restaurant.pay_mastercard %}{% if not restaurant.pay_discover %}{% if not restaurant.pay_amex %}<li>No credit cards accepted</li>{% endif %}{% endif %}{% endif %}{% endif %}
+          {% if restaurant.pay_nonlocal_checks %}<li class="check">All checks{% else %}<li class="check">{% if restaurant.pay_local_checks %}Only local checks{% else %}No checks accepted{% endif %}</li>{% endif %}
+        </ul>
+      </div>
+    {% endif %}
+
+    {% if drink_specials %}
+      <h2><a href="#">Drink specials</a></h2>
+      <div>
+        <table>
+        {% if drink_specials.sunday %}
+        <tr>
+          <td><a href="/specials/drink/sunday/">Sunday</a></td>
+          <td>{{ drink_specials.sunday }}</td>
+        </tr>
+        {% endif %}
+        {% if drink_specials.monday %}
+        <tr>
+          <td><a href="/specials/drink/monday/">Monday</a></td>
+          <td>{{ drink_specials.monday }}</td>
+        </tr>
+        {% endif %}
+        {% if drink_specials.tuesday %}
+        <tr>
+          <td><a href="/specials/drink/tuesday/">Tuesday</a></td>
+          <td>{{ drink_specials.tuesday }}</td>
+        </tr>
+        {% endif %}
+        {% if drink_specials.wednesday %}
+        <tr>
+          <td><a href="/specials/drink/wednesday/">Wednesday</a></td>
+          <td>{{ drink_specials.wednesday }}</td>
+        </tr>
+        {% endif %}
+        {% if drink_specials.thursday %}
+        <tr>
+          <td><a href="/specials/drink/thursday/">Thursday</a></td>
+          <td>{{ drink_specials.thursday }}</td>
+        </tr>
+        {% endif %}
+        {% if drink_specials.friday %}
+        <tr>
+          <td><a href="/specials/drink/friday/">Friday</a></td>
+          <td>{{ drink_specials.friday }}</td>
+        </tr>
+        {% endif %}
+        {% if drink_specials.saturday %}
+        <tr>
+          <td><a href="/specials/drink/saturday/">Saturday</a></td>
+          <td>{{ drink_specials.saturday }}</td>
+        </tr>
+        {% endif %}
+        </table>
+      </div>
+    {% endif %}
+
+    <h2><a href="#">Accommodations</a></h2>
+    <div>
+      <table>
+        {% if place.get_accessibility %}
+          <tr>
+            <td>Wheelchair accessibility</td>
+            <td>{{ place.get_accessibility }}</td>
+          </tr>
+        {% endif %}
+        <tr>
+          <td>Heated smoking area</td>
+          <td>{{ place.heated_smoking_area|yesno:"Yes,No,Unknown" }}</td>
+        </tr>
+        <tr>
+          <td>Smoking porch</td>
+          <td>{{ place.smoking_porch|yesno:"Yes,No,Unknown" }}</td>
+        </tr>
+        <tr>
+          <td>Wi-fi</td>
+          <td>{{ place.has_wifi|yesno:"Yes,No,Unknown" }}{% if place.has_wifi == 1 %}, {% if place.wifi_price == 0 %}Free{% else %} Costs ${{ place.wifi_price }}{% endif %}{% endif %}</td>
+        </tr>
+      </table>
+    </div>
+
+    {% if related_links %}
+      <h2 class="last"><a href="#">Related links</a></h2>
+      <div>
+        <ul>
+          {% for link in related_links %}
+            <li{% if forloop.last %} class="last"{% endif %}><a href="{{ link.url }}">{{ link.link_text }}</a>{% if link.pub_date %} &middot; {{ link.pub_date|date:"N j, Y" }}{% endif %}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

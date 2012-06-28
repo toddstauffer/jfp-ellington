@@ -1,0 +1,229 @@
+{% load sectionfronts mogrify listutil content events generic_content cached_comments stories %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+{% get_section_front for section as sfront %}
+
+<html>
+  <head></head>
+  <body link="#3d7cb1" vlink="#3d7cb1" style="padding: 10px; background-color:#eee;">
+    <div id="newsletter" style="margin:0 auto;width: 750px; padding: 25px 30px; background-color: #fff;">
+      <table id="header" cellpadding="0" cellspacing="0" style="border-bottom: 0px dashed #E0E0E0;margin-bottom: 20px;padding-bottom: 0;width: 750px;">
+        <tr>
+          <td valign="bottom">
+            <a style="float:left;border:0;text-decoration:none;" href="http://{{ site.domain }}/"><img style="border:0;"src="http://jacksonfreepress.media.clients.ellingtoncms.com/static/jacksonfreepress/2.3.0/images/logos/logo.png"></a>
+          </td>
+          <td align="right" valign="bottom">
+            <h2 class="date" style="color: rgb(119, 119, 119); font-family: 'lucida grande','helvetica',sans-serif; font-size: 12px; float: left; margin: 35px 0px -55px 5px;">{% now "l, F j, Y" %}</h2>
+            <p class="tagline"style="color: rgb(153, 153, 153); float: left; font-family: 'lucida grande', 'helvetica', sans-serif; font-size: 12px; margin: 52px 0 0 5px;">Also Online: <a style="text-decoration:none;" href="http://{{ site.domain }}/events/">Events</a>, <a style="text-decoration:none;" href="http://{{ site.domain }}/news/music/listings">Music Listings</a>, <a style="text-decoration:none;" href="http://{{ site.domain }}/restaurants/">Restaurants</a>, <a style="text-decoration:none;" href="http://{{ site.domain }}/weblogs/jackblog/">Jackblog</a></p>
+          </td>
+        </tr>
+      </table>
+
+      <table id="content" cellpadding="0" cellspacing="0" style="margin-bottom: 20px; padding-bottom: 20px; width: 750px; font-size: 14px; line-height: 18px; border:0;">
+        <tr>
+          <td valign="top" style="padding-right: 40px;">
+            <h3 style="color:#000;font-family:'lucida grande',sans-serif;text-transform:uppercase;font-size:21px;margin-bottom:25px;margin-top:20px;">Latest News</h3>
+            {% if sfront.lead_stories %}
+              {% for story in sfront.lead_stories %}
+                    <div style="margin-bottom:15px;padding-bottom:15px;float:left;border-bottom:1px solid #e9e9e9;">
+                      <img style="float:left;padding-right:10px;align:left;" 
+                      {% if story.tease_photo %}
+                        src="{% mogrify story.tease_photo.url resize "115x115" %}"
+                      {% else %}
+                        {% if story.lead_photo %}
+                          src="{% mogrify story.lead_photo.cropped.url resize "115x115" %}"
+                        {% endif %}
+                      {% endif %}
+                       alt="">
+                      {% if story.tease_photo or story.lead_photo %}
+                        <div style="float:left;margin-top:-5px;width:68%;padding-left:5px;">
+                      {% else %}
+                        <div style="float:left;margin-top:-5px;width:100%;">
+                      {% endif %}
+                        <span style="text-transform:uppercase;font-size:10.5px;width:100%;font-family:'lucida grande', sans-serif;">{% render_template_for story in "includes/category" %}</span>
+                          
+                        <h4 style="margin:-2px 0 3px 0;padding:0;float:left;font-size:22px;width:100%;line-height:1.05em;font-weight:normal; font-family:'georgia', serif;"><a style="text-decoration:none;color:#444;" href="http://{{ site.domain }}{{ story.get_absolute_url }}">{{ story.headline }}</a></h4>
+                        <p style="color:#444; line-height:16px;margin:0;padding:0;float:left;font-family:'georgia',serif;">{{ story.tease|truncatewords:"40" }}</p>  
+                      </div>
+                    </div>
+              {% endfor %}
+            {% else %}
+            {% for story in story_list|slice:":5" %}
+              <div style="margin-bottom:15px;padding-bottom:15px;float:left; border-bottom:1px solid #e9e9e9;">
+
+                <img style="float:left;padding-right:10px;align:left;" 
+                {% if story.tease_photo %}
+                  src="{% mogrify story.tease_photo.url resize "115x115" %}"
+                {% else %}
+                  {% if story.lead_photo %}
+                    src="{% mogrify story.lead_photo.cropped.url resize "115x115" %}"
+                  {% endif %}
+                {% endif %}
+                 alt="">
+                {% if story.tease_photo or story.lead_photo %}
+                  <div style="float:left;margin-top:-5px;width:68%;padding-left:5px;">
+                {% else %}
+                  <div style="float:left;margin-top:-5px;width:100%;">
+                {% endif %}
+                  <span style="text-transform:uppercase;font-size:10.5px;width:100%;font-family:'lucida grande', sans-serif;">{% render_template_for story in "includes/category" %}</span>
+                  <h4 style="margin:-2px 0 3px 0;padding:0;float:left;font-size:22px;width:100%;line-height:1.05em;font-weight:normal; font-family:'georgia', serif;"><a style="text-decoration:none;color:#444;" href="http://{{ site.domain }}{{ story.get_absolute_url }}">{{ story.headline }}</a></h4>
+                  <p style="color:#444; line-height:16px;margin:0;padding:0;float:left;font-family:'georgia',serif;">{{ story.tease|truncatewords:"40" }}</p>
+                  
+                </div>
+              </div>
+            {% endfor %}
+            {% endif %} <!-- sfront.lead_stories -->
+            {% get_todays_events 50 as best_bets %}
+            {% if best_bets %}
+            <div style="margin-top:10px;border-bottom:1px solid #e0e0e0;">
+              <h3 style="color:#000;font-family:'lucida grande',sans-serif;text-transform:uppercase;font-size:21px;margin-bottom:20px;">Today's Events</h3>
+                <p style="color:#444;font-family:'georgia', serif;font-size:13px;margin-top:5px">
+                {% for event in best_bets %}
+                  {% if event.event.priority.priority == 1 %}
+                    <span class="event-title">
+                      <a style="text-decoration:none;" href="{{ event.get_absolute_url }}">
+                        {% render_template_for event in "includes/titles" %}
+                      </a>
+                    </span>
+                    {% if event.start_time %}
+                       at  
+                      <span class="event-time">{{ event.start_time|time:"g:i A"|lower }}</span>
+                    {% endif %}
+                    {% if event.event.place_id or event.event.one_off_place %}
+                       at the
+                      <span class="event-place">
+                        {% if event.event.place_id %}
+                          <a style="text-decoration:none;color:#444;" href="{{ event.event.place.get_absolute_url }}">{{ event.event.place.name|safe }}</a>
+                        {% else %}
+                          {{ event.event.one_off_place|safe }}
+                        {% endif %}
+                      </span>
+                    {% endif %}
+                    ...
+                  {% endif %}
+                {% endfor %}
+                </p>
+              </div>
+            {% endif %}
+
+        {% if sfront.music_listing %}
+            {% with story=sfront.music_listing %}
+                <div style="margin-top:15px;">
+                  <h3 style="color:#444;font-family:'lucida grande',sans-serif;text-transform:uppercase;font-size:21px;margin-bottom:20px;margin-top:10px;">Music Listings</h3>
+                    <div style="color:#444">
+                      {% markupstory story "/news/framings/printer_friendly.html" %}
+                    </div>
+                </div>
+            {% endwith %}
+          {% endif %}
+          </td>
+
+
+          <td align="center" valign="top" style="width: 300px;">
+            <p style="margin: 0; font-size: 13px; text-transform: uppercase; color: #999; font-family:lucida grande', 'helvetica',sans-serif;"><small>Advertisement</small></p>
+            {% retrieve_object media.phototype 36 as advertisement %}
+                {% if advertisement.photos.count %}
+                    <img src="{{advertisement.photos.all.1.photo.url}}" style="padding:10px 0 20px 0;">
+                    <img src="{{advertisement.photos.all.0.photo.url}}" style="padding:10px 0 0px 0;">
+                {% endif %}
+          </td>
+        </tr>
+      </table>
+
+      <div id="footer" style="font-size: 13px; line-height: 15px; color: #999; height:300px">
+
+            <div style="width:45%; float:left; display:block;"> 
+                {% retrieve_object media.phototype 2 as covertype %}
+                {% if covertype.photos.count %}
+                    {% with covertype.photos.all.0 as object %}
+
+                        {% with p=object.photo|stringformat:"s" %}
+
+                        {% if p|slice:":1" == 'i' %}
+                          {% with v=p|slice:"28:30" %}
+                          {% with i=p|slice:"31:33" %}
+                              <h3 style="font-family:'lucida grande','lucida',sans-serif;font-size:13px;margin:0 0 10px;">CURRENT ISSUE:<span style="font-weight:bold">v{{v}}, i{{i}}</span></h3> <!-- not sure what the best way to handle this volume/issue. This method will break if we start reformatting the photonames. May be better to create a benchmark date and count down.-->
+                              <div style="width:175px; float:left;">
+                                <a href="http://issuu.com/jacksonfreepress/docs/v{{v}}n{{i}}?mode=embed" title="Published {{ object.pub_date|date }}">
+                                  <img src="{% mogrify object.photo.url resize "175x220" %}" alt="cover thumbnail">
+                                </a>
+                                  <span style="font-size:11px; font-family:'lucida grande', lucida, sans-serif;">
+                                    <a href="http://issuu.com/jacksonfreepress/docs/v{{v}}n{{i}}?mode=embed">Flip through issue ...</a>
+                                  </span>
+                              </div>
+                          {% endwith %}
+                          {% endwith %}
+                        {% else %}
+                          {% with v=p|slice:"24:26" %}
+                          {% with i=p|slice:"27:29" %}
+                              <h3 style="font-family:'lucida grande','lucida',sans-serif;font-size:13px;margin:0 0 10px;">CURRENT ISSUE:<span style="font-weight:bold">v{{v}}, i{{i}}</span></h3> <!-- not sure what the best way to handle this volume/issue. This method will break if we start reformatting the photonames. May be better to create a benchmark date and count down.-->
+                              <div style="width:175px; float:left;">
+                                <a href="http://issuu.com/jacksonfreepress/docs/v{{v}}n{{i}}?mode=embed" title="Published {{ object.pub_date|date }}">
+                                  <img src="{% mogrify object.photo.url resize "175x220" %}" alt="cover thumbnail">
+                                </a>
+                                  <span style="font-size:11px; font-family:'lucida grande', lucida, sans-serif;">
+                                    <a href="http://issuu.com/jacksonfreepress/docs/v{{v}}n{{i}}?mode=embed">Flip through issue ...</a>
+                                  </span>
+                              </div>
+                          {% endwith %}
+                          {% endwith %}
+                        {% endif %}
+
+
+
+                        {% endwith %}
+
+                          <ul style="float:left;list-style-type:none;padding-left:10px;margin:0;width:150px">
+                              {% with newdate=object.pub_date|date:"Y-m-d" %}
+                                {% get_daily_content newdate for news.story as issue_list limit 5 %}    
+                                {% for story in issue_list %}
+                                  <li style="width:100%;display:block;float:left;">
+                                       <span style="text-transform:uppercase;font-size:10.5px;width:100%;font-family:'lucida grande', sans-serif;">{% render_template_for story in "includes/category" %}</span>
+                                      <br/>
+                                      <h5 style="margin:0 0 5px 0;padding:0;float:left;font-size:14px;font-family:'georgia',serif;">
+                                        <a style="text-decoration:none;color:#444;" href="http://{{ site.domain }}{{ story.get_absolute_url }}">{{ story.headline }}</a>
+                                      </h5>
+                                  </li>
+                                {% endfor %}         
+                              {% endwith %}
+                          
+
+                          <li style="font-size:11px; font-family:'lucida grande', lucida, sans-serif;">
+                          {% with day=object.pub_date|date:'d'|add:"1" %}
+                          {% with year=object.pub_date|date:'Y' %}
+                          {% with month=object.pub_date|date:'m' %}
+                          <a href="/search/vertical/news.story/?q=a&start_date={{ object.pub_date|date:'m/d/Y' }}&end_date={{month}}/{{day}}/{{year}}">All Stories</a>
+                          {% endwith %}
+                          {% endwith %}
+                          {% endwith %}
+                          </li>  
+
+                          </ul>    
+                    {% endwith %}
+                {% endif %}
+            </div> <!-- / CURRENT ISSUE TABLE OF CONTENTS -->
+        <!--
+        <div style="margin-top: 10px; margin-bottom: 0px; font-family: 'lucida-grande',sans-serif; border-left: 1px dashed rgb(224, 224, 224); margin-left: 50%; padding-left: 10px;">
+          <small>
+            You're receiving this email because you <a href="http://{{ site.domain }}/alerts/manage/">subscribed</a> to the JFP Daily.
+            You can <a href="http://{{ site.domain }}/alerts/manage/">change your alerts and email edition subscriptions</a> at any time.
+            <a href="http://{{ site.domain }}/alerts/manage/">Unsubscribe</a> from this email edition.
+          </small><br/><br/>
+          <small>
+          © Jackson Free Press, Inc.<br/>
+          P.O. Box 5067<br/>
+          Jackson, MS 39296<br/>
+          phone: 601-362-6121 (ext 11 sales, ext 14 editorial, ext 17 publisher)<br/>
+          fax: 601-510-9019
+          </small>
+        </div>
+      -->
+
+      </div>
+    </div>
+  </body>
+</html>

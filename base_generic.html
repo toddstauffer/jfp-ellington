@@ -1,0 +1,431 @@
+{% extends "base.html" %}
+
+   {% load content events sectionfronts generic_content rating_tags listutil weather discussions threadedcomments_tags comments permissions %}
+
+{% block fulltitle %}{% block title %}{% endblock %} | Jackson Free Press | Jackson, MS{% endblock %}
+
+
+{% block extended_styles %}<link rel="stylesheet" href="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/devmod.css" type="text/css" media="screen">{% endblock %}
+
+
+{% block extended_scripts %}
+
+
+    
+
+    <script type="text/javascript" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/scripts/shadowbox-3.0.3/shadowbox.js"></script>
+    <script type="text/javascript" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/scripts/jquery.validate.min.js"></script>
+    <script>
+    // Shadowbox
+    Shadowbox.init();
+
+    // validate user_agreement
+    $(document).ready(function(){
+        $(".signup_form").validate();
+        $(".signin_form").validate();
+      });
+
+
+        // Active discussion rotating tabs
+        $(function(){
+          $('#comments-tabs').tabs({ fx: { opacity: 'toggle' } }); //.tabs('rotate', 3000);
+          $('#comments-tabs').hover(function(){
+                           $(this).tabs('rotate', 0, false);
+                           },function(){
+                           $(this).tabs({ fx: { opacity: 'toggle' } }); //.tabs('rotate', 50000);
+                           }
+                           );
+          });
+        $('#comments-tabs').click(function(){
+                         $(this).tabs('rotate', 0, false);
+                         $(this).unbind('hover');
+                         });
+    </script>
+
+{% endblock %}
+
+{% block toolbar_tabs %}
+  <ul>
+    <li class="news"><a href="/">Free Press</a></li>
+    <li class="news"><a href="http://www.boomjackson.com">Boom</a></li>
+    <li class="news"><a href="http://www.jackpedia.com">Jackpedia</a></li>
+    <li class="news"><a href="http://www.bestofjackson.com/">Best of Jackson</a></li>
+    <li class="news"><a href="/advertise/">Advertise</a></li>
+    <li class="news"><a href="/contact/">Contact Us</a></li>
+    {% if user.is_staff %}<li class="news"><a href="/admin/">Admin</a></li>{%endif%}
+  </ul>
+{% endblock %}
+
+{% block toolbar_user %}
+<ul class="user">
+    <li class="search">
+        <form action="/search/" method="get" class="search_form" autocomplete="off">
+            <p class="query"><input type="text" name="q" placeholder="search" value="{{ query }}"></p>
+        </form>
+    </li>
+    {% if user.is_authenticated %}
+        <li class="profile"><a href="{{ user.get_absolute_url }}">{% filter force_escape %}{% firstof user.get_full_name user.username %}
+    {% endfilter %}</a></li>
+        <li class="signout"><a href="/accounts/logout/?next={{ request.path }}">Sign out</a></li>
+    {% else %}
+        <li><a href="/accounts/login/?next={{ request.path }}">Sign in</a></li>
+    {% endif %}
+</ul>
+{% endblock %}
+    
+{% block header %}
+<div class="branding">
+        {% block branding %}<h1><a href="/">Jackson Free Press<!-- <span class="jfp">JFP</span><span class="ms">.ms</span> --></a></h1>{% endblock %}
+        <p><a href="#body">Jump to content</a></p>
+</div>
+
+<div class="ad">
+    <script type='text/javascript'>
+        GA_googleFillSlot("Top_Banner");
+    </script>
+</div>
+{% endblock %}
+    
+{% block nav %}
+    <ul class="upper">
+        <li class="l1"><a href="/news/all">News</a>
+            <ul class="u1">
+                <li class="l1"><a href="/news/all/">Home</a></li>
+                <li class="l1"><a href="/news/justice/">Justice</a></li>
+                <li class="l2"><a href="/news/education/">Education</a></li>
+                <li class="l3"><a href="/news/politics/">Politics</a></li>
+                <li class="l4"><a href="/news/business/">Business</a></li>
+                <li class="l5"><a href="/news/people/">People</a></li>
+                <li class="l6"><a href="/news/media/">Media</a></li>
+                <li class="l7"><a href="/weblogs/jackblog/">Jackblog</a></li>
+            </ul>
+        </li>
+        <li class="l2"><a href="/news/opinion">Opinion</a>
+            <ul class="u2">
+                <li class="l1"><a href="/news/opinion">Home</a></li>
+                <li class="l2"><a href="/news/editorials">Editorials</a></li>
+                <li class="l3"><a href="/weblogs/">Blog Entries</a></li>
+            </ul>
+        </li>
+        <li class="l3"><a href="/news/arts/">Arts</a>
+            <ul class="u3">
+                <li class="l1"><a href="/news/arts/">Home</a></li>
+                <li class="l1"><a href="/news/film/">Film</a></li>
+                <li class="l2"><a href="/news/books/">Books</a></li>
+                <li class="l3"><a href="/news/art/">Art</a></li>
+                <li class="l4"><a href="/news/theater/">Theater</a></li>
+                <li class="l5"><a href="/news/dance/">Dance</a></li>
+            </ul>
+        </li>
+        
+        <li class="l4 upper"><a href="/news/music/">Music</a>
+            <ul class="u4">
+                <li class="l1"><a href="/news/music/">Home</a></li>
+                <li class="l2"><a href="/news/music/listings/">Music Listings</a></li>
+                <li class="l4"><a href="/bands/">Local Bands</a></li>
+                <li class="l5"><a href="/weblogs/music/">Music Blog</a></li>
+            </ul>
+        </li>
+
+        <li class="l5 upper"><a href="/events/">Events</a>
+            <ul class="u5">
+                <li class="l1"><a href="/events/">Happening Today</a></li>
+                <li class="l2"><a href="/events/bestbets/">Best Bets</a></li>
+                <li class="l3"><a href="/events/submit/">Add Event</a></li>
+                <li class="l4"><a href="/events/search/">Search</a></li>
+            </ul>
+        </li>
+
+        
+        <li class="l6"><a href="/news/lifestyle/">Life+Style</a>
+            <ul class="u6">
+                <li class="l1"><a href="/news/lifestyle/">Home</a></li>
+                <li class="l2"><a href="/news/bodysoul/">Body/Soul</a></li>
+                <li class="l3"><a href="/news/good/">GOOD Ideas</a></li>
+                <li class="l4"><a href="/news/habitat/">Habitat</a></li>
+                <li class="l5"><a href="/news/hitched/">Hitched</a></li>
+                <li class="l6"><a href="/news/flystyle/">Fly! Style</a></li>
+                <li class="l7"><a href="/weblogs/fly/">Fly! Blog</a></li>
+            </ul>
+        </li>
+        <li class="l7"><a href="/news/food&drink/">Food+Drink</a>
+            <ul class="u7">
+                <li class="l1"><a href="/news/food&drink/">Home</a></li>
+                <li class="l2"><a href="/restaurants/">Restaurants</a></li>
+                <li class="l3"><a href="/weblogs/food/">Food Blog</a></li>
+            </ul>
+        </li>
+        <li class="l8"><a href="/news/sports/">Sports</a>
+            <ul class="u8">
+                <li class="l1"><a href="/news/sports/">Home</a></li>
+                <li class="l2"><a href="/sports/the_slate">Slate - Schedule</a></li>
+                <li class="l3"><a href="/categories/news/bryans-rant">Bryan's Rant</a></li>
+                <li class="l4"><a href="/weblogs/sports/">Sports Blog</a></li>
+            </ul>
+        </li>
+        
+    </ul>
+    
+{% endblock %}
+    
+
+{% block sidebar_ad %}
+{% endblock %}
+
+{% block sidebar %}
+    {% load content %}
+
+
+    {% if home_sfront %}
+        <!-- WEATHER
+        ========================================================== -->
+        {% weather %}
+            {% if conditions %}
+            <div class="weather_forecast">
+                <div class="current_conditions">
+                  <a class="icon" href="/weather/"><img width="75px" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/images/weather/small/{{ conditions.image_name }}.png" alt=""></a>
+                  <ul class="day">
+                        <li class="temp">
+                      {% get_latest_content for weather.currentcondition as condition_list limit 40 %}
+                      {% if conditions.temperature %}
+                        {{ conditions.temperature|floatformat:0 }}<span class="deg">&deg;</span>
+                      {% else %}
+                        n/a
+                      {% endif %}
+                        </li>
+                        <li class="humidity highlight-type">Humidity: {{ conditions.humidity|default_if_none:"n/a" }}</li>
+                        <li class="wind highlight-type">Wind from {{ conditions.wind_compass|default_if_none:"n/a" }} {{ conditions.wind_speed|default_if_none:"n/a" }} mph</li>
+                  </ul>
+                </div>
+                <div class="list future_forecast">
+                  {% for forecast in daily_forecasts|slice:":1" %}
+                    <div class="item">
+                      <ul class="weather_tommorrow">
+                        <li class="weather_tommorrow"><a class="lone-link" href="/weather/">Tomorrow</a></li>
+                        <li class="high highlight-type">{% if forecast.high_temp %}{{ forecast.high_temp|floatformat:0 }}<span class="deg">&deg;</span>{% else %}n/a{% endif %}</li>
+                        <li>&ndash;</li>
+                        <li class="low highlight-type">{% if forecast.low_temp %}{{ forecast.low_temp|floatformat:0 }}<span class="deg">&deg;</span>{% else %}n/a{% endif %}</li>
+                      </ul>
+                    </div>
+                  {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        {% endweather %}
+    {% endif %}
+
+
+
+    {% if home_sfront %}
+        <!-- BEST BETS 
+        ============================================= -->
+        <div class="section home-best-bets"> <!-- Events -->
+        <h3><a href="/events/">Events <span class="middle-italic">of</span> Note</a></h3>
+
+        {% get_todays_events 50 as event_list %}
+
+        {% if event_list %}
+        <ul>
+             <!-- We want to show non-recurring events first so sort based on 'is_recurring' field. -->
+            {% for event in event_list|dictsort:"event.is_recurring"|slice:"6" %}
+                <li class="event-{{forloop.counter}}">
+                    {% render_template_for event in "includes/homepage_events" %}
+                </li>
+            {% endfor %}
+        </ul>
+            <p class="more-events"><a class="lone-link" href="/events/">more events</a></p>
+        {% endif %}
+        </div> 
+        <!-- /Events -->
+    {% endif %}
+
+    {% include "includes/ads/Top_300_250.html" %}
+
+    
+        
+
+    <!--  TWITTER
+    =========================================================================================== -->
+    <div class="twitter_module">
+        <h3>Tweets</h3>
+        <div id="twitter"></div>
+        <script type="text/javascript">
+            Ellington.Twitter.init('#twitter', {
+                                   url: 'http://api.twitter.com/1/FollowtheJFP/lists/news-stream/statuses.json',
+                                   limit: 4
+                                   });
+        </script>
+    </div>
+    
+    {% include "includes/ads/Top_Skyscraper.html" %}
+
+    
+    <!-- LATEST COMMENTS / ACTIVE DISCUSSION
+    =========================================================================================== -->
+
+    {% get_latest_content for comments.comment as comment_list limit 5 %}
+    {% get_popular_discussions 1 as most_emailed %}
+    <div class="module latest-comments">
+        <div id="comments-tabs">
+            <ul class="tabs-header">
+                <li><a href="#comments-tabs-1">Latest Comments</a></li>
+                <li><a href="#comments-tabs-2">Active Discussion</a></li>
+            </ul>
+            
+            <div id="comments-tabs-1">
+                <ul>
+                    {% for comment in comment_list %}
+                        <li class="{% if forloop.last %} last{% endif %}">
+                            <p class="comment"><a href="{{ comment.content_object.get_absolute_url }}#c{{ comment.id }}">{{ comment.comment|truncatewords:"30" }}</a></p>
+                            <p class="highlight-type">{{ comment.submit_date|date:"N j, P" }} on <a href="{{comment.content_object.get_absolute_url}}">{{comment.content_object }}</a>
+                            </p>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <a class="lone-link" href="/comments/latest/">See the latest 100</a>
+            </div>
+            <div id="comments-tabs-2" class="active-discussion">
+                <ul>
+                {% for object in most_emailed %}
+                    <li class="{% if forloop.last %} last{% endif %}">
+                        {% get_comment_list for object as comment_list  %}
+                        {% get_comment_count for object as comment_count %} 
+                        <a class="lone-link" href="{{ object.get_absolute_url }}#c{{ comment_list.0.id }}">{{ comment_count }} comment{{ comment_count|pluralize }} in the last {{ comment_list.0.submit_date|timesince}}</a>
+
+                        <span class="highlight-type category">In Response To:</span>
+                        <h4><a href="{{ object.get_absolute_url }}">
+                            {% if object.headline %}
+                                {{ object.headline }}
+                            {% else %}
+                                {% if object.title %}
+                                    {{ object.title }}
+                                {% else %}
+                                    {% if object.name %}
+                                        {{ object.name }}
+                                    {% else %}
+                                        {% if object.event.title %}
+                                            {{object.event.title}}
+                                        {% else %}
+                                            {% if object.username %}
+                                                {% if object.get_full_name %}
+                                                    {{ object.get_full_name }}
+                                                {% else %}
+                                                    {{ object.username }}
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                        </a></h4>
+                        {% if object.bylines.count %}
+                            <p class="byline">By {% for author in object.bylines.all %}<a href="{{ author.get_absolute_url }}">{{ author }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+                        {% else %}
+                            {% if object.author %}
+                                <p class="byline">By <a href="{{object.author.get_absolute_url}}">{{ object.author.get_full_name }}</a></p>
+                            {% endif %}
+                        {% endif %}
+                        
+                    </li>
+                {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    
+    {% include "includes/ads/Second_300_250.html" %}
+
+{% if home_sfront %}
+    
+    <div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+
+
+</script>
+
+<div class="fb-like-box" data-href="http://www.facebook.com/jacksonfreepress" data-width="300" data-show-faces="true" data-border-color="#fff" data-stream="false" data-header="false"></div>
+{% endif %}
+
+
+    {% include "includes/ads/Second_Skyscraper.html" %}
+
+{% endblock %}
+
+ {% block footer %}
+        {% if request.is_mobile or request.is_tablet %}
+          <p class="switch_site">
+            <a href="{{ mobile_site_link }}">Mobile version</a>
+            <a href="{{ tablet_site_link }}">Tablet version</a>
+          </p>
+        {% endif %}
+
+        <dl>
+          <dt>Sections</dt>
+          <dd>
+            <a href="/news/all/">News</a>,
+            <a href="/news/opinion/">Opinion</a>,
+            <a href="/news/arts/">Arts</a>,
+            <a href="/news/music/">Music</a>,
+            <a href="/news/music/">Events</a>,
+            <a href="/news/lifestyle/">Life+Style</a>,
+            <a href="/news/food&drink/">Food+Drink</a>,
+            <a href="/news/sports/">Sports</a>
+          </dd>
+          <dt>Events</dt>
+          <dd>
+            <a href="/events/">Today's events</a>,
+            <a href="/events/bestbets/">Best bets</a>,
+            <a href="/social/upcoming/">Upcoming</a>,
+            <a href="/events/submit/">Submit an event</a>
+          </dd>
+          <dt>Media</dt>
+          <dd>
+            <a href="/photos/">Photos</a>,
+            <a href="/photos/galleries/">Galleries</a>,
+            <a href="/videos/">Videos</a>,
+            <a href="/audioclips/">Audio</a>,
+            <a href="/documents/">Documents</a>,
+            <a href="/podcasts/">Podcasts</a>
+          </dd>
+          <dt>Advertise</dt>
+          <dd>
+            <a href="/advertise/">In the JFP</a>,
+            <a href="http://web.blogads.com/adspotsfolder/ba_adspotsfolder_revision_create_shortcut?persistent_uid=0a2c217f8a0f8a417a15404f4659672a">On the Web</a>,
+            <a href="/advertise/classifieds/">Classifieds</a>,
+            <a href="mailto:todd@jacksonfreepress.com">Email the Publisher</a>
+          </dd>
+        </dl>
+        <p >
+        &copy; Jackson Free Press, Inc.<br/>
+        <a href="">User agreement and privacy statement.</a><br/>
+        phone: 601-362-6121 (ext 11 sales, ext 16 editorial, ext 17 publisher)<br/>
+        fax: 601-510-9019<br/>
+        P.O. Box 5067 * Jackson, MS * 39296
+        </p>
+
+        <script type="text/javascript">
+
+              var _gaq = _gaq || [];
+              _gaq.push(['_setAccount', 'UA-792151-1']);
+              _gaq.push(['_setDomainName', 'jacksonfreepress.com']);
+              _gaq.push(['_trackPageview']);
+
+              (function() {
+                var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+              })();
+
+        </script>
+
+        
+
+
+      {% endblock %}

@@ -1,0 +1,50 @@
+{% load social cached_comments mailfriend weblogs %}
+
+{% get_favorite_type for object as favorite_type %}
+{% get_cached_comment_count for object as comment_count %}
+{% get_blog_about_url object as blog_about_url %}
+
+{% block tools_wrapper %}
+  <ul class="object_tools">
+    {% block tools %}
+      {% block favorite %}
+        {% if favorite_type %}
+        <li class="favorite{% if_favorited object user %} favorited{% endif_favorited %}">
+          {% if user.is_authenticated %}
+            {% if_favorited object user %}
+              <a class="no_clickthru" href="/social/favorites/{{ favorite_type.slug }}/delete/{{ object.id }}/">Tracked</a>
+              {% else %}
+              <a class="no_clickthru" href="/social/favorites/{{ favorite_type.slug }}/add/{{ object.id }}/">{{ favorite_type.name }}</a>
+            {% endif_favorited %}
+            <small><a href="/social/favorites/{{ favorite_type.slug }}/">Your tracks</a></small>
+          {% else %}
+            <a href="/accounts/login/?next={{ request.path }}">Sign in to track this</a>
+          {% endif %}
+        </li>
+        {% endif %}
+      {% endblock %}
+      
+
+      {% block comments %}
+        <li class="comment">
+          <a href="#comments">Discuss</a>
+          <small>
+            <a href="#comments">{% if comment_count %}{{ comment_count }} comment{{ comment_count|pluralize }}{% else %}Comment{% endif %}</a>,
+            <a href="/weblogs/post/{{ blog_about_url }}">Blog about</a>
+          </small>
+        </li>
+      {% endblock %}
+
+      {% block share %}
+        <li class="share">
+          <span>Share this</span>
+          <small>
+            <a href="{% mailfriend_link for object %}" rel="popup(620x650)">Email</a>,
+            <a href="https://www.facebook.com/sharer.php?u=http://{{ site.domain }}{{ object.get_absolute_url }}" target="new">Facebook</a>,
+            <a href="http://twitter.com/home?status=http://{{ site.domain }}{{ object.get_absolute_url }}">Twitter</a>
+          </small>
+        </li>
+      {% endblock %}
+    {% endblock %}
+  </ul>
+{% endblock %}

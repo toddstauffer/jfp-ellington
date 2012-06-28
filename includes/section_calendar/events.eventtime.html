@@ -1,0 +1,15 @@
+
+  {% load events %}
+
+
+    <div class="colormaker">
+        <h5><a href="{{ object.get_absolute_url }}">{{object.event.title }}</a></h5>
+        <p>
+        <span class="datetime">[{{object.event_date|date:"N d"}},&nbsp;{{ object.start_time|time:"g:i A"|lower }}{% if object.finish_time %}&ndash;{{ object.finish_time|time:"g:i A"|lower }}{% endif %}]</span>
+        {% if object.event.place_id %}
+        <a class="place" href="{{ object.event.place.get_absolute_url }}">{{ object.event.place.name }}</a>
+        {% else %}
+        {{ object.event.one_off_place }}
+        {% endif %}
+        </p>
+    </div>

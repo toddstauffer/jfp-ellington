@@ -1,0 +1,29 @@
+{% extends "base_generic.html" %}
+
+
+{% block title %}{{ flatpage.title }}{% endblock %}
+{% block body_class %}flatpage_default{% endblock %}
+{% block body_id %}flatpage_{{ flatpage.id }}{% endblock %}
+
+
+{% block feed_link %}
+  {% load content %}
+  <link type="application/rss+xml" rel="alternate" href="/rss/comments/objects/{{ flatpage|content_type_id }}/{{ flatpage.pk }}/">
+{% endblock %}
+
+
+{% block content_title %}
+  <h2>{{ flatpage.title }}</h2>
+{% endblock %}
+
+
+{% block content %}
+  {% load markup banned comments %}
+  {{ flatpage.content|safe }}
+
+  {% if flatpage.enable_comments %}
+  {% with flatpage as object %}
+    {% include "includes/comments.html" %}
+  {% endwith %}
+  {% endif %}
+{% endblock %}

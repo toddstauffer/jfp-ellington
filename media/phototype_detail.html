@@ -1,0 +1,38 @@
+{% extends "media/base_photos.html" %}
+
+
+{% block title %}{{ photo_type }}{% endblock %}
+{% block body_class %}{{ block.super }} photo_type_detail {% if photo_list.0.photo_type.slug == 'covers' %}cover-images{% endif %}{% endblock %}
+
+
+{% block content_title %}
+{% if photo_list.0.photo_type.slug == 'covers' %}
+  <h2>Past Editions</h2>
+{% else %}
+  <h2>{{ photo_type }}</h2>
+{% endif %}
+
+{% endblock %}
+
+
+{% block content %}
+  {% load content %}
+
+  <table class="photos">
+    <tr>
+      {% if photo_list.0.photo_type.slug == 'covers' %}
+          {% for photo in photo_list %}
+            <td{% cycle '' '' ' class="last"' %}>{% render_template_for photo in "includes/past_editions" %}</td>
+            {% cycle '' '' '</tr><tr>' %}
+          {% endfor %}
+      {% else %}
+          {% for photo in photo_list %}
+            <td{% cycle '' '' ' class="last"' %}>{% render_template_for photo in "includes/lists" %}</td>
+            {% cycle '' '' '</tr><tr>' %}
+          {% endfor %}
+      {% endif %}
+    </tr>
+  </table>
+
+  {% include "includes/pagination.html" %}
+{% endblock %}

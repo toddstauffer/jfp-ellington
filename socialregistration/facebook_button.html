@@ -1,0 +1,5 @@
+<form method="post" action="{% if logged_in %}{% url facebook_connect %}{% else %}{% url facebook_login %}{% endif %}{% if content_object.app_label %}?a={{ content_object.app_label }}&m={{ content_object.model }}&i={{ content_object.key }}{% endif %}" class="facebook_button">{% csrf_token %}
+  <button type="submit" onclick="facebookConnect(this.form);return false;">Facebook</button>
+  {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+</form>
+

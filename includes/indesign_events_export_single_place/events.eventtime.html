@@ -1,0 +1,8 @@
+{% extends "includes/lists/default.html" %}
+
+
+{% block item %}
+  {% load mailfriend cached_comments permissions events metadata %}
+
+<ParaStyle:Events Bullets><0x2022><0x202F><cTypeface:Bold>{{ object.event.title }}<cTypeface:>{{ object.event_date|date:"M d" }}, {{ object.get_time }}. {{ object.event.short_description }} {% if object.event|get_metadata:"descriptive_cost" %}{{ object.event|get_metadata:"descriptive_cost" }}{% else %}{% ifequal object.event.cost_high object.event.cost_low %}{% if object.event.cost_high == '0' %}Free{% else %}{% if object.event.cost_high %}${{ object.event.cost_high|floatformat }}{% else %}Cost varies{% endif %}{% endif %}{% else %}{% if object.event.cost_low == '0' %}Free-${{ object.event.cost_high|floatformat }}{% else %}${{ object.event.cost_low|floatformat }}-${{ object.event.cost_high|floatformat }}{% endif %}{% endifequal %}{% if object.event|get_metadata:"child_cost" %}, ${{ object.event|get_metadata:"child_cost" }} children{% endif %}{% if object.event|get_metadata:"student_cost" %}, ${{ object.event|get_metadata:"student_cost" }} students{% endif %}{% if object.event|get_metadata:"senior_cost" %}, ${{ object.event|get_metadata:"senior_cost" }} seniors{% endif %}{% if object.event|get_metadata:"member_cost" %}, ${{ object.event|get_metadata:"member_cost" }} members{% endif %}{% if object.event|get_metadata:"advance_cost" %}, ${{ object.event|get_metadata:"advance_cost" }} in advance{% endif %}{% if object.event|get_metadata:"book_cost" %}, ${{ object.event|get_metadata:"book_cost" }} book{% endif %}.{% endif %}  
+{% endblock %}

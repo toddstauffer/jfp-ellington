@@ -1,0 +1,37 @@
+{% extends "events/base_events.html" %}
+
+
+{% block title %}Events for {{ year }}{% endblock %}
+{% block body_class %}{{ block.super }} event_archive_year{% endblock %}
+
+
+{% block content_title %}
+  <h2>Events for {{ year }}</h2><a class="alt_button" href="/events/submit/">Add Event</a>
+{% endblock %}
+
+
+{% block breadcrumbs %}
+  <p>
+    <a href="../">Events</a>
+    <span>{{ year }}</span>
+  </p>
+{% endblock %}
+
+
+{% block content %}
+  <h3>Choose a month</h3>
+  <ul>
+    <li><a href="jan/">January</a></li>
+    <li><a href="feb/">February</a></li>
+    <li><a href="mar/">March</a></li>
+    <li><a href="apr/">April</a></li>
+    <li><a href="may/">May</a></li>
+    <li><a href="jun/">June</a></li>
+    <li><a href="jul/">July</a></li>
+    <li><a href="aug/">August</a></li>
+    <li><a href="sep/">September</a></li>
+    <li><a href="oct/">October</a></li>
+    <li><a href="nov/">November</a></li>
+    <li><a href="dec/">December</a></li>
+  </ul>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends "restaurants/base_restaurants.html" %}
+
+
+{% block title %}Search{% endblock %}
+{% block body_class %}{{ block.super }} restaurant_search{% endblock %}
+
+
+{% block extended_scripts %}
+{{block.super}}
+
+    <script type="text/javascript" src="http://use.typekit.com/dzz7rzp.js"></script>
+    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+  <script type="text/javascript">
+    jQuery(function() {
+      /*
+          The form must be reset because the browser remembers values
+          from the previous post. If we come back from a redirect we don't
+          want the values remembered. See Case #8036.
+      */
+      jQuery('.restaurant_search_form')[0].reset();
+
+      jQuery('.restaurant_search_form .content_sidebar ul.attribute_list li a').click(function(e) {
+        e.preventDefault();
+        target = jQuery(e.target);
+        if (target.parent().hasClass('on')) {
+          target.parent().find('input[value=1]').attr('checked', 'checked');
+        }
+        else {
+          target.parent().find('input[value=2]').attr('checked', 'checked');
+        }
+        jQuery('.restaurant_search_form').submit();
+      });
+      
+      jQuery('.restaurant_search_form .content_sidebar ul.cuisine_list li a').click(function(e) {
+        e.preventDefault();
+        target = jQuery(e.target);
+        jQuery('.restaurant_search_form #id_cuisine option[value='+target.attr('href').slice(1)+']').attr('selected', 'selected');
+        jQuery('.restaurant_search_form').submit();
+      });
+    });
+  </script>
+{% endblock %}
+
+
+{% block content_title %}
+  <h2>Restaurant search</h2>
+  {% if result_count %}
+    <h3>{{ result_count }} restaurant{{ result_count|pluralize }} found.</h3>
+  {% else %}
+    <h3>Search local restaurants or see <a href="../opennow/">restaurants open now.</a></h3>
+  {% endif %}
+{% endblock %}
+
+
+{% block content %}
+  <form action="/restaurants/search/" method="get" class="restaurant_search_form">
+    <p class="search">{{ form.cuisine }} {{ form.region }} {{ form.q }} <input type="submit" value="Search" class="button"></p>
+  
+    <div class="content_sidebar">
+      <h3>Attributes</h3>
+      <ul class="attribute_list">
+        <li{% if form.has_delivery.data == "2" %} class="on"{% endif %}>
+          <a href="#has_delivery">Has delivery</a>
+          {{ form.has_delivery }}
+        </li>
+        <li{% if form.has_buffet.data == "2" %} class="on"{% endif %}>
+          <a href="#has_buffet">Has buffet</a>
+          {{ form.has_buffet }}
+        </li>
+        <li{% if form.local.data == "2" %} class="on"{% endif %}>
+          <a href="#local">Locally owned</a>
+          {{ form.local }}
+        </li>
+        <li{% if form.kids_menu.data == "2" %} class="on"{% endif %}>
+          <a href="#kids_menu">Kids menu</a>
+          {{ form.kids_menu }}
+        </li>
+        <li{% if form.accept_reservations.data == "2" %} class="on"{% endif %}>
+          <a href="#accept_reservations">Reservations</a>
+          {{ form.accept_reservations }}
+        </li>
+        <li{% if form.outdoor_seating.data == "2" %} class="on"{% endif %}>
+          <a href="#outdoor_seating">Outdoor seating</a>
+          {{ form.outdoor_seating }}
+        </li>
+      </ul>
+      
+      <h3>Cuisines</h3>
+      <ul class="cuisine_list">
+      {% for choice in form.cuisine.field.choices %}
+        {% with choice.0|stringformat:"s" as cuisine_id %}
+        <li{% if form.cuisine.data == cuisine_id %} class="on"{% endif %}>
+          <a href="#{{ choice.0 }}">{{ choice.1 }}</a>
+        </li>
+        {% endwith %}
+      {% endfor %}
+      </ul>
+    </div>
+  </form>
+  
+  {% if result_list %}
+  <table class="place_list">
+    <tr>
+      <th>Restaurant</th>
+      <th>Cuisine</th>
+      <th>Neighborhood</th>
+    </tr>
+    {% for restaurant in result_list %}
+    <tr>
+      <td class="title">
+        <h4 class="name"><a href="{{ restaurant.get_absolute_url }}">{{ restaurant.place.get_name }}</a></h4>
+        <h5 class="address">{{ restaurant.place.get_address }}</h5>
+        {% if restaurant.place.phone1 %}<p class="phone">{{ restaurant.place.phone1 }}</p>{% endif %}
+      </td>
+      <td class="cuisine">{% for cuisine in restaurant.cuisines.all %}<a href="/restaurants/search/?cuisine={{ cuisine.id }}">{{ cuisine.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+      <td class="neighborhood"><a href="/restaurants/search/?region={{ restaurant.place.neighborhood.id }}">{{ restaurant.place.neighborhood.name }}</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+{% endblock %}

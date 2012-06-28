@@ -1,0 +1,388 @@
+/* Variables
+===================================== */
+
+@font-family-section-headline: "futura-pt-condensed", "futura", Lucida Grande, Lucida, sans-serif;
+@font-family-highlight: "ff-meta-web-pro", Lucida Grande, Lucida, sans-serif;
+@font-family-story: "droid-serif", Georgia, serif;
+
+
+/* Color Definitions
+====================================== */
+@black: #000;
+@white: #FFFFFF;
+
+@blue-light: #66CCFF;
+@blue-light-shade-1: #8dd9ff;
+@blue-light-shade-2: #b4e6ff;
+@blue-light-shade-3: #dcf3ff;
+
+@purple: #996699;
+@orange-dark: #bf6000;
+@peach: #ffcc99;
+
+
+@red: #cc0033;
+@red-shade-1:#f3003d;
+@red-shade-2:#ff1b54;
+@red-shade-3:#ff4372;
+@red-shade-4:#ff6a8f;
+@red-shade-5:#ff91ad;
+@red-shade-6:#ffb8ca;
+@red-shade-7:#ffe0e7;
+
+@lime: #cccc33;
+@lime-shade-1:#d4d452;
+@lime-shade-2:#dcdc72;
+@lime-shade-3:#e4e491;
+@lime-shade-4:#ebebb1;
+@lime-shade-5:#f3f3d0;
+@lime-shade-6:#fbfbef;
+
+@pink: #ff6666;
+@pink-shade-1:#ff8d8d;
+@pink-shade-2:#ffb4b4;
+@pink-shade-3:#ffdcdc;
+
+@blue: #336699;
+@blue-shade-1:#3d7ab6;
+@blue-shade-2:#548dc6;
+@blue-shade-3:#72a1d0;
+@blue-shade-4:#8fb4da;
+@blue-shade-5:#adc8e4;
+@blue-shade-6:#cadced;
+@blue-shade-7:#e7eff7;
+
+@teal: #66cccc;
+@teal-shade-1:#83d6d6;
+@teal-shade-2:#a1e0e0;
+@teal-shade-3:#bee9e9;
+@teal-shade-4:#dcf3f3;
+@teal-shade-5:#f9fdfd;
+
+@violet: #600060;
+@violet-shade-1:#870087;
+@violet-shade-2:#ae00ae;
+@violet-shade-3:#d600d6;
+@violet-shade-4:#fd00fd;
+@violet-shade-5:#ff25ff;
+@violet-shade-6:#ff4cff;
+@violet-shade-7:#ff74ff;
+@violet-shade-8:#ff9bff;
+@violet-shade-9:#ffc2ff;
+@violet-shade-10:#ffe9ff;
+
+
+@orange: #ff9933;
+@orange-shade-1:#ffad5a;
+@orange-shade-2:#ffc081;
+@orange-shade-3:#ffd4a9;
+@orange-shade-4:#ffe7d0;
+@orange-shade-5:#fffbf7;
+
+@green: #009933;
+@green-shade-1:#00c040;
+@green-shade-2:#00e74d;
+@green-shade-3:#10ff5f;
+@green-shade-4:#37ff7a;
+@green-shade-5:#5eff94;
+@green-shade-6:#85ffae;
+@green-shade-7:#adffc8;
+@green-shade-8:#d4ffe2;
+@green-shade-9:#fbfffc;
+
+@khaki: #F9F5E8;
+
+/* @red-one: #D91642; */
+/*@red-one:#FA5256; tangerine */
+
+@grey-one: #E0E0E0; /*light*/
+@grey-two: #999999; /*medium*/
+@grey-three: #464646; /*dark*/
+
+/* Color Settings
+==================================================== */
+
+@font-color-links: @blue;
+@font-color-link-hover: @grey-three;
+@font-color-link-light:@blue-shade-6;
+
+@color-button: @blue-light-shade-1;
+@color-button-hover: @blue-light-shade-3;
+
+@color-borders: @grey-one;
+
+@color-background-body: @white;
+@color-background-main: transparent;
+@color-background-content: @white;
+@color-hover-background: @white;
+
+@color-nav: @blue-light;
+@color-nav-hover: @blue-light-shade-2;
+@color-subnav: @grey-one;
+@color-subnav-hover:@grey-one;
+@color-latest-news-header: @orange-dark;
+@color-latest-news-background: @peach;
+
+@color-news:@red;
+@color-news-1:@red-shade-1;
+@color-news-2:@red-shade-2;
+@color-news-3:@red-shade-3;
+@color-news-4:@red-shade-4;
+@color-news-5:@red-shade-5;
+@color-news-6:@red-shade-6;
+@color-news-7:@red-shade-7;
+
+@color-opinion:@lime;
+@color-opinion-1:@lime-shade-1;
+@color-opinion-2:@lime-shade-2;
+@color-opinion-3:@lime-shade-3;
+@color-opinion-4:@lime-shade-4;
+@color-opinion-5:@lime-shade-5;
+@color-opinion-6:@lime-shade-6;
+
+@color-arts:@pink;
+@color-arts-1:@pink-shade-1;
+@color-arts-2:@pink-shade-2;
+@color-arts-3:@pink-shade-3;
+
+@color-music:@blue;
+@color-music-1:@blue-shade-1;
+@color-music-2:@blue-shade-2;
+@color-music-3:@blue-shade-3;
+@color-music-4:@blue-shade-4;
+@color-music-5:@blue-shade-5;
+@color-music-6:@blue-shade-6;
+@color-music-7:@blue-shade-7;
+
+@color-events:@teal;
+@color-events-1:@teal-shade-1;
+@color-events-2:@teal-shade-2;
+@color-events-3:@teal-shade-3;
+@color-events-4:@teal-shade-4;
+@color-events-5:@teal-shade-5;
+
+@color-lifestyle:@violet;
+@color-lifestyle-1:@violet-shade-1;
+@color-lifestyle-2:@violet-shade-2;
+@color-lifestyle-3:@violet-shade-3;
+@color-lifestyle-4:@violet-shade-4;
+@color-lifestyle-5:@violet-shade-5;
+@color-lifestyle-6:@violet-shade-6;
+@color-lifestyle-7:@violet-shade-7;
+@color-lifestyle-8:@violet-shade-8;
+@color-lifestyle-9:@violet-shade-9;
+@color-lifestyle-10:@violet-shade-10;
+
+@color-food:@orange;
+@color-food-1:@orange-shade-1;
+@color-food-2:@orange-shade-2;
+@color-food-3:@orange-shade-3;
+@color-food-4:@orange-shade-4;
+@color-food-5:@orange-shade-5;
+
+@color-sports:@green;
+@color-sports-1:@green-shade-1;
+@color-sports-2:@green-shade-2;
+@color-sports-3:@green-shade-3;
+@color-sports-4:@green-shade-4;
+@color-sports-5:@green-shade-5;
+@color-sports-6:@green-shade-6;
+@color-sports-7:@green-shade-7;
+@color-sports-8:@green-shade-8;
+@color-sports-9:@green-shade-9;
+
+
+/* Typography Variables 
+==================================================== */
+
+@font-size-headline-large: 35px;
+@line-height-headline-large: 32px;
+@font-size-headline-medium: 27px;
+@line-height-headline-medium: 27px;
+@font-size-headline-archive-list:24px;
+@line-height-headline-archive-list:25px;
+@font-size-headline-small:18px;
+@line-height-headline-small: 17px;
+@font-size-headline-list: 12px;
+@line-height-headline-list: 14px;
+@font-size-body-text: 13.5px;
+@line-height-body-type:1.5;
+@font-size-intro-type: 11.5px;
+@line-height-intro-type: 1.25em;
+@font-size-highlight-text: 11px;
+@font-size-section-title:20px;
+@font-weight-section-title:600;
+
+/* Borders
+====================================================== */
+@border-common: 1px dashed @grey-one;
+@border-content: 1px solid @grey-one;
+
+@border-dotted: 1px dotted #444;
+
+.rounded-corners {
+    -moz-border-radius: 3px; /* Firefox */
+    -webkit-border-radius: 3px; /* Safari, Chrome */
+    border-radius: 3px; /* CSS3 */
+}
+
+/* Classes 
+====================================================== */
+.section_tag, .section_tag a {
+    background: none repeat scroll 0 0 transparent;
+    border-top:3px solid @grey-three;
+    border-bottom: 1px dotted @grey-three;
+    color: @grey-three;
+    font-size: @font-size-section-title;
+    font-weight: @font-weight-section-title;
+    text-transform:uppercase;
+    font-family:@font-family-section-headline;
+    text-align:center;
+}
+
+.section_tag a:hover {
+    background:transparent;
+    color: @red;
+    border-bottom: 2px solid @red;
+}
+
+.section_tag_inner {
+    .section_tag;
+    text-align:left;
+}
+
+.headline-large {
+    font-family:@font-family-story;
+    text-transform: none;
+    font-size: @font-size-headline-large;
+    line-height:@line-height-headline-large;
+    padding-top: 7px;
+    color: @grey-three;
+}
+
+.headline-medium{
+    font-family:@font-family-story;
+    text-transform: none;
+    font-size: @font-size-headline-medium;
+    line-height:@line-height-headline-medium;
+}
+
+.headline-small {
+    font-family:@font-family-story;
+    color: @grey-three;
+    line-height:@line-height-headline-small !important;
+    margin-bottom:4px !important;
+}
+
+.headline-small a {
+    color: #000 !important;
+    font-size: @font-size-headline-small;
+    font-weight: 600 !important;
+}
+
+.headline-list {  /* h5 */
+    font-size: @font-size-headline-list;
+    line-height: @line-height-headline-list;
+    color:@grey-three;
+    font-weight: 300;
+    font-family:@font-family-story !important;
+}
+
+.headline-list a:hover {  /* h5 */
+    color: @black;
+}
+
+.headline-archive {
+    font-size:@font-size-headline-archive-list;
+    line-height:@line-height-headline-archive-list;
+    margin-bottom:3px;
+}
+
+.intro-type{
+    font-size: @font-size-intro-type !important;
+    color: @grey-three !important;
+    line-height:@line-height-intro-type !important;
+    margin:0px;
+    padding:0px;
+}
+.comment-type{
+    font-family:@font-family-story;
+    font-size: @font-size-body-text - 0.5 !important;
+    color: @grey-three !important;
+    line-height:@line-height-body-type !important;
+    margin:0px;
+    padding:0px;
+}
+
+.comment-count-type{
+    font-family:@font-family-highlight;
+    font-size: @font-size-body-text - 1.5 !important;
+    color: @grey-two !important;
+    line-height:@line-height-body-type !important;
+    margin:0px;
+    padding:0px;
+}
+
+.lone-link {
+    color: @blue;
+    text-transform: uppercase;
+    font-family: @font-family-highlight;
+    font-size: @font-size-highlight-text;
+}
+
+.lone-link:hover {
+    color: @black;
+    text-decoration:none;
+}
+
+/* Dates, Authors, Etc */
+.highlight-type, .twitter_list .timestamp, .item small, p small, .section li small {
+    font-family: @font-family-highlight !important;
+    color:@grey-two !important;
+    font-weight:300 !important;
+    font-size:@font-size-highlight-text !important;
+}
+
+.byline, .byline a {
+    font-family: @font-family-highlight !important;
+    color:@grey-two !important;
+    font-weight:300 !important;
+    font-size:@font-size-highlight-text !important;
+}
+
+.category, .category a {
+    text-transform:uppercase;
+    color:#d9d9d9 !important;
+    font-family: @font-family-section-headline !important;
+    font-size: 14px;
+    font-weight: 500 !important;
+}
+
+.caption, .caption a {
+    font-family: @font-family-highlight !important;
+    color:@grey-three !important;
+    font-weight:300 !important;
+    font-size:11.5px !important;
+    line-height:14.5px !important;
+    width:100%;
+}
+
+.content-shadow {
+    -moz-box-shadow: 0.5px 0.5px 1px @grey-one;
+    -webkit-box-shadow: 0.5px 0.5px 1px @grey-one;
+    box-shadow: 0.5px 0.5px 1px @grey-one;
+    /* For IE 8 */
+    -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=135, Color='#e0e0e0')";
+    /* For IE 5.5 - 7 */
+    filter: progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=135, Color='#e0e0e0');
+}
+
+.subtitle {
+    color: @grey-two;
+    font-family: @font-family-highlight;
+    font-size: 17px;
+    font-weight: 200;
+    line-height: 21px;
+    margin: 10px 0 0;
+    text-transform: none;
+}

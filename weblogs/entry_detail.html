@@ -1,0 +1,72 @@
+{% extends "weblogs/base_weblogs.html" %}
+
+
+{% block title %}"{{ object.title }}" by {{ blog.title }} {% endblock %}
+{% block body_class %}{{ block.super }}{% if blog.is_staff_blog %} blog_staff{% else %} blog_reader{% endif %} entry_detail{% endblock %}
+{% block body_id %}weblog_{{ blog.id }}{% endblock %}
+
+
+{% block feed_link %}
+  {% load content %}
+  <link type="application/rss+xml" rel="alternate" href="/rss/comments/objects/{{ object|content_type_id }}/{{ object.pk }}/">
+{% endblock %}
+
+
+{% block extended_meta %}
+  <meta property="og:title" content="{{ object.title }}">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="http://{{ site.domain }}{{ object.get_absolute_url }}">
+{% endblock %}
+
+
+{% block content_title %}
+  {% load rating_tags %}
+
+  {% vote_form for object %}
+
+  <p class="back"><a href="{{ blog.get_absolute_url }}">{{ blog.title }}</a></p>
+  <h2>{{ object.title }}</h2>
+  <ul class="inline_list">
+    {% if user == object.author %}
+    <li><a href="/weblogs/edit/entry/{{ object.id }}/" class="alt_button">Edit</a></li>
+    <li><a href="/weblogs/edit/entry/{{ object.id }}/delete/" class="alt_button">Delete</a></li>
+    {% endif %}
+  </ul>
+{% endblock %}
+
+
+{% block content %}
+  {% load weblogs markup banned blogrify comments cached_comments content oembed_tags anonymity generic_markup %}
+
+  <div class="content_info">
+    <p class="byline">By {% if object.author.staffmember %} <a href="{{ object.author.staffmember.get_absolute_url }}">{{ object.author.staffmember|display_name }}</a> {% else %}<a href="{{ object.author.get_absolute_url }}">{{ object.author|display_name }}</a>{% endif %}</p>
+    <p class="datetime">{{ object.pub_date|date }}</p>
+  </div>
+
+  
+
+  {% filter urlize %}
+    {% oembed 500x400 in "weblogs" %}
+    {% if object.author.staffmember and object.author.staffmember.writes_articles or object.blog.is_staff_blog %}
+      {% with object.body|apply_markup:"markdown" as body %}
+        {% mogrify_html body thumbnail "620" %}
+      {% endwith %}
+    {% else %}
+      {% blogrify object thumbnail "620" %}
+    {% endif %}
+    {% endoembed %}
+  {% endfilter %}
+
+  {% if entry_about_rev %}
+    <div class="blogging_about">
+      <h3>In response to:</h3>
+      <div class="list">
+        {% render_template_for entry_about_rev in "includes/lists" %}
+      </div>
+    </div>
+  {% endif %}
+
+  {% render_template_for object in "includes/tools" %}
+  {% include "includes/comments.html" %}
+
+{% endblock %}

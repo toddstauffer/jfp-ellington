@@ -1,0 +1,106 @@
+{% extends "restaurants/base_restaurants.html" %}
+
+{% block body_class %}{{ block.super }} restaurant_search{% endblock %}
+
+{% block extended_scripts %}
+
+  {{ block.super }}
+  <script type="text/javascript">
+
+
+    jQuery(function() {
+      jQuery('.restaurant_search_form .content_sidebar ul.attribute_list li a').click(function(e) {
+        e.preventDefault();
+        target = jQuery(e.target);
+        if (target.parent().hasClass('on')) {
+          target.parent().find('input[value=1]').attr('checked', 'checked');
+        }
+        else {
+          target.parent().find('input[value=2]').attr('checked', 'checked');
+        }
+        jQuery('.restaurant_search_form').submit();
+      });
+      
+      jQuery('.restaurant_search_form .content_sidebar ul.cuisine_list li a').click(function(e) {
+        e.preventDefault();
+        target = jQuery(e.target);
+        jQuery('.restaurant_search_form #id_cuisine option[value='+target.attr('href').slice(1)+']').attr('selected', 'selected');
+        jQuery('.restaurant_search_form').submit();
+      });
+    });
+  </script>
+
+{% endblock %}
+
+
+{% block content_title %}
+  <h2>Featured restaurants</h2>
+{% endblock %}
+
+
+{% block content %}
+  {% load mogrify metadata %}
+
+  <form action="/restaurants/search/" method="get" class="restaurant_search_form">
+    <p class="search">{{ form.cuisine }} {{ form.region }} {{ form.q }} <input type="submit" value="Search" class="button"></p>
+
+    <div class="content_sidebar">
+      <h3>Attributes</h3>
+      <ul class="attribute_list">
+        <li{% if form.has_delivery.data == "2" %} class="on"{% endif %}>
+          <a href="#has_delivery">Has delivery</a>
+          {{ form.has_delivery }}
+        </li>
+        <li{% if form.has_buffet.data == "2" %} class="on"{% endif %}>
+          <a href="#has_buffet">Has buffet</a>
+          {{ form.has_buffet }}
+        </li>
+        <li{% if form.local.data == "2" %} class="on"{% endif %}>
+          <a href="#local">Locally owned</a>
+          {{ form.local }}
+        </li>
+        <li{% if form.kids_menu.data == "2" %} class="on"{% endif %}>
+          <a href="#kids_menu">Kids menu</a>
+          {{ form.kids_menu }}
+        </li>
+        <li{% if form.accept_reservations.data == "2" %} class="on"{% endif %}>
+          <a href="#accept_reservations">Reservations</a>
+          {{ form.accept_reservations }}
+        </li>
+        <li{% if form.outdoor_seating.data == "2" %} class="on"{% endif %}>
+          <a href="#outdoor_seating">Outdoor seating</a>
+          {{ form.outdoor_seating }}
+        </li>
+      </ul>
+      
+      <h3>Cuisines</h3>
+      <ul class="cuisine_list">
+      {% for choice in form.cuisine.field.choices %}
+        {% with choice.0|stringformat:"s" as cuisine_id %}
+        <li{% if form.cuisine.data == cuisine_id %} class="on"{% endif %}>
+          <a href="#{{ choice.0 }}">{{ choice.1 }}</a>
+        </li>
+        {% endwith %}
+      {% endfor %}
+      </ul>
+    </div>
+  </form>
+
+  <div class="list place_list">
+  {% for restaurant in featured_restaurant_list %}
+    <div class="item">
+
+      {% get_metadata for restaurant.place as metadata %}
+      {% if metadata.menu_guide %}
+        {% with img="http://jacksonfreepress.media.clients.ellingtoncms.com/"|add:metadata.menu_guide.content %}
+          <a class="thumbnail" href="{{ img }}" rel="shadowbox"><img src="{% mogrify img resize "110x100" %}" alt="thumbnail"></a>
+        {% endwith %}
+      {% else %}
+        {% if restaurant.icon %}<a class="thumbnail" href="{{ restaurant.place.get_absolute_url }}"><img src="{% mogrify restaurant.icon.url thumbnail "100" %}" alt="thumbnail"></a>{% endif %}
+      {% endif %}
+      <h4><a href="{{ restaurant.place.get_absolute_url }}">{{ restaurant.place.name }}</a></h4>
+      {% if restaurant.place.description %}<p>{{ restaurant.place.description|striptags|truncatewords:"35" }}</p>{% endif %}
+    </div>
+  {% endfor %}
+  </div>
+{% endblock %}

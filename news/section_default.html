@@ -1,0 +1,446 @@
+{% extends "news/base_news.html" %}
+
+
+{% load mogrify sectionfronts mailfriend listutil content cached_comments weather rating_tags generic_content weblogs stories events photos %}
+
+
+{% block title %}{{ section.title }}{% endblock %}
+ 
+
+{% block body_class %}{{ block.super }} section_detail {% endblock %}
+{% block body_id %}section_{{ section.id }}{% endblock %}
+
+
+{% block feed_link %}<link type="application/rss+xml" rel="alternate" href="/rss/headlines/{{ section.url }}/">{% endblock %}
+{% block extended_meta %}{% with section as object %}{% include "includes/metadata.html" %}{% endwith %}{% endblock %}
+
+    
+{% block extended_scripts %}
+    {{block.super}}
+
+    <script type="text/javascript">
+
+      // DRAGDEALER
+
+    // adjust the length of the headline so as not to double over.
+    $(document).ready(function() {
+      $('.dragdealer-slide-title h4 a').each(function() {
+        if ($(this).html().length > 31) 
+        {
+          var title = $(this).html().substring(0,31)+'...';
+          $(this).html(title);
+        }
+      });
+    });
+
+    // make rotate
+    setInterval(
+      function(){
+        var next = $('ul.dragdealer-pagination li a.on').parent().next();
+        if(next.length == 0) {
+          next = $('ul.dragdealer-pagination li').first();
+        }
+        next.find('a').triggerHandler('click');
+      },10000);
+
+  /*  
+      // Disingaged while restaurant search is disingaged
+        jQuery(function() {
+       
+       // The form must be reset because the browser remembers values from the previous post. If we come back from a redirect we don't want the values remembered. See Case #8036.
+        
+       jQuery('.restaurant_search_form')[0].reset();
+       
+       jQuery('.restaurant_search_form .content_sidebar ul.attribute_list li a').click(
+                        function(e) 
+                        {
+                            e.preventDefault();
+                            target = jQuery(e.target);
+                                                                                       
+                            if (target.parent().hasClass('on')) 
+                            {
+                                target.parent().find('input[value=1]').attr('checked', 'checked');
+                            }
+                            else 
+                            {
+                                target.parent().find('input[value=2]').attr('checked', 'checked');
+                            }
+                                                                                       
+                            jQuery('.restaurant_search_form').submit();
+                                                                                       
+                        });
+       
+       jQuery('.restaurant_search_form .content_sidebar ul.cuisine_list li a').click(
+                        function(e) 
+                        {
+                        e.preventDefault();
+                         target = jQuery(e.target);
+                         jQuery('.restaurant_search_form #id_cuisine option[value='+target.attr('href').slice(1)+']').attr('selected', 'selected');
+                         jQuery('.restaurant_search_form').submit();
+                         });
+               });
+      */
+        </script>
+        
+{% endblock %}
+
+{% block content_title %}
+  <h2 class="section-{{section.id}}">
+    {{ section.title }}
+
+    {% if section.id == 27 or section.id == 65 or section.id == 66 or section.id == 67  %}
+      <ul class="region_filter">
+        <li><a class="{% if section.id == 65 %}active{%endif%}" href="/news/local/">Local</a></li>
+        <li><a class="{% if section.id == 66 %}active{%endif%}" href="/news/state/">State</a></li>
+        <li class="last"><a class="{% if section.id == 67 %}active{%endif%}" href="/news/national/">National</a></li>
+      </ul>
+    {% endif %}
+
+  </h2>
+  {% if section.blurb %}
+    {% if not has_previous %}<p class="blurb">{{ section.blurb|safe }}</p>{% endif %}
+  {% endif %}
+  <p class="feed"><a href="/rss/headlines/{{ section.url }}/" title="Subscribe to RSS feed">Subscribe</a></p>
+{% endblock %}
+
+
+{% block content %}
+  {% get_section_front for section as sfront %}
+
+
+  {% if not section.id == 8 %} <!-- If this isn't the sports section -->
+    {% regroup story_list by lead_photo as lead_photo_list %}
+    {% if lead_photo_list.1.list.0.lead_photo or sfront.photo_gallery or sfront.daily_lead_story or sfront.lead_stories %}
+  
+      <div class="carousel section">
+
+          {% if sfront.daily_lead_story %}
+                {% with story=sfront.daily_lead_story %}
+                    {% if story.lead_photo %}
+                    <div>
+                        <a href="{{ story.get_absolute_url }}"><img src="{% mogrify story.lead_photo.cropped.url resize "670x400" %}" alt=""></a>
+                        <div class="dragdealer-slide-title">
+                            {% render_template_for story in "includes/category" %}
+                            <h4><a href="{{ story.get_absolute_url }}">{{ story.headline }}</a></h4>
+                            {% if story.tease %}<p class="intro-type">{{ story.tease|striptags|truncatewords:"20" }}</p>{% endif %}
+                            
+                            <span class="byline">{% if not story.bylines.count %}By {% if story.one_off_byline %}{{ story.one_off_byline }}{% else %}JFP Staff{% endif %}{% else %}{% if story.bylines.count %}By {% for author in story.bylines.all %}<a href="{{ author.get_absolute_url }}">{{ author }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}{% endif %}</span>&nbsp;&nbsp;
+                            
+                            <span class="highlight-type">{{ story.pub_date|date:"N j"}}</span>
+
+                            {% get_cached_comment_count for story as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
+                        </div>
+                    </div>
+                    {% endif %} <!-- lead_story.lead_photo -->
+                {% endwith %}<!-- lead_story=sfront.daily_lead_story -->
+            {% else %}
+                {% if sfront.lead_stories %}
+                    {% for story in sfront.lead_stories %}
+
+                    {% if story.lead_photo %}
+                    <div>
+                        <a href="{{ story.get_absolute_url }}"><img src="{% mogrify story.lead_photo.cropped.url resize "670x400" %}" alt=""></a>
+                        <div class="dragdealer-slide-title">
+                            {% render_template_for story in "includes/category" %}
+                            <h4><a href="{{ story.get_absolute_url }}">{{ story.headline }}</a></h4>
+                            {% if story.tease %}<p class="intro-type">{{ story.tease|striptags|truncatewords:"20" }}</p>{% endif %}
+                            
+                            <span class="byline">{% if not story.bylines.count %}By {% if story.one_off_byline %}{{ story.one_off_byline }}{% else %}JFP Staff{% endif %}{% else %}{% if story.bylines.count %}By {% for author in story.bylines.all %}<a href="{{ author.get_absolute_url }}">{{ author }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}{% endif %}</span>&nbsp;&nbsp;
+                            
+                            <span class="highlight-type">{{ story.pub_date|date:"N j"}}</span>
+
+                            {% get_cached_comment_count for story as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
+                        </div>
+                    </div>
+                    {% endif %} <!-- story.lead_photo -->
+                    {% endfor %}<!-- story in homesfront.lead_stories -->
+
+                {% else %}<!-- sfront.lead_stories -->
+                    {% for story in story_list|slice:"0:10" %}
+                        {% if section.id == 65 and story.print_edition|lower == 'local' or section.id == 66 and story.print_edition|lower == 'state' or section.id == 67 and story.print_edition|lower == 'national' or section.id != 65 and section.id != 66 and section.id != 67 %}
+                          {% if story.lead_photo %}
+                          <div>
+                        <a href="{{ story.get_absolute_url }}"><img src="{% mogrify story.lead_photo.cropped.url resize "670x400" %}" alt=""></a>
+                        <div class="dragdealer-slide-title">
+                            {% render_template_for story in "includes/category" %}
+                            <h4><a href="{{ story.get_absolute_url }}">{{ story.headline }}</a></h4>
+                            {% if story.tease %}<p class="intro-type">{{ story.tease|striptags|truncatewords:"20" }}</p>{% endif %}
+                            
+                            <span class="byline">{% if not story.bylines.count %}By {% if story.one_off_byline %}{{ story.one_off_byline }}{% else %}JFP Staff{% endif %}{% else %}{% if story.bylines.count %}By {% for author in story.bylines.all %}<a href="{{ author.get_absolute_url }}">{{ author }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}{% endif %}</span>&nbsp;&nbsp;
+                            
+                            <span class="highlight-type">{{ story.pub_date|date:"N j"}}</span>
+
+                            {% get_cached_comment_count for story as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
+                        </div>
+                    </div>
+                          {% endif %}<!-- story.lead_photo -->
+                        {% endif %} <!-- section.id filter 1 -->
+                  {% endfor %}
+
+              {% endif %}<!-- sfront.lead_stories -->
+            {% endif %}<!-- sfront.daily_lead_story -->
+
+      </div> <!-- /Carosel -->
+    {% endif %}
+  {% endif %}
+
+  {% ifequal section.id 63 %} <!-- Opinion Section editorial cartoon -->
+    {% retrieve_object media.phototype 37 as editorial_cartoons %}
+    {% if editorial_cartoons.photos.count %}
+        {% with editorial_cartoons.photos.all.0 as photo %}
+        <div class="section" style="width:670px;margin-bottom:20px;border-bottom:1px dashed #e0e0e0;padding-bottom:10px;">
+            <div>
+              <a style="float:left;" href="{{ photo.get_absolute_url }}"><img src="{% mogrify photo.photo.url resize "670x600" %}" alt=""></a>
+              <div style="float:left;">
+                  <span class="byline">By {% if photo.photographer.get_full_name %}<a href="{{ photo.photographer.get_absolute_url }}">{{ photo.photographer.get_full_name }}</a>{% else %}{% if photo.one_off_photographer %}{{photo.one_off_photographer}}{% else %}JFP Staff{% endif %}{% endif %}
+                  </span>&nbsp;&nbsp;
+                  <span class="highlight-type">{{ photo.pub_date|date:"N j"}}</span>
+                  {% get_cached_comment_count for photo as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
+              </div>
+            </div>
+        </div>
+        {% endwith %}
+    {% endif %}
+  {% endifequal %}
+
+    {% comment %}
+    {% ifequal section.id 62 %} <!-- If restaurant section, render restaurant search -->
+        <form action="/restaurants/search/" method="get" class="restaurant_search_form">
+            <p class="search">
+                <select id="id_cuisine" size="1" name="cuisine">
+                    <option selected="selected" value="">All cuisines</option>
+                    {% get_latest_objects restaurants.cuisine 50 as cuisine_list %}
+                    {% for cuisine in cuisine_list %}
+                    <option value="{{ cuisine.id }}">{{ cuisine.name }}</option>
+                    {% endfor %}
+                </select>
+            
+                <select id="id_region" size="1" name="region">
+                    <option selected="selected" value="">All neighborhoods</option>
+                    {% get_latest_objects places.neighborhood 50 as neighborhood_list %}
+                    {% for neighborhood in neighborhood_list %}
+                    <option value="{{ neighborhood.id }}">{{ neighborhood.name }}</option>
+                    {% endfor %}
+                </select>
+            
+                <input id="id_q" type="text" name="q" length="10">
+                <input type="submit" value="Search" class="button">
+            </p>
+        </form>
+    {% endifequal %}
+    {% endcomment %}
+    
+    
+    
+    
+  <div class="section_wrapper">
+    
+
+    {% if sfront.lower_sections %}
+      {% for section in sfront.lower_sections %}
+        {% render_template_for section in "includes/lower_sections" %}
+      {% endfor %}
+    {% endif %}
+    
+    {% if story_list and not sfront.lower_sections %}
+      <div class="section section_wide">
+        {% exclude_from_list story_list sfront.lead_story,sfront.featured_stories as story_list %}
+        
+        {% if section.id == 68 %}
+          {% for story in story_list|dictsort:"subhead" %}
+            
+            <h4><a href="{{ story.get_absolute_url }}{% if section and section.framing %}?{{ section.framing }}{% endif %}">{{ story.headline|striptags }}</a></h4>
+            
+            <div class="story_body">
+              {% markupstory story "/news/framings/printer_friendly.html" %}
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <div class="list story_list">
+         {% if sfront.featured_stories %}
+          <h5>More {{ section.title }}</h5>
+         {% endif %}
+          
+          {% for story in story_list %}
+
+              {% if section.id == 65 and story.print_edition|lower == 'local' or section.id == 66 and story.print_edition|lower == 'state' or section.id == 67 and story.print_edition|lower == 'national' %} <!-- if section is local and print edition of story is local, render template, etc. -->
+                {% render_template_for story in "includes/lists" %}
+              {% endif %}
+
+              {% if section.id != 65 and section.id != 66 and section.id != 67 and section.id != 68 %} <!-- sift through template up top for local, state and national -->
+              {% if not story|is_in_category:"/news/letters" %}<!-- If this is the Opinion section, remove stories with the "Letters" category, as they will appear on the sidebar. This could probably be improved using exclude_from_list tag. -->
+                {% render_template_for story in "includes/lists" %}
+              {% endif %}
+              {% endif %}
+
+
+          {% endfor %}
+        </div>
+        {% if has_next or has_previous %}
+          <p class="pagination">
+            {% if has_previous %}<a class="previous" href="{{ section.get_absolute_url }}?page={{ previous_page_num }}">Previous</a>
+            {% else %}<span class="previous">Previous</span>
+            {% endif %}
+            {% if has_next %}<a class="next" href="{{ section.get_absolute_url }}?page={{ next_page_num }}">Next</a>
+            {% else %}<span class="next">Next</span>
+            {% endif %}
+          </p>
+        {% endif %}
+      </div>
+    {% endif %}
+    
+    {% if not sfront.lower_sections %}
+      <div class="section section_end">
+        <!-- Events
+        ==============================================-->
+                {% get_upcoming_events 100 as event_list %} <!-- This isn't optimal but the only way to get parent category in Ellington. Need to find better way. -->
+
+          {% if sfront.event_category and event_list %}
+              <div class="section_events">
+              <!-- Events -->
+
+                  {% ifequal section.id 3 %} <!-- If Music Section -->
+                    <h3><a href="/music/listings/">Concert Events</a></h3>
+                  {% else %}
+                    <h3><a href="/events/">Events</a></h3>
+                  {% endifequal %}
+
+                  <ul class="section_events">
+                      
+                      {% if sfront.event_category %}
+                          {% for event in event_list %}
+                              {% with parent=sfront.event_category.parent_category %}
+                              {% with category=event.event.categories.all %}
+                                {% if category.0.parent_category == parent or category.1.parent_category == parent or category.2.parent_category == parent or category.3.parent_category == parent or category.4.parent_category == parent %}
+                                    <li class="event-{{forloop.counter}}"><!-- This is how we hide too many events, using css. Also not optimal. Needs to be changed before launch -->
+                                        {% render_template_for event in "includes/section_calendar" %}
+                                    </li>
+                                {% endif %}
+                              {% endwith %}
+                              {% endwith %}
+                          {% endfor %}
+                      {% endif %}
+                      
+                  </ul>
+
+                  {% ifequal section.id 3 %} <!-- If Music Section -->
+                    <p class="more_events"><a class="lone-link" href="/news/music/listings/">music listings</a></p>
+                  {% else %}
+                    <p class="more_events"><a class="lone-link" href="/events/">more events</a></p>
+                  {% endifequal %}
+              </div>
+          {% endif %}
+         
+        <!-- Music Listings
+        ==============================================--> 
+        <!--
+          {% if section.id == 3 and event_list and sfront.event_category %} 
+              <div class="section_bands">
+                <h3>Bands to Know</h3>
+                <ul class="section_bands">
+                  {% for event in event_list %}
+                    {% with parent=sfront.event_category.parent_category %}
+                    {% with category=event.event.categories.all %}
+                        {% if category.0.parent_category == parent or category.1.parent_category == parent or category.2.parent_category == parent or category.3.parent_category == parent or category.4.parent_category == parent %}
+                            {% if event.event.bands.count %}
+                              {% for band in event.event.bands.all %}
+                                <li class="event-{{forloop.counter}}">
+                                    <h5><a href="{{band.get_absolute_url}}">{{band.name}}</a></h5>
+                                    {% if band.songs.count %}
+                                      <span>LISTEN: <a class="highlight-type" href="{{ band.songs.all.0.get_absolute_url}}">"{{ band.songs.all.0.name}}"</a></span>
+                                    {% endif %}
+                                </li>
+                              {% endfor %}
+                            {% endif %}
+                        {% endif %}
+                    {% endwith %}
+                    {% endwith %}
+                  {% endfor %}
+                </ul>
+                <p class="more_events"><a class="lone-link" href="/bands/">all bands</a></p>
+              </div>
+          {% endif %}
+        -->
+
+        <!-- Letters
+        ==============================================-->
+          {% ifequal section.id 63 %} <!-- If opinion section -->
+
+              {% get_latest_content_for_category "/letters" news.story as letters limit 10 %}
+              <h3>Letters</h3>
+              <ul>
+              {% for story in letters %}
+                {% get_cached_comment_count for story as comment_count %}
+                <li{% if forloop.last %} class="last"{% endif %}><a href="{{ story.get_absolute_url }}">{{ story.headline }}</a>
+                  {% if comment_count %}<small>{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</li>
+              {% endfor %}
+              </ul>
+          {% endifequal %}
+
+          <!-- The Slate
+        ==============================================-->
+          {% ifequal section.id 8 %} <!-- If sports section -->
+
+              {% get_latest_content_for_category "/the-slate" news.story as slates limit 4 %}
+              <h3><a href="{{ slates.0.get_absolute_url }}">The Slate</a></h3>
+              <ul>
+              <li><a href="{{ slates.0.get_absolute_url }}">See the best in sports for the week.</a></li>
+              </ul>
+          {% endifequal %}
+
+        <!-- Jackblog
+        ==============================================-->
+          {% ifequal section.id 63 %} <!-- If opinion section -->
+
+              {% get_blog_entries_by_slug jackblog 5 as jackblog_entries %}
+              <h3>Jackblog</h3>
+              <ul>
+              {% for entry in jackblog_entries %}
+                {% get_cached_comment_count for entry as comment_count %}
+                <li{% if forloop.last %} class="last"{% endif %}><a href="{{ entry.get_absolute_url }}">{{ entry.title|capfirst }}</a>
+                  {% if comment_count %}<small>{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</li>
+              {% endfor %}
+              </ul>
+          {% endifequal %}
+
+          {% get_latest_section_content for weblogs.entry section as entry_list limit 10 %}
+          {% if entry_list and entry_list|length > 2 %}
+            <h3>{% ifequal section.id 8 %}<a href="/weblogs/sports/">Sports Blog</a>{% else %}Blogs{% endifequal %}</h3>
+            <ul>
+              {% for entry in entry_list %}
+                {% get_cached_comment_count for entry as comment_count %}
+                <li{% if forloop.last %} class="last"{% endif %}><a href="{{ entry.get_absolute_url }}">{{ entry.title|capfirst }}</a>
+                  {% if comment_count %}<small>{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+
+          {% get_latest_section_content for podcasts.episode section as episode_list limit 10 %}
+          {% if episode_list %}
+            <h3>Podcasts</h3>
+            <ul>
+              {% for episode in episode_list %}
+                {% get_cached_comment_count for episode as comment_count %}
+                <li{% if forloop.last %} class="last"{% endif %}><a href="{{ episode.get_absolute_url }}">{{ episode.title }}</a>
+                  {% if comment_count %}<small>{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+
+          {% get_latest_section_content for media.video section as video_list limit 10 %}
+          {% if video_list %}
+            <h3>Video</h3>
+            <ul>
+              {% for video in video_list %}
+                {% get_cached_comment_count for video as comment_count %}
+                <li{% if forloop.last %} class="last"{% endif %}><a href="{{ video.get_absolute_url }}">{{ video.title }}</a>
+                  {% if comment_count %}<small>{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+      </div>
+    {% endif %}
+
+  </div>
+  {% endblock %}

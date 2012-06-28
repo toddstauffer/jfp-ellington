@@ -1,0 +1,53 @@
+{% extends "events/base_events.html" %}
+
+
+{% block title %}Best bets{% endblock %}
+{% block body_class %}{{ block.super }} best_bets{% endblock %}
+
+
+{% block feed_link %}<link type="application/rss+xml" rel="alternate" href="/rss/bestbets/">{% endblock %}
+
+
+{% block content_title %}
+  <h2>Best bets</h2><a class="alt_button" href="/events/submit/">Add Event</a>
+  <p class="ical_feed"><a href="/events/bestbets/ical/" title="Subscribe to iCal feed">iCal</a></p>
+  <p class="feed"><a href="{% url ellington_feeds_events_bestbets %}" title="Subscribe to RSS feed">RSS</a></p>
+{% endblock %}
+
+
+{% block content %}
+  {% if event_list %}
+    {% regroup event_list by event_date|date:"l, F j" as events_regrouped %}
+    {% for day in events_regrouped %}
+    <h3 class="divider" id="{{ day.grouper|slugify }}"><a href="#{{ day.grouper|slugify }}">{{ day.grouper }}</a></h3>
+    <table class="event_list">
+      {% for event in day.list %}
+        <tr{% if forloop.last %} class="last"{% endif %}>
+          <td class="title">
+            <h4>{% if event.event.is_cancelled %}CANCELLED: {% else %}{% if event.event.is_sold_out %}SOLD OUT: {% endif %}{% endif %}<a href="{{ event.get_absolute_url }}">{{ event.event.title }}</a></h4>
+            <h5 class="place">
+              {% if event.event.place_id %}
+                <a href="{{ event.event.place.get_absolute_url }}">{{ event.event.place.name|safe }}</a>
+              {% else %}
+                {{ event.event.one_off_place|safe }}
+              {% endif %}
+            </h5>
+          </td>
+          <td class="time">{{ event.start_time|time:"g:i A"|lower }}{% if event.finish_time %}&ndash;{{ event.finish_time|time:"g:i A"|lower }}{% endif %}</td>
+          <td class="city">{% if event.event.place_id %}{{ event.event.place.city }}{% endif %}</td>
+          <td class="category"><a href="/events/search/?category={{ event.event.categories.all.0.parent_category }}">{{ event.event.categories.all.0.parent_category }}</a></td>
+        </tr>
+      {% endfor %}
+      </table>
+    {% endfor %}
+  {% else %}
+    <p>No calendar events have been scheduled.</p>
+  {% endif %}
+
+  {% if day_previous or day_next %}
+  <p class="pagination">
+    {% if day_previous %}<a class="previous" href="/events/{{ day_previous|date:"Y/M/d"|lower }}">Previous day</a>{% else %}<span class="next">Previous day</span>{% endif %}
+    {% if day_next %}<a class="next" href="/events/{{ day_next|date:"Y/M/d"|lower }}/">Next day</a>{% else %}<span class="previous">Next day</span>{% endif %}
+  </p>
+  {% endif %}
+{% endblock %}

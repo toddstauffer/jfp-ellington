@@ -1,0 +1,38 @@
+{% extends "events/base_events.html" %}
+
+
+{% block title %}Events for {{ month|date:"F Y" }}{% endblock %}
+{% block body_class %}{{ block.super }} event_archive_month{% endblock %}
+
+
+{% block breadcrumbs %}
+  <p>
+    <a href="../../">Events</a>
+    <a href="../">{{ month|date:"Y" }}</a>
+    <span>{{ month|date:"F" }}</span>
+  </p>
+{% endblock %}
+
+
+{% block content_title %}
+  <h2>{{ month|date:"F" }} events</h2><a class="alt_button" href="/events/submit/">Add Event</a>
+{% endblock %}
+
+
+{% block content %}
+  {% load calendar %}
+
+  <div class="calendar_month">
+    {% render_month_calendar month.year month.month %}
+  </div>
+
+  <p class="pagination">
+    <a class="previous" href="/events/{{ previous_month|date:"Y/M"|lower }}/">Previous</a>
+    <a class="next" href="/events/{{ next_month|date:"Y/M"|lower }}/">Next</a>
+  </p>
+{% endblock %}
+
+
+{% block sidebar %}
+  {{ block.super }}
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "includes/lists/default.html" %}
+
+
+{% block item %}
+  {% load cached_comments content mogrify mailfriend permissions %}
+
+  {% if object.tease_photo %}<a href="{{ object.get_absolute_url }}" class="thumbnail"><img src="{% mogrify object.tease_photo.url resize "140x160" %}" title="" alt="Tease photo"></a>{% else %}{% if object.lead_photo %}<a href="{{ object.get_absolute_url }}" class="thumbnail"><img src="{% mogrify object.lead_photo.cropped.url resize "140x160" %}" title="" alt="Tease photo"></a>{% endif %}{% endif %}
+
+
+    {% render_template_for object in "includes/category" %}
+    
+
+
+  <h4><a href="{{ object.get_absolute_url }}{% if section and section.framing %}?{{ section.framing }}{% endif %}">{{ object.headline|striptags }}</a></h4>
+  {% if object.subhead %}<h5>{{ object.subhead }}</h5>{% endif %}
+{% if object.tease %}<p>{{ object.tease|striptags|truncatewords:30 }}</p>{% endif %}
+  <ul class="footer">
+
+    <li>{% render_template_for story in "includes/byline" %}</li>
+    
+    <li>{{ object.pub_date|date }}</li>
+    {% if object.comments_allowed %}
+      {% get_cached_comment_count for object as comment_count %} 
+      {% if comment_count %}
+        <li><a href="{{ object.get_absolute_url }}{% if section and section.framing %}?{{ section.framing }}{% endif %}#comments" class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</a>
+        </li>  {% endif %}
+    {% endif %}
+  </ul>
+{% endblock %}

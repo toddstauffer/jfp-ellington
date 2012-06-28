@@ -1,0 +1,10 @@
+{% extends "base_generic.html" %}
+
+{% block extended_styles %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{{ STATIC_MEDIA_URL }}ellington_defaults/2.3.0/stylesheets/apps/moderation.css" type="text/css" media="screen">
+{% endblock %}
+
+{% block title %}Moderation{% endblock %}
+
+{% block body_class %}{{ block.super }} moderation{% endblock %}

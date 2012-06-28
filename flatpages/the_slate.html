@@ -1,0 +1,98 @@
+{% extends "flatpages/default.html" %}
+{% block body_class %}flatpage_default the_slate{% endblock %}
+
+{% block content_title %}
+  <h2>The Slate</h2>
+  <p>The Best Sports in 7 Days</p>
+{% endblock %}
+
+{% block content %}
+  <div class="section_wrapper">
+    <div class="section section_wide">
+      {% load markup comparison dateutil listutil content events mogrify stories layout_tags weblogs cached_comments %}
+      {% get_latest_content_for_category "/the-slate" news.story as story_list limit 4 date_field "pub_date" %}
+      {% if story_list %}
+        {% with story=story_list.0 %}
+          {% if story.lead_photo %}
+            {% with story.lead_photo.original as photo %}
+            <div class="story_lead_photo">
+              <div class="photo">
+                {% if photo.photo_type.slug == "illustrations" %}
+                <img src="{% mogrify story.lead_photo.cropped.url thumbnail "670" %}" alt="{{ photo.caption }}">
+                {% else %}
+                <a href="{{ photo.get_absolute_url }}"><img src="{% mogrify story.lead_photo.cropped.url thumbnail "670" %}" alt="{{ photo.caption }}"></a>
+                {% endif %}
+              </div>
+              <p class="caption">
+                {% if photo.caption %}{{ photo.caption }}{% endif %}
+                {% if photo.photographer or photo.one_off_photographer %}
+                  {% if photo.photographer_id %}
+                    Photo by <a href="{{ photo.photographer.get_absolute_url }}">{{ photo.photographer.first_name }} {{ photo.photographer.last_name }}</a>.
+                  {% else %}
+                    {{ photo.one_off_photographer }}
+                  {% endif %}
+                {% endif %}
+              </p>
+            </div>
+            {% endwith %}
+          {% endif %}
+
+          <div class="content_info">
+            <p class="byline">brought to you by {% if not story.bylines.count %}{{ story.one_off_byline }}{% else %}{% for author in story.bylines.all %}<a href="{{ author.get_absolute_url }}">{{ author }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}</p>
+            {% with story.update_date|default:story.pub_date as display_date %}
+              <p class="datetime">
+                <a href="{{ story.get_absolute_url }}">
+                  {% if at_revision %}
+                    As of {{ at_revision.date_created|date:"l, F j, Y" }}
+                  {% else %}
+                    {{ display_date|date:"l, F j, Y" }}
+                  {% endif %}
+                </a>
+              </p>
+            {% endwith %}
+          </div>
+
+          
+          <div class="story_body">
+            {% markupstory story "/news/framings/printer_friendly.html" %}
+          </div>
+
+          {% render_template_for story in "includes/tools" %}
+
+          {% layout_supplement below story %}
+        {% endwith %}
+      {% endif %}
+    </div>
+
+    <div class="section section_end">
+
+      {% get_blog_entries_by_slug sports 5 as sports_entries %}
+      <h3>Sports Blog</h3>
+      <ul>
+        {% if sports_entries %}
+          {% for entry in sports_entries %}
+            {% get_cached_comment_count for entry as comment_count %}
+            <li{% if forloop.last %} class="last"{% endif %}>
+              <a href="{{ entry.get_absolute_url }}">{{ entry.title|capfirst }}</a>
+              {% if comment_count %}<small>{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}
+            </li>
+          {% endfor %}
+        {% else %}
+          <li class="last">No Entries Yet ... </li>
+        {% endif %}
+      </ul>
+
+      {% if story_list %}
+        <h3>Past Slates</h3>
+        <ul>
+        {% for story in story_list|slice:"1:" %}
+            <li{% if forloop.last %} class="last"{% endif %}>
+              <a href="story.get_absolute_url">{{story.pub_date|date:"M d"}}</a>
+            </li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+
+    </div>
+  </div>
+{% endblock %}

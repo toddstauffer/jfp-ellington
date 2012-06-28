@@ -1,0 +1,199 @@
+{% extends "news/base_news.html" %}
+
+
+{% load layout_tags rating_tags metadata content stories mogrify banned comments mailfriend weblogs more_like_this permissions %}
+
+
+{% block title %}{{ story.headline }}{% endblock %}
+{% block body_class %}{{ block.super }} story_detail{% if at_revision %} revision{% endif %}{% endblock %}
+{% block body_id %}story_{{ story.id }}{% endblock %}
+
+
+
+
+{% block extended_meta %}
+  {% get_metadata for story as metadata %}
+  {% if metadata.keywords %}<meta name="keywords" content="{{ metadata.keywords.content }}">{% endif %}
+  <meta name="description" content="{% if metadata.description %}{{ metadata.description.content }}{% else %}{{ story.tease }}{% endif %}">
+  <meta property="og:title" content="{{ story.headline }}">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="http://{{ request.get_host }}{{ story.get_absolute_url }}">
+{% endblock %}
+
+{% block feed_link %}
+  <link type="application/rss+xml" rel="alternate" href="/rss/comments/objects/{{ story|content_type_id }}/{{ story.pk }}/">
+{% endblock %}
+
+
+{% block extended_scripts %}
+
+{{block.super}}
+  <script type="text/javascript">
+    
+    jQuery(document).ready(function() {
+      jQuery("#legacy-comments h1").html('Previous Comments <span class="lone-link">show</span>');
+      jQuery("#legacy-comments h1").after('<p class="whatthis highlight-type">What\'s this?</p>');
+      jQuery("#legacy-comments h1").css("border-bottom", "0");
+      jQuery(".legacy-comment").hide();
+
+
+      jQuery('#legacy-comments p.whatthis').click(function() {
+        alert('In 2012 the Jackson Free Press moved to a new website. The system did not support old comments becoming new comments, so we placed them here. In many cases, these comments are as meaningful as the story that inspired them.');
+      });
+
+      /* Reformat legacy-comment-dates */
+      jQuery('span.legacy-comment-date').each(function() {
+        var html = jQuery(this).html().substring(0,10);
+        var d = jQuery.datepicker.parseDate('yy-mm-dd', html);
+        var s = jQuery.datepicker.formatDate("M d", d);
+        jQuery(this).html(s);
+      });
+
+      /* toggle the componenet with class msg_body */
+      jQuery("#legacy-comments h1").click(function() {
+        jQuery(".legacy-comment").slideToggle(500);
+        if (jQuery("#legacy-comments h1 span.lone-link").html() == 'show') {
+          jQuery(this).html('Previous Comments <span class="lone-link">hide</span>');
+        } else {
+          jQuery(this).html('Previous Comments <span class="lone-link">show</span>');
+        };
+      });
+
+    });
+
+    $(document).ready(function() {
+
+      var h3 = $("h3:contains('Previous Comments')");
+      /* Setup classes */
+      h3.nextAll('dl').addClass('previous-comment');
+      h3.nextAll('hr').remove();
+
+      /* Add Elements */
+      h3.css('margin-top','20px');
+      h3.css('cursor','pointer');
+      h3.append('<span class="previous-comment-toggle lone-link">show</span>');
+      h3.after('<span class="whatthis">What\'s this?</span>');
+      $(".previous-comment").hide();
+
+      /* Remove and rearrange elements */
+      $(".previous-comment").each(function(){
+        $(this).children('dt').remove();
+        $(this).children('dd').first().remove();
+        var html = $(this).children('dd').last().html().substring(0,10);
+        var d = $.datepicker.parseDate('yy-mm-dd', html);
+        var s = $.datepicker.formatDate("M d", d);
+        $(this).children('dd').last().html(s);
+      });
+
+      /* Add Effects */
+      $('span.whatthis').click(function() {
+        alert('In 2012 the Jackson Free Press moved to a new website. The system did not support old comments becoming new comments, so we placed them here. In many cases, these comments are as meaningful as the story that inspired them.');
+      });
+
+      /* toggle the componenet with class msg_body */
+      h3.click(function() {
+        $(".previous-comment").slideToggle(500);
+        if ($(".previous-comment-toggle.lone-link").html() == 'show') {
+          $(".previous-comment-toggle.lone-link").html('hide');
+        } else {
+          $(".previous-comment-toggle.lone-link").html('show');
+        };
+      });
+
+
+    });
+
+
+
+  </script>
+{% endblock %}
+
+{% block content_title %}
+  {% vote_form for story %}
+  <div id="target-story_headline_template">
+  {% if not story.lead_photo_has_headline %}
+    <h2 class="header">{{ story.headline }}</h2>
+    {% if story.subhead %}<h3 class="sub_header">{{ story.subhead }}</h3>{% endif %}
+  {% endif %}
+  </div>
+{% endblock %}
+
+{% block content %}  
+  {% if story.lead_photo %}
+    {% with story.lead_photo.original as photo %}
+    <div class="story_lead_photo">
+      <div class="photo">
+        {% if photo.photo_type.slug == "illustrations" %}
+        <img src="{% mogrify story.lead_photo.cropped.url thumbnail "670" %}" alt="{{ photo.caption }}">
+        {% else %}
+        <a href="{{ photo.get_absolute_url }}"><img src="{% mogrify story.lead_photo.cropped.url thumbnail "670" %}" alt="{{ photo.caption }}"></a>
+        {% endif %}
+      </div>
+      <p class="caption">
+        {% if photo.caption %}{{ photo.caption }}{% endif %}
+        {% if photo.photographer or photo.one_off_photographer %}
+          {% if photo.photographer_id %}
+            Photo by <a href="{{ photo.photographer.get_absolute_url }}">{{ photo.photographer.first_name }} {{ photo.photographer.last_name }}</a>.
+          {% else %}
+            {{ photo.one_off_photographer }}
+          {% endif %}
+        {% endif %}
+      </p>
+    </div>
+    {% endwith %}
+  {% endif %}
+
+  <div class="content_info">
+    {% render_template_for story in "includes/byline" %}
+
+    {% with story.update_date|default:story.pub_date as display_date %}
+      <p class="datetime">
+        <a href="{{ story.get_absolute_url }}">
+          {% if at_revision %}
+            Last updated on {{ at_revision.date_created|date:"l, F j, Y P T" }}
+          {% else %}
+            {{ display_date|date:"l, F j, Y P T" }}
+          {% endif %}
+        </a>
+      </p>
+    {% endwith %}
+
+    {% if user|can_change:story %}
+      &nbsp;&nbsp;<span class="highlight-type"><a href="/admin/news/story/{{ story.pk }}/" class="admin_link">edit</a></span>
+    {% endif %}
+  </div>
+
+  
+  <div class="story_body" id="target-story_body_template">
+    {% markupstory story framing at_revision %}
+
+  
+    {% if story.post_story_blurb %}
+      <p class="post_story_blurb">{{ story.post_story_blurb }}</p>
+    {% endif %}
+  </div>
+  {% get_metadata for story as metadata %}
+  {% if metadata.required_credit_info %}{{metadata.required_credit_info.content|safe}}{% endif %}
+  {% render_template_for story in "includes/tools" %}
+
+  {% load site_mlt %}
+  {% more_like_this story as recommended_list for "news.story" limit 5 %}
+  {% if recommended_list %}
+  <div class="recommended">
+    <h3>More like this story</h3>
+    <ul>
+      {% for story in recommended_list %}
+      <li><a href="{{ story.object.get_absolute_url }}">{{ story.object.headline }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% layout_supplement below story %}
+
+  {% with story as object %}
+    {% include "includes/comments.html" %}
+  {% endwith %}
+{% endblock %}
+
+{% block content_supplement_below %}{% endblock %}

@@ -1,0 +1,144 @@
+{% extends "events/base_events.html" %}
+
+
+{% block title %}{{ event.event.title }}{% endblock %}
+{% block body_class %}{{ block.super }} event_detail{% endblock %}
+{% block body_id %}event_{{ event.event.id }}{% endblock %}
+
+
+{% block feed_link %}
+  {% load content %}
+  <link type="application/rss+xml" rel="alternate" href="/rss/comments/objects/{{ event|content_type_id }}/{{ event.pk }}/">
+{% endblock %}
+
+
+{% block extended_meta %}
+  {% if event.event.short_description %}
+    <meta name="description" content="{{ event.event.short_description }}">
+  {% endif %}
+  <meta property="og:title" content="{{ event.event.title }}">
+  <meta property="og:type" content="activity">
+  <meta property="og:url" content="http://{{ site.domain }}{{ event.event.get_absolute_url }}">
+{% endblock %}
+
+
+{% block content_title_wrapper %}{% endblock %}
+
+{% block content %}
+  {% load banned comments mailfriend weblogs social content oembed_tags metadata %}
+
+  <div class="title">
+    <h2>{% if event.event.is_cancelled %}CANCELLED: {% else %}{% if event.event.is_sold_out %}SOLD OUT: {% endif %}{% endif %}{{ event.event.title }}</h2>
+    {% if event.event.short_description %}<h3>{{ event.event.short_description }}</h3>{% endif %}
+  </div>
+
+  <ul class="title_info">
+    <li><strong>When:</strong> <span>{% if event.is_in_the_past or not event.happens_this_year %}{{ event.event_date|date:"l, F j, Y" }}{% else %}{{ event.event_date|date:"l, F j" }}{% endif %}, {{ event.get_time }}</span></li>
+    <li><strong>Where:</strong> <span>{% if event.event.one_off_place %}{{ event.event.one_off_place }}{% else %}<a href="{{ event.event.place.get_absolute_url }}">{{ event.event.place.name }}</a>, {{ event.event.place.city.city }}{% endif %}</span></li>
+    <li><strong>Cost:</strong> <span>{% if event.event.get_cost %}{{ event.event.get_cost }}{% else %}Not available{% endif %} {% if not event.is_in_the_past %}{% if event.event.ticket_website %}<a href="{{ event.event.ticket_website|fix_ampersands }}" class="buy_tickets">buy tickets</a>{% endif %}{% endif %}</span></li>
+    <li><strong>Age limit:</strong> <span>{{ event.event.get_age_limit }}</span></li>
+    {% get_metadata for event.event as eventmeta %}
+    {% if eventmeta.contact_name %}<li><strong>Contact Name:</strong> <span>{{ eventmeta.contact_name.content }}</span></li>{% endif %}
+    {% if eventmeta.contact_phone %}<li><strong>Contact Phone:</strong> <span>{{ eventmeta.contact_phone.content }}</span></li>{% endif %}
+    {% if eventmeta.contact_email %}<li><strong>Contact E-mail:</strong> <span>{{ eventmeta.contact_email.content }}</span></li>{% endif %}
+    <li><strong>Categories:</strong> <span>{% for category in event.event.categories.all %}<a href="/events/search/?category={{ category.id }}">{{ category.display_name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</span></li>
+  </ul>
+
+  {% if event.event.long_description %}
+    {{ event.event.long_description|striptags|linebreaks|oembed:"320x264" }}
+  {% endif %}
+  
+  {% if event.event.bands.all %}
+  <h4>Band page{{ event.event.bands.all|pluralize }}</h4>
+    <ul>
+     {% for band in event.event.bands.all %}
+     <li><a href="http://{{ site.domain }}{{ band.get_absolute_url }}">{{ band.get_name }}</a></li>
+     {% endfor %}
+    </ul>
+  {% endif %}
+
+
+  {% if not event.is_in_the_past %}
+    {% if drink_special %}
+      <section>
+        <h3 id="drinkspecial">Drink special</h3>
+        <p>{{ event.event_date|date:"l" }}s at {{ event.event.place.get_name }}: {{ drink_special }}</p>
+        <p><a href="/drinkspecials/{{ event.event_date|date:"l"|lower }}/">Other {{ event.event_date|date:"l" }} drink specials</a></p>
+      </section>
+    {% endif %}
+  {% endif %}
+
+  {% if other_event_time_list %}
+    <section>
+      <h3 id="additional">Additional dates</h3>
+      <ul>
+        {% for event_time in other_event_time_list %}
+        <li><a href="{{ event_time.get_absolute_url }}">{{ event_time.event_date|date:"l, F j" }}</a></li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
+  {% if soundclips %}
+    <section>
+      <h3 id="songs">You might {% if event.is_in_the_past %}have heard{% else %}hear{% endif %}</h3>
+      <table class="sound_clips">
+        <tr>
+          <th>Song</th>
+          <th>Artist</th>
+          <th></th>
+        </tr>
+        {% for song in soundclips %}
+        <tr>
+          <td><a href="{{ song.get_absolute_url }}">{{ song.name }}</a></td>
+          <td>{{ song.band.name }}</td>
+          <td><a href="/playlists/add_song/{{ song.id }}/">Add to playlist</a></td>
+        </tr>
+        {% endfor %}
+      </table>
+    </section>
+  {% endif %}
+
+  {% if related_links %}
+    <section>
+      <h3 id="related">Related links</h3>
+      <ul>
+        {% for link in related_links %}
+        <li><a href="{{ link.url }}">{{ link.link_text }}</a>{% if link.pub_date %} ({{ link.pub_date|date }}){% endif %}</li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
+  {% render_template_for event.event in "includes/tools" %}
+
+  {% with event as object %}
+    {% include "includes/comments.html" %}
+  {% endwith %}
+{% endblock %}
+
+
+{% block sidebar %}
+  {% if not event.event.one_off_place and event.event.place.latitude and event.event.place.longitude %}
+    <div class="map">
+      <abbr class="geo" title="{{ event.event.place.latitude }};{{ event.event.place.longitude }}">{{ event.event.place.name }}</abbr>
+    </div>
+  {% endif %}
+  
+  <div class="accordion">
+    <h2><a href="#">Submit correction</a></h2>
+    <div>
+      {% if request.user.is_authenticated %}
+        <form method="post" action="{% url ellington_events_submit_correction event.event.pk %}">
+          {{ correction_form.as_p }}
+          <p class="submit"><button type="submit">Submit correction</button></p>
+        </form>
+      {% else %}
+        <p>Please <a href="/accounts/login/?next={{ request.META.PATH_INFO }}">log in</a> to submit event corrections</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {{ block.super }}
+
+{% endblock %}

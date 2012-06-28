@@ -1,0 +1,92 @@
+{% extends "flatpages/default.html" %}
+{% block body_class %}flatpage_default{% endblock %}
+
+{% block extended_meta %}
+{{block.super}}
+
+  <link rel=alternate type=application/rss+xml
+  href=http://ad2adnetwork.biz/ad2ad/rss.php?pubfeed=2500464>
+  <META name=DESCRIPTION content='Ads page for Jackson Free Press. Ads
+  for zipcode 39296. Ads for Jackson, MS. Ads for area code 601.'>
+  <META name=KEYWORD content='Miscellaneous, Notices, Musicianís
+  Exchange, Real Estate/Rentals, Vehicles for Sale, Event Announcements,
+  Classes/Lessons Offered, Merchandise For Sale, Home/Lawn/Child Care,
+  Professional Services, Business Opportunities, Help Wanted'>
+  <META name=KEYWORD content='Miscellaneous Ads for Jackson, MS 39296,
+  areacode 601'>
+  <META name=KEYWORD content='Notices Ads for Jackson, MS 39296, areacode 601'>
+  <META name=KEYWORD content='Musicianís Exchange Ads for Jackson, MS
+  39296, areacode 601'>
+  <META name=KEYWORD content='Real Estate/Rentals Ads for Jackson, MS
+  39296, areacode 601'>
+  <META name=KEYWORD content='Vehicles for Sale Ads for Jackson, MS
+  39296, areacode 601'>
+  <META name=KEYWORD content='Event Announcements Ads for Jackson, MS
+  39296, areacode 601'>
+  <META name=KEYWORD content='Classes/Lessons Offered Ads for Jackson,
+  MS 39296, areacode 601'>
+  <META name=KEYWORD content='Merchandise For Sale Ads for Jackson, MS
+  39296, areacode 601'>
+  <META name=KEYWORD content='Home/Lawn/Child Care Ads for Jackson, MS
+  39296, areacode 601'>
+  <META name=KEYWORD content='Professional Services Ads for Jackson, MS
+  39296, areacode 601'>
+  <META name=KEYWORD content='Business Opportunities Ads for Jackson, MS
+  39296, areacode 601'>
+  <META name=KEYWORD content='Help Wanted Ads for Jackson, MS 39296,
+  areacode 601'>
+{% endblock %}
+
+{% block extended_scripts %}
+{{ block.super }}
+
+<script type="text/javascript">
+   var titlebar='Jackson Free Press Classifieds';  //window title here
+   var topframedepth='150';  //depth of topframe 2
+   var topframe='http://www.jacksonfreepress.com/index.php/page_elements/header_class/';
+  //topframe content
+   var adsystem=2500464;
+   document.getElementsByTagName('head').innerHTML='';
+if(window.location.search.substring(1)!=''){
+       adsystem +='&'+window.location.search.substring(1);
+   }    thepage = '<head><title>'+titlebar+'</title></head>';
+   thepage +='<noframes>Please enable frames, or use a frames enabled browser\
+<a href=http://ad2adnetwork.biz/ad2ad/?portalid=2500464>Miscellaneous
+for Jackson, MS 39296, areacode 601</a>\
+<a href=http://ad2adnetwork.biz/ad2ad/?portalid=2500464>Notices  for
+Jackson, MS 39296, areacode 601</a>\
+<a href=http://ad2adnetwork.biz/ad2ad/?portalid=2500464>Musicianís
+Exchange  for Jackson, MS 39296, areacode 601</a>\
+<a href=http://ad2adnetwork.biz/ad2ad/?portalid=2500464>Real
+Estate/Rentals  for Jackson, MS 39296, areacode 601</a>\
+<a href=http://ad2adnetwork.biz/ad2ad/?portalid=2500464>Vehicles for
+Sale  for Jackson, MS 39296, areacode 601</a>\
+<a href=http://ad2adnetwork.biz/ad2ad/?portalid=2500464>Event
+Announcements  for Jackson, MS 39296, areacode 601</a>\
+<a href=http://ad2adnetwork.biz/ad2ad/?portalid=2500464>Classes/Lessons
+Offered  for Jackson, MS 39296, areacode 601</a>\
+<a href=http://ad2adnetwork.biz/ad2ad/?portalid=2500464>Merchandise
+For Sale  for Jackson, MS 39296, areacode 601</a>\
+<a href=http://ad2adnetwork.biz/ad2ad/?portalid=2500464>Home/Lawn/Child
+Care  for Jackson, MS 39296, areacode 601</a>\
+<a href=http://ad2adnetwork.biz/ad2ad/?portalid=2500464>Professional
+Services  for Jackson, MS 39296, areacode 601</a>\
+<a href=http://ad2adnetwork.biz/ad2ad/?portalid=2500464>Business
+Opportunities  for Jackson, MS 39296, areacode 601</a>\
+<a href=http://ad2adnetwork.biz/ad2ad/?portalid=2500464>Help Wanted
+for Jackson, MS 39296, areacode 601</a></noframes>';
+   thepage +='<frameset rows="'+topframedepth+',*" border="0">';
+   thepage +='<frame src="'+topframe+'" name="topframe" scrolling="no">';
+   thepage +='<frame
+src=http://ad2adnetwork.biz/ad2ad/?portalid='+adsystem+'>';    thepage
++='</frameset>';
+   document.write(thepage);
+</script>
+{% endblock %}
+
+{% block content_title %}
+  <h2>Classifieds</h2>
+{% endblock %}
+
+{%block sidebar_wrapper %}
+{%endblock%}

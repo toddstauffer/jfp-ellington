@@ -1,0 +1,91 @@
+{% extends "events/base_events.html" %}
+
+
+{% block title %}Events for {{ day|date }}{% endblock %}
+{% block body_class %}{% load dateutil %}{{ block.super }} event_archive_day{% if now.date == day %} daypart_{{ now|fuzzy_time|slugify }}{% endif %}{% endblock %}
+
+
+{% block content_title %}
+  {% load dateutil mogrify %}
+
+  <h2>Events for {{ day|date:"l, F j, Y" }} </h2><a class="alt_button" href="/events/submit/">Add Event</a>
+
+  {% regroup event_list by start_time|fuzzy_time as events_regrouped %}
+
+  {% if events_regrouped %}
+    <ul class="inline_list">
+      {% for daypart in events_regrouped %}
+      <li><a href="#{{ daypart.grouper|slugify }}">{{ daypart.grouper }}</a></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <p class="pagination">
+    <a class="previous" href="/events/{{ day_previous|date:"Y/M/d"|lower }}/">Previous</a>
+    <a class="next" href="/events/{{ day_next|date:"Y/M/d"|lower }}/">Next</a>
+  </p>
+{% endblock %}
+
+
+{% block breadcrumbs %}
+  <p>
+    <a href="/events/">Events</a>
+    <a href="/events/{{ day|date:"Y/" }}">{{ day|date:"Y" }}</a>
+    <a href="/events/{{ day|date:"Y/M/"|lower }}">{{ day|date:"F" }}</a>
+    <span>{{ day|date:"j" }}</span>
+  </p>
+{% endblock %}
+
+{% block content_search %}
+  <form action="{% url ellington_events_search %}" method="get" class="vertical_search_form" autocomplete="off">
+    <p>
+      <input type="text" name="q" value="" placeholder="Search events">      <button type="submit">Search</button>
+    </p>
+  </form>
+{% endblock %}
+
+{% block content %}
+  {% load comparison dateutil content fragments %}
+
+  {% fragment events_tba_replacement_label as tba_label %}
+
+  {% if event_list %}
+    {% regroup event_list by start_time|fuzzy_time as events_regrouped %}
+    {% for daypart in events_regrouped %}
+      <h3 class="divider" id="{% if daypart.grouper %}{{ daypart.grouper|slugify }}{% else %}tba{% endif %}">
+        <a href="#{% if daypart.grouper %}{{ daypart.grouper|slugify }}{% else %}tba{% endif %}">{% if daypart.grouper %}{{ daypart.grouper }}{% else %}{{tba_label.content|safe}}{% endif %}</a>
+      </h3>
+      <div class="daypart_{% if daypart.grouper %}{{ daypart.grouper|slugify }}{% else %}tba{% endif %}">
+        <table class="event_list">
+          {% for event in daypart.list %}
+          <tr{% if forloop.last %} class="last"{% endif %}>
+            <td class="title">
+              {% if event.event.small_photo %}<a href="{{ event.get_absolute_url }}" class="thumbnail"><img src="{% mogrify event.event.small_photo.url resize "80x60" %}" title="" alt="{{ event.event.title }}"></a>{% endif %}
+              <h4>{% if event.event.is_cancelled %}CANCELLED: {% else %}{% if event.event.is_sold_out %}SOLD OUT: {% endif %}{% endif %}<a href="{{ event.get_absolute_url }}">{{ event.event.title }}</a></h4>
+              <h5>
+                {% if event.event.place_id %}
+                  <a href="{{ event.event.place.get_absolute_url }}">{{ event.event.place.name }}</a>
+                {% else %}
+                  {{ event.event.one_off_place }}
+                {% endif %}
+              </h5>
+            </td>
+            <td class="time">{{ event.start_time|time:"g:iA"|lower }}{% if event.finish_time %}&ndash;{{ event.finish_time|time:"g:iA"|lower }}{% endif %}</td>
+            <td class="city">{% if event.event.place_id %}{{ event.event.place.city }}{% endif %}</td>
+            <td class="category"><a href="/events/search/?category={{ event.event.categories.all.0.parent_category }}">{{ event.event.categories.all.0.parent_category }}</a></td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>No calendar events have been scheduled.</p>
+  {% endif %}
+
+  {% if day_previous or day_next %}
+  <p class="pagination">
+    {% if day_previous %}<a class="previous" href="/events/{{ day_previous|date:"Y/M/d"|lower }}/">Previous</a>{% else %}<span class="next">Previous</span>{% endif %}
+    {% if day_next %}<a class="next" href="/events/{{ day_next|date:"Y/M/d"|lower }}/">Next</a>{% else %}<span class="previous">Next</span>{% endif %}
+  </p>
+  {% endif %}
+{% endblock %}

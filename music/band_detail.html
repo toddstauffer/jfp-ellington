@@ -1,0 +1,163 @@
+{% extends "music/base_music.html" %}
+
+
+{% block title %}{{ band.get_name }}{% endblock %}
+{% block body_class %}{{ block.super }} band_detail{% endblock %}
+{% block body_id %}band_detail_{{ band.id }}{% endblock %}
+
+
+{% block extended_meta %}
+  <meta property="og:title" content="{{ band.get_name }}">
+  <meta property="og:type" content="band">
+  <meta property="og:url" content="http://{{ site.domain }}{{ band.get_absolute_url }}">
+{% endblock %}
+
+
+{% block content_title %}
+  {% load social %}
+  {% load mailfriend %}
+
+  <div style="float: left;">
+    <h2>{{ band.get_name }}</h2>
+    {% if band.year_formed %}<h3>Formed {% if band.city %}in {{ band.city }}{% endif %}in {{ band.year_formed }}.</h3>{% endif %}
+  </div>
+{% endblock %}
+
+
+{% block content %}
+  {% load mogrify content %}
+
+  
+
+  {% if band.lead_photo %}
+    <p><img class="lead_photo" src="{% mogrify band.lead_photo.url thumbnail "670" %}" alt=""></p>
+  {% endif %}
+
+  {% if event_list %}
+    <section>
+      <h3 id="upcoming">Upcoming shows</h3>
+      <table class="event_list">
+        {% for event in event_list %}
+          <tr{% if not event|is_content_type:"events.eventtime" %} class="recurring"{% endif %}>
+            <td class="title">
+              <h4><a href="{{ event.get_absolute_url }}">{{ event.event.title }}</a></h4>
+              <h5>
+                {% if event.event.place_id %}
+                  <a href="{{ event.event.place.get_absolute_url }}">{{ event.event.place.name }}</a>
+                {% else %}
+                  {{ event.event.one_off_place }}
+                {% endif %}
+              </h5>
+              <p class="time">{{ event.event_date|date:"N j, Y" }}, {{ event.start_time|time:"g:sA"|lower }}{% if event.finish_time %} &ndash; {{ event.finish_time|time:"g:sA"|lower }}{% endif %}</p>
+            </td>
+            <td class="city">{% if event.event.place_id %}{{ event.event.place.city }}{% endif %}</td>
+            <td class="category"><a href="/events/search/?category={{ event.event.categories.all.0.parent_category }}">{{ event.event.categories.all.0.parent_category }}</a></td>
+          </tr>
+        {% endfor %}
+      </table>
+    </section>
+  {% endif %}
+
+  {% if band.current_status or band.sound_description or band.influences or band.recommended_if_you_like %}
+    <section>
+      <h3 id="description">Description</h3>
+      {% if band.current_status %}<p><strong>Current Status:</strong> {{ band.current_status|escape }}</p>{% endif %}
+      {% if band.sound_description %}<p><strong>Sound description:</strong> {{ band.sound_description|safe }}</p>{% endif %}
+      {% if band.influences %}<p><strong>Influences:</strong> {{ band.influences|escape }}</p>{% endif %}
+      {% if band.recommended_if_you_like %}<p><strong>Similar to:</strong> {{ band.recommended_if_you_like }}</p>{% endif %}
+    </section>
+  {% endif %}
+
+  {% if band.genres.all %}
+    <section>
+      <h3 id="genres">Genre{{ band.genres.all|pluralize }}</h3>
+      <p>{% for genre in band.genres.all %}<a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+    </section>
+  {% endif %}
+
+  {% if audio_interview_list %}
+    <section>
+      <h3 id="interviews">Audio interviews</h3>
+      <table class="list audio_list">
+        <tr>
+          <th>Topic</th>
+          <th>Duration</th>
+          <th>Posted</th>
+        </tr>
+        {% for interview in audio_interview_list %}
+        <tr>
+          <td><a href="{{ interview.get_absolute_url }}">{{ interview.topic }}</a>
+            {% if interview.other_info %}<p>{{ interview.other_info }}</p>{% endif %}</td>
+          <td>{{ interview.length|time }}</td>
+          <td>{{ interview.posted_date|date }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </section>
+  {% endif %}
+
+  {% if related_links %}
+    <section>
+      <h3 id="related">Related links</h3>
+      <ul>
+        {% for link in related_links %}
+       <li><a href="{{ link.url }}">{{ link.link_text }}</a> {% if link.pub_date %}<small>{{ link.pub_date|date:"N j, Y" }}</small>{% endif %}</li>
+       {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
+  {% if band.history %}
+    <section>
+      <h3 id="history">History</h3>
+      {{ band.history|striptags|linebreaks }}
+    </section>
+  {% endif %}
+
+  {% if band.albums.count %}
+    <section>
+      <h3 id="discography">Discography</h3>
+      <table class="list album_list">
+        <tr>
+          <th>Cover</th>
+          <th>Name</th>
+          <th>Released</th>
+          <th>Label</th>
+        </tr>
+        {% for album in band.albums.all %}
+        <tr>
+          <td>{% if album.image %}<a class="thumbnail" href="{{ album.get_absolute_url }}"><img src="{% mogrify album.image.url resize "48x48" %}" alt="Album cover"></a>{% else %}<span class="no_thumbnail">No album artwork</span>{% endif %}</td>
+          <td><a href="{{ album.get_absolute_url }}">{{ album.get_name }}</a></td>
+          <td>{{ album.year_released }}</td>
+          <td>{{ album.record_label }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </section>
+  {% endif %}
+
+  {% if band.musicianinband_set.count %}
+    <section>
+      <h3 id="musicians">Musicians</h3>
+      <table class="list">
+        <tr>
+          <th>Name</th>
+          <th>Instrument</th>
+        </tr>
+        {% for musician in band.musicianinband_set.all %}
+        <tr{% if musician.ex_member %} class="ex"{% endif %}>
+          <td class="name"><a href="{{ musician.musician.get_absolute_url }}">{{ musician.musician.full_name }}</a></td>
+          <td class="instruments">
+            {% for instrument in musician.instruments.all %}
+            <a href="{{ instrument.get_absolute_url }}">{{ instrument.name }}</a>{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+    </section>
+  {% endif %}
+
+  <a class="button" href="./past_shows/">Past shows</a>
+  {% render_template_for band in "includes/tools" %}
+{% endblock %}

@@ -1,0 +1,13 @@
+
+{% load stories %}
+<span class="byline">
+    {% if not object|is_in_category:"/editorial" %}
+        {% if object.author.get_full_name or object.author.username %}
+            By <a href="{{ object.author.get_absolute_url }}">{% if object.author.get_full_name %}{{ object.author.get_full_name }}{% else %}{{ object.author.username }}{% endif %}</a>
+        {% else %}
+            By {% if object.one_off_byline %}{{ object.one_off_byline }}{% else %}JFP Staff{% endif %}
+        {% endif %}
+    {% else %}
+        By Editorial Board
+    {% endif %}
+</span>

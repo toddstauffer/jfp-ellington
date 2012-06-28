@@ -1,0 +1,74 @@
+{% extends "base_generic.html" %}
+
+
+{% block title %}Blogs{% endblock %}
+{% block body_class %}weblogs{% endblock %}
+
+
+{% block feed_link %}<link type="application/rss+xml" rel="alternate" href="/rss/weblog_entries/{% if blog %}{{ blog.slug }}/{% endif %}">{% endblock %}
+
+
+{% block content_title %}
+  <p class="feed"><a href="/rss/weblog_entries/{% if blog %}{{ blog.slug }}/{% endif %}" title="Subscribe to RSS feed">Subscribe</a></p>
+{% endblock %}
+
+
+{% block subnav %}
+  {% load weblogs %}
+
+  <div id="subnav">
+    <div class="wrapper">
+      <ul>
+        <li class="blog_home"><a href="/weblogs/">Entries</a>
+          <ul>
+            <li><a href="/weblogs/">Latest</a></li>
+            <li><a href="/weblogs/staff/">Staff entries</a></li>
+            <li><a href="/weblogs/reader/">Reader entries</a></li>
+          </ul>
+        </li>
+        <li class="blog_list"><a href="/weblogs/list/">Blogs</a></li>
+        <li class="blog_groups_home"><a href="/weblogs/groups/">Groups</a></li>
+        {% get_blogs_for_user user as user_blogs %}
+        {% if user_blogs %}
+        <li class="blog_dashboard"><a href="/weblogs/dashboard/">Manage</a></li>
+        <li class="blog_entry_form"><a href="{% if user_blogs.1 %}#{% else %}/weblogs/post/{% endif %}">Post entry</a>
+          {% if user_blogs %}
+            <ul>
+              {% for blog in user_blogs %}
+              <li><a href="{{ blog.get_absolute_url }}post/">{{ blog.title }}</a></li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </li>
+        <li class="post_link"><a href="{% if user_blogs.1 %}#{% else %}/weblogs/post/link/{% endif %}">Post link</a>
+          {% if user_blogs %}
+            <ul>
+              {% for blog in user_blogs %}
+              <li><a href="{{ blog.get_absolute_url }}post/link/">{{ blog.title }}</a></li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </li>
+        {% else %}
+        <li class="create_blog"><a href="/weblogs/create/">Create blog</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+{% endblock %}
+
+
+{% block sidebar_ad %}{% endblock %}
+
+{% block sidebar %}
+  {% load mogrify %}
+
+  {% if group and group.header_image %}
+    <p class="header_image"><img src="{% mogrify group.header_image.url thumbnail "300" %}" alt=""></p>
+  {% else %}
+    {% if blog and blog.header_image %}
+      <p class="header_image"><img src="{% mogrify blog.header_image.url thumbnail "300" %}" alt=""></p>
+    {% endif %}
+  {% endif %}
+  {{ block.super }}
+{% endblock %}

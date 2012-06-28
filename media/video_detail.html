@@ -1,0 +1,64 @@
+{% extends "media/base_videos.html" %}
+
+
+{% block title %}{{ video.title }}{% endblock %}
+{% block body_class %}{{ block.super }} video_detail{% endblock %}
+{% block body_id %}video_{{ video.id }}{% endblock %}
+
+
+{% block feed_link %}
+  {% load content %}
+  <link type="application/rss+xml" rel="alternate" href="/rss/comments/objects/{{ video|content_type_id }}/{{ video.pk }}/">
+{% endblock %}
+
+
+{% block content_title %}
+  {% load rating_tags %}
+
+  {% vote_form for video %}
+
+  <h2>{{ video.title }}</h2>
+{% endblock %}
+
+{% block content %}
+  {% load mogrify banned comments content %}
+
+ 
+  <div class="video">
+    {% with 670 as width %}
+    {% with 510 as height %}
+      {% include "includes/media/video_player.html" %}
+    {% endwith %}
+    {% endwith %}
+  </div>
+
+  <div class="content_info">
+    {% if video.videographer or video.one_off_videographer %}<p class="byline">By {% if video.videographer %}<a href="{{ video.videographer.get_absolute_url }}">{{ video.videographer }}</a>{% else %}{{ video.one_off_videographer }} {% endif %}</p>{% endif %}
+    <p class="datetime">{{ video.creation_date|date }}</p>
+  </div>
+
+  {% if video.caption %}<p>{{ video.caption }}</p>{% endif %}
+
+  {% if video.transcript_text %}
+    <h4>Transcript</h4>
+    <div id="transcript">
+      {{ video.transcript_text|safe|linebreaks }}
+    </div>
+  {% endif %}
+
+  {% if video.get_story_list %}
+    <h3>Stories this video appears in:</h3>
+    <div class="list">
+      {% for story in video.get_story_list %}
+        {% render_template_for story in "includes/lists" %}
+      {% endfor %}
+    </div>
+  {% endif %}
+
+   {% render_template_for video in "includes/tools" %}
+
+
+  {% with video as object %}
+    {% include "includes/comments.html" %}
+  {% endwith %}
+{% endblock %}

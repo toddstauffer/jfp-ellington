@@ -1,0 +1,68 @@
+<!-- Added site user agreement checkbox as form field. -->
+
+{% extends "base_generic.html" %}
+
+{% load socialregistration_tags facebook_tags twitter_tags fragments %}
+
+{% block title %}Register for an account{% endblock %}
+{% block body_class %}{{ block.super }} registration_form{% endblock %}
+
+
+{% block content %}
+  <h2>Register for an account</h2>
+  <div id="login">
+    <p>Registration is free. Start by giving us your e-mail address, and we'll send you instructions on how to continue. We will not spam you or give your e-mail address to anybody.</p>
+
+    {% fragment old_username_message as username_message %}
+    <p>{{username_message.content|safe}}</p>
+
+    <form action="" method="post" class="signup_form form_toggle">{% csrf_token %}
+      {% for field in form %}
+        <p><label for="id_{{ field.name }}">{{ field.label|title }}</label> {{ field }}
+          {% if field.name == "username" %}<span class="help_text">Alphanumeric characters, no spaces.</span>{% endif %}
+          {% if field.errors %}<span class="errors">{{ field.errors|join:", " }}</span>{% endif %}</p>
+      {% endfor %}
+      <p class="user_agreement_field"><input type="checkbox" name="user_agreement" id="user_agreement" class="required" CHECKED><label for="user_agreement">I accept the terms of the <a href="/user-agreement/">user agreement and privacy statement</a>.</label>
+        </p>
+      <p class="submit"><button type="submit">Sign up</button></p>
+    </form>
+
+    <div id="openid_login" class="form_toggle" style="display:none">
+      {% load openid_tags %}
+      {% openid_form %}
+    </div>
+
+    {% open_id_errors request %}
+    {% if openid_error %}
+    <div id="open_id_error">
+          <p class="errors">The OpenID provider {% if openid_provider %}"{{ openid_provider }}"{% else %}url{% endif %} you entered wasn't valid. <a href="#" class="openid_link">Try again</a></p>
+    </div>
+    {% endif %}
+  </div>
+  <div class="social_registration">
+    <h4>Or login with:</h4>
+        {% auth_enabled facebook as facebook_enabled %}
+        {% if facebook_enabled %}
+          {% facebook_button %}
+          {% facebook_js %}
+        {% endif %}
+
+        {% auth_enabled twitter as twitter_enabled %}
+        {% if twitter_enabled %}
+          {% twitter_button %}
+        {% endif %}
+
+        <form action="{% url openid_redirect %}" method="GET">
+          <input type="hidden" name="openid_provider" value="https://www.google.com/accounts/o8/id" />
+          <button type="submit">Google</button>
+        </form>
+        <p><a href="#" class="openid_link button">OpenID</a></p>
+    </div>
+
+    <script>
+    $("a.openid_link").click(function () {
+      $(".form_toggle").toggle();
+      return false;
+    });
+    </script>
+{% endblock %}

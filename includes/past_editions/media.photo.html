@@ -1,0 +1,98 @@
+{% load mogrify content cached_comments %}
+
+	{% with p=object.photo|stringformat:"s" %}
+    
+    {% if p|slice:":1" == 'i' %}
+        {% with v=p|slice:"28:30" %}
+        {% with i=p|slice:"31:33" %}
+        {% if home_sfront %}
+            <h3 class="current-issue">CURRENT ISSUE:<span class="issue-number">v{{v}}, i{{i}}</span></h3> <!-- not sure what the best way to handle this volume/issue. This method will break if we start reformatting the photonames. May be better to create a benchmark date and count down.-->
+
+        {% endif %}
+        {% if home_sfront %}<div class="cover-image">{% endif %}
+
+            <a class="cover-image-anchor" href="http://issuu.com/jacksonfreepress/docs/v{{v}}n{{i}}?mode=embed" title="Published {{ object.pub_date|date }}">
+                <img class="magnify-icon" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/images/icons/magnify.png" style="display:none;">
+                <img class="cover" src="{% if home_sfront %}{% mogrify object.photo.url resize "150x200" %}{% else %}{% mogrify object.photo.url thumbnail "210" %}{% endif %}" alt="cover thumbnail">
+            </a>
+            <span class="caption">
+                <a href="http://issuu.com/jacksonfreepress/docs/v{{v}}i{{i}}?mode=embed">Flip through {% if home_sfront %}issue{% else %}v{{v}}, i{{i}}{% endif %} ...</a>
+            </span>
+        {% if home_sfront %}</div>{% endif %}
+        {% endwith %}
+        {% endwith %}
+
+    {% else %}
+
+        {% with v=p|slice:"24:26" %}
+        {% with i=p|slice:"27:29" %}
+        {% if home_sfront %}
+            <h3 class="current-issue">CURRENT ISSUE:<span class="issue-number">v{{v}}, i{{i}}</span></h3> <!-- not sure what the best way to handle this volume/issue. This method will break if we start reformatting the photonames. May be better to create a benchmark date and count down.-->
+
+        {% endif %}
+        {% if home_sfront %}<div class="cover-image">{% endif %}
+
+            <a class="cover-image-anchor" href="http://issuu.com/jacksonfreepress/docs/v{{v}}n{{i}}?mode=embed" title="Published {{ object.pub_date|date }}">
+                <img class="magnify-icon" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/images/icons/magnify.png" style="display:none;">
+                <img class="cover" src="{% if home_sfront %}{% mogrify object.photo.url resize "150x200" %}{% else %}{% mogrify object.photo.url thumbnail "210" %}{% endif %}" alt="cover thumbnail">
+            </a>
+            <span class="caption">
+                <a href="http://issuu.com/jacksonfreepress/docs/v{{v}}i{{i}}?mode=embed">Flip through {% if home_sfront %}issue{% else %}v{{v}}, i{{i}}{% endif %} ...</a>
+            </span>
+        {% if home_sfront %}</div>{% endif %}
+        {% endwith %}
+        {% endwith %}
+    {% endif %}
+    {% endwith %}
+
+    <ul class="footer">
+        {% with newdate=object.pub_date|date:"Y-m-d" %}
+        {% if home_sfront %}
+            {% get_daily_content newdate for news.story as issue_list limit 3 %}
+        {% else %}
+            {% get_daily_content newdate for news.story as issue_list limit 5 %}
+        {% endif %}
+                    
+        {% for story in issue_list %}
+            {% if story.print_section == "covers" %}
+                <li class="cover">
+                    <span class="category highlight-type">Cover</span>
+                    <h5 class="headline-list"><a href="{{story.get_absolute_url}}">{{ story.headline }}</a></h5>
+                    {% get_cached_comment_count for story as comment_count %}
+                     {% if comment_count %}<small>{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}
+                </li>
+            {% endif %}
+        {% endfor %}
+                    
+        {% for story in issue_list %}
+            {% if story.print_section == "covers" %}
+            {% else %}
+                <li>
+                    {% render_template_for story in "includes/category" %}
+                    <h5 class="headline-list">
+                        <a href="{{story.get_absolute_url}}">{{ story.headline }}</a>
+                    </h5>
+                    {% get_cached_comment_count for story as comment_count %}
+                     {% if comment_count %}<small>{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}
+                </li>                
+            {% endif %}
+                
+        {% endfor %}
+        		
+                    
+        {% endwith %}
+    </ul>
+
+    <p style="text-align:center;">
+    {% with day=object.pub_date|date:'d'|add:"1" %}
+    {% with year=object.pub_date|date:'Y' %}
+    {% with month=object.pub_date|date:'m' %}
+    <a href="/search/vertical/news.story/?q=a&start_date={{ object.pub_date|date:'m/d/Y' }}&end_date={{month}}/{{day}}/{{year}}" class="lone-link">All Stories</a>
+    {% endwith %}
+    {% endwith %}
+    {% endwith %}
+    {% if home_sfront %}
+        <span style="color:#e0e0e0;">|</span> <a href="/photos/types/covers/" class="lone-link">Past Editions</a>
+    {% endif %}
+    </p>
+

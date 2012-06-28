@@ -1,0 +1,63 @@
+{% extends "events/base_events.html" %}
+
+
+{% block title %}Event search{% endblock %}
+{% block body_class %}{{ block.super }} event_search{% endblock %}
+
+
+{% block content_title %}
+  <h2>Event search</h2><a class="alt_button" href="/events/submit/">Add Event</a>
+{% endblock %}
+
+{% block content_search %}{% endblock %}
+
+{% block content %}
+  <div class="event_search_form">
+    <form action="" method="get">
+      <ol class="advanced_filters">
+        <li><label>Category:</label> {{ filter_form.category }}</li>
+        <li><label>Keyword(s):</label> {{ filter_form.q }}</li>
+        <li><label>Age limit:</label> {{ filter_form.age }}</li>
+        <li class="short-width"><label>Max. cost ($):</label> {{ filter_form.cost }}</li>
+        <li class="short-width"><label>City:</label> {{ filter_form.city }}</li>
+        <li class="short-width"><label>Date(s):</label> {{ filter_form.start_date }} - {{ filter_form.end_date }}</li>
+        <li class="checkbox">{{ filter_form.ongoing }} <label for="id_ongoing">Show ongoing events (such as daily activities)</label></li>
+        <li class="checkbox">{{ filter_form.local_bands_only }} <label for="id_local_bands_only">Only include events with local bands</label></li>
+      </ol>
+      <p><input type="submit" value="Search" /></p>
+    </form>
+  </div>
+
+  {% if event_list %}
+    {% regroup event_list by event_date as events_regrouped %}
+    {% for daypart in events_regrouped %}
+      <h3 class="divider">{{ daypart.grouper|date:"l, N j, Y" }} <a href="/events/{{ daypart.grouper|date:"Y/M/d"|lower }}/"></a></h3>
+      <table class="event_list">
+      {% for event in daypart.list %}
+        <tr>
+          <td class="title">
+            <h4><a href="{{ event.get_absolute_url }}">{{ event.event.title }}</a></h4>
+            <h5 class="place">
+              {% if event.event.place_id %}
+                <a href="{{ event.event.place.get_absolute_url }}">{{ event.event.place.name }}</a>
+              {% else %}
+                {{ event.event.one_off_place }}
+              {% endif %}
+            </h5>
+          </td>
+          <td class="time">{{ event.start_time|time:"g:i A"|lower }}{% if event.finish_time %}&ndash;{{ event.finish_time|time:"g:i A"|lower }}{% endif %}</td>
+          <td class="city">{% if event.event.place_id %}{{ event.event.place.city }}{% endif %}</td>
+          <td class="category"><a href="/events/search/?category={{ event.event.categories.all.0.parent_category }}">{{ event.event.categories.all.0.parent_category }}</a></td>
+        </tr>
+      {% endfor %}
+      </table>
+    {% endfor %}
+    
+    {% if show_next_page_link %}
+      <p><a class="button" href="/events/search/?{{ next_page_query_string }}">Next page</a></p>
+    {% endif %}
+    
+  {% else %}
+    <p class="none">We're sorry, but no events match your search criteria.</p>
+  {% endif %}
+{% endblock %}

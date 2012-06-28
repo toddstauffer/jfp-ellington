@@ -1,0 +1,71 @@
+{% extends "flatpages/default.html" %}
+{% block body_class %}flatpage_default events music_listings{% endblock %}
+
+{% block content_title %}
+  <h2>Live Music Listings</h2><a class="lone-link" href="/events/submit/">Add Event</a>
+  <p class="feed"><a href="/music/listings/rss/" title="Subscribe to RSS feed">Subscribe</a></p>
+{% endblock %}
+
+{% block content %}
+  {% load markup comparison dateutil listutil content events mogrify %}
+
+    {% get_events as event_list start_date now %}
+
+{% if event_list %}
+  {% regroup event_list|dictsort:"event_date" by event_date as events_regrouped %} <!-- Regroup based on Date -->
+    {% for daypart in events_regrouped %}
+      <h3 class="divider" id="{% if daypart.grouper %}{{ daypart.grouper|slugify }}{% else %}tba{% endif %}">
+        {% if daypart.grouper %}{{ daypart.grouper|date:"l, M d" }}{% else %}TBA{% endif %}
+      </h3>
+      <div class="daypart_{% if daypart.grouper %}{{ daypart.grouper|slugify}}{% else %}tba{% endif %}">
+        <table class="event_list">
+
+
+          {% for event in daypart.list %}
+            {% with parent="Music" %}
+            {% with category=event.event.categories.all %}
+              {% if category.0.parent_category == parent or category.1.parent_category == parent or category.2.parent_category == parent or category.3.parent_category == parent or category.4.parent_category == parent %}
+                <tr{% if forloop.last %} class="last"{% endif %}>
+                    <td class="title">
+                      {% if event.event.small_photo %}
+                        <a href="{{ event.get_absolute_url }}" class="thumbnail"><img src="{% mogrify event.event.small_photo.url resize "80x60" %}" title="" alt="{{ event.event.title }}"></a>
+                      {% endif %}
+                      <h4>{% if event.event.is_cancelled %}CANCELLED: {% else %}{% if event.event.is_sold_out %}SOLD OUT: {% endif %}{% endif %}<a href="{{ event.get_absolute_url }}">{{ event.event.title }}</a></h4>
+                      <h5>
+                        {% if event.event.place_id %}
+                          <a href="{{ event.event.place.get_absolute_url }}">{{ event.event.place.name }}</a>
+                        {% else %}
+                          {{ event.event.one_off_place }}
+                        {% endif %}
+                      </h5>
+                    </td>
+                    <td class="time">{{ event.start_time|time:"g:iA"|lower }}{% if event.finish_time %}&ndash;{{ event.finish_time|time:"g:iA"|lower }}{% endif %}</td>
+                    <td class="city">{% if event.event.place_id %}{{ event.event.place.city }}{% endif %}</td>
+                    <td class="category"><a href="/events/search/?category={{ event.event.categories.all.0.parent_category }}">{{ event.event.categories.all.0.parent_category }}</a></td>
+                  </tr>
+              {% endif %}
+            {% endwith %}
+            {% endwith %}
+          {% endfor %}
+
+        </table>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>It doesn't look like anything is happening. Damn you Jackson music scene.</p>
+  {% endif %}
+
+  {% if day_previous or day_next %}
+  <p class="pagination">
+    {% if day_previous %}<a class="previous" href="/events/{{ day_previous|date:"Y/M/d"|lower }}/">Previous</a>{% else %}<span class="next">Previous</span>{% endif %}
+    {% if day_next %}<a class="next" href="/events/{{ day_next|date:"Y/M/d"|lower }}/">Next</a>{% else %}<span class="previous">Next</span>{% endif %}
+  </p>
+  {% endif %}
+
+
+  {% if flatpage.enable_comments %}
+  {% with flatpage as object %}
+    {% include "includes/comments.html" %}
+  {% endwith %}
+  {% endif %}
+{% endblock %}

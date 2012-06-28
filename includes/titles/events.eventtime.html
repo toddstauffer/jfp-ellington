@@ -1,0 +1,22 @@
+{% if object.event.title == 'Live Music' %}
+
+  {% if object.event.bands.count == 1 %}
+    {{ object.event.bands.all.0.name }}
+  {% endif %}
+
+  {% if object.event.bands.count == 2 %}
+    {{ object.event.bands.all.0.name }} and {{ object.event.bands.all.1.name }}
+  {% endif %}
+
+  {% if object.event.bands.count > 2 %}
+    {{ object.event.bands.all.0.name }}
+    {% for band in object.event.bands.all|slice:"1:" %}
+      {% if forloop.last %}and {{ band.name }}{% else %}, {{ band.name }}{% endif %}
+    {% endfor %}
+  {% endif %}
+
+{% else %}
+
+  {{ object.event.title }}
+
+{% endif %}

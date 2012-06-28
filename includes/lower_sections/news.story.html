@@ -1,0 +1,28 @@
+
+{% load cached_comments content mogrify mailfriend permissions %}
+
+
+<div class="section_feature">
+    <p class="section_photo">
+        {% if object.tease_photo %}
+            <a href="{{ object.get_absolute_url }}" class="thumbnail"><img src="{% mogrify object.tease_photo.url resize "155x124" %}" title="" alt="Tease photo"></a>
+        {% else %}
+            {% if object.lead_photo %}
+                <a href="{{ object.get_absolute_url }}" class="thumbnail"><img src="{% mogrify object.lead_photo.cropped.url resize "155x124" %}" title="" alt="Tease photo"></a>
+            {% endif %} <!-- story.lead_photo -->
+        {% endif %} <!-- story.tease_photo -->
+    </p>
+    {% render_template_for object in "includes/category" %}
+    <h4 class="headline-small"><a href="{{ object.get_absolute_url }}">{{ object.headline|striptags }}</a></h4>
+    
+    
+    {% if object.tease %}
+        <p class="intro-type">
+            {{ object.tease|striptags|truncatewords:40 }}
+            <br/>
+            {% get_cached_comment_count for object as comment_count %} 
+            <span class="byline">{% if not object.bylines.count %}By {% if object.one_off_byline %}{{ object.one_off_byline }}{% else %}JFP Staff{% endif %}{% else %}{% if object.bylines.count %}By {% for author in object.bylines.all %}<a href="{{ author.get_absolute_url }}">{{ author }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}{% endif %}</span>&nbsp;&nbsp;<span class="highlight-type">{{ object.pub_date|date:"N j"}}</span>
+            {% if comment_count %}<span><a href="{{ object.get_absolute_url }}" class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</a></span>{% endif %}
+        </p>
+    {% endif %} <!-- story.tease -->
+</div>

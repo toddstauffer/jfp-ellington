@@ -1,0 +1,7 @@
+{% load twitter_tags socialregistration_tags %}
+
+<form class="twitter_button" name="login" method="post" action="{% url twitter_redirect %}{% if content_object.app_label %}?a={{ content_object.app_label }}&m={{ content_object.model }}&i={{ content_object.key }}{% endif %}">{% csrf_token %}
+  {% social_csrf_token %}
+  <button type="submit">Twitter</button>
+  {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+</form>

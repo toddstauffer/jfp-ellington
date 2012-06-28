@@ -1,0 +1,101 @@
+{% load content cached_comments sectionfronts %}
+
+{% get_latest_section_content for news.story object as section_list limit 6 %}
+{% if section_list %}
+    <div class="section section_sixty_percent section-{{object.id}}">
+
+        <h3><a href="{{object.get_absolute_url}}">{{ object.title }}</a>
+
+        {% if section.id == 8 %}
+        <a class="lower-section-subnav" href="/categories/news/bryans-rant/">Bryan's Rant</a>
+        <a class="lower-section-subnav" href="/sports/the_slate/">The Slate</a>
+        {% endif %}
+
+        {% if section.id == 62 %}
+        <a class="lower-section-subnav" href="/restaurants/">Restaurants</a>
+        <a class="lower-section-subnav" href="/categories/news/eating-out/">Dining Out</a>
+        <a class="lower-section-subnav" href="/categories/news/cooking/">Cooking</a>
+        <a class="lower-section-subnav" href="/news/drink/">Drinks</a>
+        {% endif %}
+
+        {% if section.id == 3 %}
+        <a class="lower-section-subnav" href="/music/listings/">Music Listings</a>
+        <a class="lower-section-subnav" href="/bands/">Local Bands</a>
+        {% endif %}
+
+        {% if section.id == 27 %}
+        <a class="lower-section-subnav" href="/news/justice/">Justice</a>
+        <a class="lower-section-subnav" href="/news/education/">Education</a>
+        <a class="lower-section-subnav" href="/news/politics/">Politics</a>
+        <a class="lower-section-subnav" href="/news/business/">Business</a>
+        <a class="lower-section-subnav" href="/news/people/">People</a>
+        {% endif %}
+
+        {% if section.id == 63 %}
+        <a class="lower-section-subnav" href="/news/editorials/">Editorials</a>
+        <a class="lower-section-subnav" href="categories/news/letters/">Letters</a>
+        {% endif %}
+
+        {% if section.id == 24 %}
+        <a class="lower-section-subnav" href="/news/film/">Film</a>
+        <a class="lower-section-subnav" href="/news/books/">Books</a>
+        <a class="lower-section-subnav" href="/news/art/">Art</a>
+        <a class="lower-section-subnav" href="/news/theater/">Theater</a>
+        {% endif %}
+
+        {% if section.id == 25 %}
+        <a class="lower-section-subnav" href="/news/fly/">Fly!Style</a>
+        <a class="lower-section-subnav" href="/news/bodysoul/">Body/Soul</a>
+        <a class="lower-section-subnav" href="/news/good/">Good</a>
+        <a class="lower-section-subnav" href="/news/hitched/">Hitched</a>
+        <a class="lower-section-subnav" href="/news/habitat/">Habitat</a>
+        {% endif %}
+
+        </h3>
+
+        <div class="left-background">
+            {% get_section_front for object as this_section %}
+            {% if this_section.section_preview_lead_story %}
+                {% render_template_for this_section.section_preview_lead_story in "includes/lower_sections" %}
+            {% else %}
+                {% render_template_for section_list.0 in "includes/lower_sections" %}
+            {% endif %}
+            
+            {% get_latest_section_content for weblogs.entry object as entry_list limit 3 %}
+            {% if entry_list|length > 2 %}
+                <div class="section-weblog-entries">
+                    <ul>
+                        <h4 class="section-vertical-blog">Blogs</h4>
+                        {% for entry in entry_list %}
+                        {% get_cached_comment_count for entry as comment_count %}
+                        <li{% if forloop.last %} class="last"{% endif %}>
+                            <span class="category"><a href="{{ entry.blog.get_absolute_url }}">{{ entry.blog.title }}</a></span>
+                            <h5 class="headline-list"><a href="{{ entry.get_absolute_url }}">{{ entry.title|capfirst }}</a></h5>
+                            {% if entry.author.get_full_name or entry.author.username %}<span class="byline">by <a href="{{entry.author.get_absolute_url }}">
+                                {% if entry.author.get_full_name %}
+                                    {{ entry.author.get_full_name }}
+                                {% else %}
+                                    {{ entry.author.username }}
+                                {% endif %}
+                            </a></span>{% endif %}
+                            <br/>
+                              {% if comment_count %}<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+        <div class="right-background">
+            {% for story in section_list|slice:"1:" %}
+                <h4 class="other_headline headline-list{% if forloop.last %} last{% endif %}">
+
+                    <a href="{{ story.get_absolute_url }}">{{ story.headline|striptags }}</a>
+                    <span class="highlight-type">|</span> {% render_template_for story in "includes/category" %}
+                    {% get_cached_comment_count for story as comment_count %}
+                    {% if comment_count %}<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}
+                </h4>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
