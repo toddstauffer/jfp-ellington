@@ -183,7 +183,7 @@
             {% if conditions %}
             <div class="weather_forecast">
                 <div class="current_conditions">
-                  <a class="icon" href="/weather/"><img width="75px" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/../images/weather/small/{{ conditions.image_name }}.png" alt=""></a>
+                  <a class="icon" href="/weather/"><img width="75px" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/images/weather/small/{{ conditions.image_name }}.png" alt=""></a>
                   <ul class="day">
                         <li class="temp">
                       {% get_latest_content for weather.currentcondition as condition_list limit 40 %}
