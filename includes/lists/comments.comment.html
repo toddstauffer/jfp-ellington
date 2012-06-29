@@ -1,0 +1,96 @@
+{% extends "includes/lists/default.html" %}
+
+
+{% block item_id %}c{{ object.id }}{% endblock %}
+{% block item_class %}comment{% if object.is_removed %} removed{% endif %} {% if object.depth > 1 %}comment_reply{% endif %} comment_depth_{{ object.depth }}{% endblock %}
+
+
+{% block item %}
+  {% load mogrify social rating_tags markup oembed_tags dateutil comments threadedcomments_tags anonymity comment_status recaptcha moderation_tags %}
+  {% if object.is_public %}
+    {% if object.user %}
+        {% get_relationship user object.user as relationship %}
+    {% endif %}
+    <div class="avatar">
+      <a{% if user != object.user %} rel="{{ relationship|slugify }}"{% endif %} class="avatar_link" {% if object.user %}href="{{ object.user.get_absolute_url }}"{% endif %}>
+        <img class="avatar_img" src="{% if object.user.get_profile.avatar and not object.user.get_profile.supress_avatar %}{% mogrify object.user.get_profile.avatar.url resize "48x48" %}{% else %}{{ STATIC_MEDIA_URL }}ellington_defaults/2.3.0/images/avatars/blank_avatar.gif{% endif %}" title="{{ object.user.username }}" alt="">
+      </a>
+    </div>
+    <div class="comment_text">
+      <h4>
+        <a class="user" id="user_{{ object.user.pk }}" href="{{ object.user.get_absolute_url }}" title="{{ object.user|display_name }}">{{ object.user|display_name }}</a>
+        <span class="datetime"><a href="#c{{ object.id }}">{{ object.submit_date|timesince }} ago</a>{% if not commented_on_object %} on <a href="{{ object.content_object.get_absolute_url }}#c{{ object.id }}">{{ object.content_object }}</a>{% endif %}</span>
+      </h4>
+
+      {% if not commented_on_object %}
+        <h5 class="related_object"><a href="{{ object.content_object.get_absolute_url }}">{{ object.content_object }}</a></h5>
+      {% endif %}
+
+      {% if object.is_removed and not user.is_staff %}
+        <p class="removed"><em>This comment was removed by the site staff for violation of the usage agreement.</em></p>
+      {% else %}
+        {{ object.comment|markdown|oembed:"320x264"|urlizetrunc:"40" }}
+      {% endif %}
+
+      {% vote_form for object %}
+      
+      {% if commented_on_object|comment_status:"enabled,verified" %}
+        {% get_comment_form for object.content_object as comment_form with object.id %}
+        <div class="reply_form_wrapper" style="display:none;">
+          <form action="{% comment_form_target %}" method="post" class="reply_form">
+            <p><textarea name="comment"></textarea></p>
+            <div class="upload_photo">{# move this <p> into wmd #}
+              <a href="#" class="alt_button photo_add_button">Add photo</a>
+            </div>
+
+            {# if we are using recaptcha, we need to go the preview page before submitting the comment #}
+            {% if comment_form.recaptcha_field %}
+              <p class="submit"><button type="submit" name="preview">Post reply</button></p>
+            {% else %}
+              <p class="submit"><button type="submit">Post reply</button></p>
+            {% endif %}
+            <div style="display:none;" class="hidden_fields">
+              {% for field in comment_form %}
+                {% if field.is_hidden %}
+                  {{ field }}
+                {% endif %}
+              {% endfor %}
+              {{ comment_form.honeypot }}
+              <input type="hidden" name="next" value="{{ request.path }}">
+            </div>
+          </form>
+        </div>
+      {% endif %}
+      <ul class="footer">
+        {% if commented_on_object|comment_status:"enabled,verified" %}
+          {% if user.is_authenticated %}
+            {% if user|is_verified or commented_on_object|comment_status:"enabled" %}
+              {% if not hide_form %}
+                 <li class="reply"><a href="#{{ comment.id }}">Reply &#8629;</a></li>
+              {% endif %}
+            {% endif %}
+          {% else %}
+            <li class="signin"><a href="#login">Sign in to reply</a></li>
+          {% endif %}
+        {% endif %}
+        {% if not object.is_removed %}
+          {% if not object.submit_date|is_older_than:'15.minutes' %}
+            {% if user == object.user %}
+            <li><a class="edit" href="{% url comments_edit object.id %}">edit</a></li>
+            {% endif %}
+          {% endif %}
+          {% if user.is_staff %}
+            <li class="remove"><a href="{% url comments-delete object.id %}?next={{ request.META.PATH_INFO }}">Remove</a></li>
+            <li class="remove"><a href="{% url comments-mark-spam object.id %}?next={{ request.META.PATH_INFO }}">Mark as Spam</a></li>
+            <li><a class="edit" href="/admin/threadedcomments/threadedcomment/{{ object.id }}">edit</a></li>
+          {% else %}
+            <li class="suggest_removal">{% suggest_removal comment %}</li>
+          {% endif %}
+        {% endif %}
+        {% if comment.user == user and not comment.submit_date|is_older_than:"15.minutes" %}
+          <li><a class="edit" href="{% url comments_edit comment.id %}">Edit</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  {% endif %}
+{% endblock %}
