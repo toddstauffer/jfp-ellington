@@ -13,9 +13,8 @@
         <ul>
           {% for comment in comment_list %}
             <li class="{% if forloop.last %} last{% endif %}">
-                <p class="comment"><a href="{{ comment.content_object.get_absolute_url }}#c{{ comment.id }}">{{ comment.comment|truncatewords:"30" }}</a></p>
-                <p class="highlight-type">{{ comment.submit_date|date:"N j, P" }} on <a href="{{comment.content_object.get_absolute_url}}">{{comment.content_object }}</a>
-                </p>
+              <p class="comment"><span class="comment-author"><a href="{{comment.user.get_absolute_url}}">{{comment.user_name}}</a></span> <a href="{{ comment.content_object.get_absolute_url }}#c{{ comment.id }}">{{ comment.comment|truncatewords:"30" }}</a></p>
+              <p class="highlight-type">{{ comment.submit_date|date:"N j, P" }} on <a href="{{comment.content_object.get_absolute_url}}">{{comment.content_object }}</a></p>
             </li>
           {% endfor %}
         </ul>
