@@ -5,7 +5,7 @@
 {% block fulltitle %}{% block title %}{% endblock %} | Jackson Free Press | Jackson, MS{% endblock %}
 
 
-{% block extended_styles %}<link rel="stylesheet" href="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/devmod.css" type="text/css" media="screen">{% endblock %}
+{% block extended_styles %}<link rel="stylesheet" href="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/jfp-less/mod.css" type="text/css" media="screen">{% endblock %}
 
 
 {% block extended_scripts %}
@@ -183,7 +183,7 @@
             {% if conditions %}
             <div class="weather_forecast">
                 <div class="current_conditions">
-                  <a class="icon" href="/weather/"><img width="75px" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/images/weather/small/{{ conditions.image_name }}.png" alt=""></a>
+                  <a class="icon" href="/weather/"><img width="75px" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/../images/weather/small/{{ conditions.image_name }}.png" alt=""></a>
                   <ul class="day">
                         <li class="temp">
                       {% get_latest_content for weather.currentcondition as condition_list limit 40 %}
