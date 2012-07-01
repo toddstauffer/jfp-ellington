@@ -34,7 +34,7 @@
 
 
 {% block content %}
-  {% load mogrify content social cached_comments mailfriend %}
+  {% load mogrify content social cached_comments mailfriend stories listutil categories generic_content %}
 
   {% get_favorite_type for staffmember as favorite_type %}
 
@@ -80,28 +80,49 @@
   </div>
 
   {% if story_list %}
-    <div class="section section_wide">
-      <h3>Recent Stories</h3>
-      {% if story_list %}
-        <div class="list story_list">
-          {% for story in story_list %}
-            {% render_template_for story in "includes/lists" %}
-          {% endfor %}
-        </div>
-      {% endif %}
-      <p><a class="button" href="./stories/">More stories</a></p>
-    </div>
-    {% if staffmember.user.blog_entries.count %}
-      <div class="section section_end">
-        <h3>Blog Entries</h3>
-        <ul>
-          {% for entry in staffmember.user.blog_entries.all %}
-            {% get_cached_comment_count for entry as comment_count %}
-            <li{% if forloop.last %} class="last"{% endif %}><a href="{{ entry.get_absolute_url }}">{{ entry.title|capfirst }}</a>
-              {% if comment_count %}<small>{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</li>
-          {% endfor %}
-        </ul>
+  
+      <div class="section section_wide">
+
+        {% retrieve_object categories.category 91 as opinion %}
+        {% exclude_from_list staffmember.stories.all opinion.stories.all as this_story_list %}
+
+        {% exclude_from_list staffmember.stories.all this_story_list as opinion_list %}
+        {% if opinion_list %}
+          <h3>Recent Opinion</h3>
+            <div class="list story_list">
+              {% for story in opinion_list|slice:":5" %}
+                  {% render_template_for story in "includes/lists" %}
+              {% endfor %}
+            </div>
+          <p><a class="button" href="/search/vertical/news.story/?q=a&category=91&author={{staffmember.first_name}}+{{staffmember.last_name}}&sortby=date">More commentary</a></p>
+
+        <div class="content_spacer"></div>
+        {% endif %}
+
+        {% if this_story_list %}
+            <h3>Recent Stories</h3>
+              <div class="list story_list">
+                {% for story in this_story_list|slice:":5" %}
+                    {% render_template_for story in "includes/lists" %}
+                {% endfor %}
+              </div>
+            <p><a class="button" href="./stories/">More stories</a></p>
+          
+        {% endif %}
       </div>
-    {% endif %}
   {% endif %}
+
+  {% if staffmember.user.blog_entries.count %}
+    <div class="section section_end">
+      <h3>Blog Entries</h3>
+      <ul>
+        {% for entry in staffmember.user.blog_entries.all %}
+          {% get_cached_comment_count for entry as comment_count %}
+          <li{% if forloop.last %} class="last"{% endif %}><a href="{{ entry.get_absolute_url }}">{{ entry.title|capfirst }}</a>
+            {% if comment_count %}<small>{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
 {% endblock %}
