@@ -442,6 +442,22 @@
           {% endif %}
         -->
 
+        {% if section.id == 3 %}
+
+        {% retrieve_object places.placetype 110 as music_venues %}
+          <h3>Music Venues</h3>
+          <ul>
+          {% for place in music_venues.place_set.all|dictsort:"updated_date"|slice:":5" %}
+          <li>
+            <h4 class="name"><a href="{{ place.get_absolute_url }}">{{ place.get_name }}</a></h4>
+            <span class="highlight-type">{{ place.get_address }}</span>
+            {% if place.phone1 %}<span class="highlight-type">{{ place.phone1 }}</span>{% endif %}
+          {% endfor %}
+          </li>
+          </ul>
+          <p class="more_events"><a class="lone-link" href="/music/places/venues/">all venues</a></p>
+        {% endif %}
+
         <!-- Letters
         ==============================================-->
           {% ifequal section.id 63 %} <!-- If opinion section -->
@@ -455,6 +471,7 @@
                   {% if comment_count %}<small>{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</li>
               {% endfor %}
               </ul>
+
           {% endifequal %}
 
           <!-- The Slate
