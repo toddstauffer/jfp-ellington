@@ -84,13 +84,17 @@
       <div class="section section_wide">
 
         {% retrieve_object categories.category 91 as opinion %}
+
         {% exclude_from_list staffmember.stories.all opinion.stories.all as this_story_list %}
 
         {% exclude_from_list staffmember.stories.all this_story_list as opinion_list %}
+        {% retrieve_object categories.category 93 as editorials %}
+        {% exclude_from_list opinion_list editorials.stories.all as opinion_list %}
+
         {% if opinion_list %}
-          <h3>Recent Opinion</h3>
+          <h3>Recent Commentary</h3>
             <div class="list story_list">
-              {% for story in opinion_list|slice:":5" %}
+              {% for story in opinion_list|slice:":10" %}
                   {% render_template_for story in "includes/lists" %}
               {% endfor %}
             </div>
@@ -102,7 +106,7 @@
         {% if this_story_list %}
             <h3>Recent Stories</h3>
               <div class="list story_list">
-                {% for story in this_story_list|slice:":5" %}
+                {% for story in this_story_list|slice:":10" %}
                     {% render_template_for story in "includes/lists" %}
                 {% endfor %}
               </div>
