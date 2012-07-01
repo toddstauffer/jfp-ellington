@@ -1,7 +1,7 @@
 {% extends "news/base_news.html" %}
 
 
-{% load mogrify sectionfronts mailfriend listutil content cached_comments weather rating_tags generic_content weblogs stories events photos %}
+{% load mogrify sectionfronts mailfriend listutil content cached_comments weather rating_tags generic_content weblogs stories events photos sections %}
 
 
 {% block title %}{{ section.title }}{% endblock %}
@@ -91,8 +91,7 @@
     {% if section.id == 27 or section.id == 65 or section.id == 66 or section.id == 67  %}
       <ul class="region_filter">
         <li><a class="{% if section.id == 65 %}active{%endif%}" href="/news/local/">Local</a></li>
-        <li><a class="{% if section.id == 66 %}active{%endif%}" href="/news/state/">State</a></li>
-        <li class="last"><a class="{% if section.id == 67 %}active{%endif%}" href="/news/national/">National</a></li>
+        <li class="last"><a class="{% if section.id == 66 %}active{%endif%}" href="/news/state/">State</a></li>
       </ul>
     {% endif %}
 
@@ -106,6 +105,98 @@
 
 {% block content %}
   {% get_section_front for section as sfront %}
+
+  {% if section.id == 65 or section.id == 66 %}
+    {% retrieve_object news.section 27 as this_section %}
+    {% get_latest_section_content for news.story this_section as story_list limit 500 %}
+  {% endif %}
+
+  {% if section.id == 65 %} <!-- local section -->
+    <!-- first, gather up all sections and categories that need to only be here. -->
+    {% retrieve_object news.printedition 36 as list_one %}
+    {% retrieve_object news.printedition 2 as list_two %}
+    {% retrieve_object categories.category 89 as list_three %} <!-- city government -->
+    
+    {% if list_one %}
+      {% exclude_from_list story_list list_one.stories.all as unwanted_list %}
+    {% endif %}
+
+    {% if unwanted_list %}
+      {% if list_two  %}
+        {% exclude_from_list unwanted_list list_two.stories.all as unwanted_list %}
+      {% endif %}
+    {% else %}
+      {% if list_two %}
+        {% exclude_from_list story_list list_two.stories.all as unwanted_list %}
+      {% endif %}
+    {% endif %}
+
+    {% if unwanted_list %}
+      {% if list_three %}
+        {% exclude_from_list unwanted_list list_three.stories.all as unwanted_list %}
+      {% endif %}
+    {% else %}
+      {% if list_three  %}
+        {% exclude_from_list story_list list_three.stories.all as unwanted_list %}
+      {% endif %}
+    {% endif %}
+    
+    <!-- now exclude the ones we do not want from the final list we'll use  -->
+    {% if unwanted_list %}
+      {% exclude_from_list story_list unwanted_list as story_list %}
+    {% endif %}
+   
+  {% endif %}
+
+  {% if section.id == 66 %} <!-- local section -->
+    <!-- first, gather up all sections and categories that need to only be here. -->
+    {% retrieve_object news.printedition 37 as list_one %}
+    {% retrieve_object news.printedition 3 as list_two %}
+    {% retrieve_object categories.category 35 as list_three %} <!-- capitol -->
+    {% retrieve_object categories.category 88 as list_four %} <!-- stae government -->
+    
+    {% if list_one %}
+      {% exclude_from_list story_list list_one.stories.all as unwanted_list %}
+    {% endif %}
+
+    {% if unwanted_list %}
+      {% if list_two  %}
+        {% exclude_from_list unwanted_list list_two.stories.all as unwanted_list %}
+      {% endif %}
+    {% else %}
+      {% if list_two %}
+        {% exclude_from_list story_list list_two.stories.all as unwanted_list %}
+      {% endif %}
+    {% endif %}
+
+    {% if unwanted_list %}
+      {% if list_three %}
+        {% exclude_from_list unwanted_list list_three.stories.all as unwanted_list %}
+      {% endif %}
+    {% else %}
+      {% if list_three %}
+        {% exclude_from_list story_list list_three.stories.all as unwanted_list %}
+      {% endif %}
+    {% endif %}
+
+    {% if unwanted_list %}
+      {% if list_four %}
+        {% exclude_from_list unwanted_list list_four.stories.all as unwanted_list %}
+      {% endif %}
+    {% else %}
+      {% if list_four %}
+        {% exclude_from_list story_list list_four.stories.all as unwanted_list %}
+      {% endif %}
+    {% endif %}
+    
+    <!-- now exclude the ones we do not want from the final list we'll use  -->
+    {% if unwanted_list %}
+      {% exclude_from_list story_list unwanted_list as story_list %}
+    {% endif %}
+   
+  {% endif %}
+
+  
 
 
   {% if not section.id == 8 %} <!-- If this isn't the sports section -->
@@ -156,28 +247,26 @@
                     {% endfor %}<!-- story in homesfront.lead_stories -->
 
                 {% else %}<!-- sfront.lead_stories -->
-                    {% for story in story_list|slice:"0:10" %}
-                        {% if section.id == 65 and story.print_edition|lower == 'local' or section.id == 66 and story.print_edition|lower == 'state' or section.id == 67 and story.print_edition|lower == 'national' or section.id != 65 and section.id != 66 and section.id != 67 %}
-                          {% if story.lead_photo %}
-                          <div>
-                        <a href="{{ story.get_absolute_url }}"><img src="{% mogrify story.lead_photo.cropped.url resize "670x400" %}" alt=""></a>
-                        <div class="dragdealer-slide-title">
-                            {% render_template_for story in "includes/category" %}
-                            <h4><a href="{{ story.get_absolute_url }}">{{ story.headline }}</a></h4>
-                            {% if story.tease %}<p class="intro-type">{{ story.tease|striptags|truncatewords:"20" }}</p>{% endif %}
-                            
-                            <span class="byline">{% if not story.bylines.count %}By {% if story.one_off_byline %}{{ story.one_off_byline }}{% else %}JFP Staff{% endif %}{% else %}{% if story.bylines.count %}By {% for author in story.bylines.all %}<a href="{{ author.get_absolute_url }}">{{ author }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}{% endif %}</span>&nbsp;&nbsp;
-                            
-                            <span class="highlight-type">{{ story.pub_date|date:"N j"}}</span>
+                    {% for story in story_list|slice:"0:7" %}
+                      {% if story.lead_photo %}
+                        <div>
+                            <a href="{{ story.get_absolute_url }}"><img src="{% mogrify story.lead_photo.cropped.url resize "670x400" %}" alt=""></a>
+                            <div class="dragdealer-slide-title">
+                                {% render_template_for story in "includes/category" %}
+                                <h4><a href="{{ story.get_absolute_url }}">{{ story.headline }}</a></h4>
+                                {% if story.tease %}<p class="intro-type">{{ story.tease|striptags|truncatewords:"20" }}</p>{% endif %}
+                                
+                                <span class="byline">{% if not story.bylines.count %}By {% if story.one_off_byline %}{{ story.one_off_byline }}{% else %}JFP Staff{% endif %}{% else %}{% if story.bylines.count %}By {% for author in story.bylines.all %}<a href="{{ author.get_absolute_url }}">{{ author }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}{% endif %}</span>&nbsp;&nbsp;
+                                
+                                <span class="highlight-type">{{ story.pub_date|date:"N j"}}</span>
 
-                            {% get_cached_comment_count for story as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
+                                {% get_cached_comment_count for story as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
+                            </div>
                         </div>
-                    </div>
-                          {% endif %}<!-- story.lead_photo -->
-                        {% endif %} <!-- section.id filter 1 -->
-                  {% endfor %}
+                      {% endif %}<!-- story.lead_photo -->
+                    {% endfor %}
 
-              {% endif %}<!-- sfront.lead_stories -->
+                {% endif %}<!-- sfront.lead_stories -->
             {% endif %}<!-- sfront.daily_lead_story -->
 
       </div> <!-- /Carosel -->
@@ -242,40 +331,30 @@
       {% endfor %}
     {% endif %}
     
-    {% if story_list and not sfront.lower_sections %}
+    {% if story_list and not sfront.lower_sections %} <!-- if lower_sections haven't been set -->
       <div class="section section_wide">
         {% exclude_from_list story_list sfront.lead_story,sfront.featured_stories as story_list %}
-        
-        {% if section.id == 68 %}
-          {% for story in story_list|dictsort:"subhead" %}
-            
-            <h4><a href="{{ story.get_absolute_url }}{% if section and section.framing %}?{{ section.framing }}{% endif %}">{{ story.headline|striptags }}</a></h4>
-            
-            <div class="story_body">
-              {% markupstory story "/news/framings/printer_friendly.html" %}
-            </div>
-          {% endfor %}
-        {% endif %}
+
 
         <div class="list story_list">
          {% if sfront.featured_stories %}
           <h5>More {{ section.title }}</h5>
          {% endif %}
           
-          {% for story in story_list %}
+          {% for story in story_list|slice:":20" %}
 
-              {% if section.id == 65 and story.print_edition|lower == 'local' or section.id == 66 and story.print_edition|lower == 'state' or section.id == 67 and story.print_edition|lower == 'national' %} <!-- if section is local and print edition of story is local, render template, etc. -->
+
+              {% if section.id == 68 %} <!-- change framing for music list. may be a better way to do this -->
+                  <h4><a href="{{ story.get_absolute_url }}{% if section and section.framing %}?{{ section.framing }}{% endif %}">{{ story.headline|striptags }}</a></h4>
+                  <div class="story_body">
+                    {% markupstory story "/news/framings/printer_friendly.html" %}
+                  </div>
+              {% else %}
                 {% render_template_for story in "includes/lists" %}
               {% endif %}
-
-              {% if section.id != 65 and section.id != 66 and section.id != 67 and section.id != 68 %} <!-- sift through template up top for local, state and national -->
-              {% if not story|is_in_category:"/news/letters" %}<!-- If this is the Opinion section, remove stories with the "Letters" category, as they will appear on the sidebar. This could probably be improved using exclude_from_list tag. -->
-                {% render_template_for story in "includes/lists" %}
-              {% endif %}
-              {% endif %}
-
 
           {% endfor %}
+
         </div>
         {% if has_next or has_previous %}
           <p class="pagination">
