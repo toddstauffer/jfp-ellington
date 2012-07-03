@@ -1,6 +1,6 @@
 {% extends "news/base_news.html" %}
 
-{% load mogrify sectionfronts mailfriend listutil content generic_content cached_comments rating_tags numutil events categories weblogs photos %}
+{% load mogrify sectionfronts mailfriend listutil content generic_content cached_comments rating_tags numutil events categories weblogs photos metadata %}
 
 
 
@@ -189,46 +189,29 @@
                     </div>
                     {% endif %} <!-- lead_story.lead_photo -->
                 {% endwith %}<!-- lead_story=home_sfront.daily_lead_story -->
-            {% else %}
-                {% if home_sfront.lead_stories %}
-                    {% for story in home_sfront.lead_stories %}
-                    {% if story.lead_photo %}
-                    <div>
-                        <a href="{{ story.get_absolute_url }}"><img src="{% mogrify story.lead_photo.cropped.url resize "440x250" %}" alt=""></a>
-                        <div class="dragdealer-slide-title">
-                            {% render_template_for story in "includes/category" %}
-                            <h4><a href="{{ story.get_absolute_url }}">{{ story.headline }}</a></h4>
-                            {% if story.tease %}<p class="intro-type">{{ story.tease|striptags|truncatewords:"20" }}</p>{% endif %}
-                            
-                            {% render_template_for story in "includes/byline" %}&nbsp;&nbsp;
-                            
-                            <span class="highlight-type">{{ story.pub_date|date:"N j"}}</span>
+            {% endif %}
+            
+            {% if home_sfront.lead_stories %}
+                {% for story in home_sfront.lead_stories %}
+                {% if story.lead_photo %}
+                <div>
+                    <a href="{{ story.get_absolute_url }}"><img src="{% mogrify story.lead_photo.cropped.url resize "440x250" %}" alt=""></a>
+                    <div class="dragdealer-slide-title">
+                        {% render_template_for story in "includes/category" %}
+                        <h4><a href="{{ story.get_absolute_url }}">{{ story.headline }}</a></h4>
+                        {% if story.tease %}<p class="intro-type">{{ story.tease|striptags|truncatewords:"20" }}</p>{% endif %}
+                        
+                        {% render_template_for story in "includes/byline" %}&nbsp;&nbsp;
+                        
+                        <span class="highlight-type">{{ story.pub_date|date:"N j"}}</span>
 
-                            {% get_cached_comment_count for story as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
-                        </div>
+                        {% get_cached_comment_count for story as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
                     </div>
-                    {% endif %} <!-- story.lead_photo -->
-                    {% endfor %}<!-- story in homesfront.lead_stories -->
-
-                    {% if home_sfront.photo_gallery %}
-                        {% for gallery in home_sfront.photo_gallery %}
-                            {% with photo=gallery.get_photo_list.0 %}
-                                {% if photo %}
-                                    <div>
-                                        <a href="{{gallery.get_absolute_url}}"><img src="{% mogrify photo.photo.url resize "440x250" %}" alt=""></a>
-                                        <div class="dragdealer-slide-title">
-                                            <span class="category">Photo Gallery</span>
-                                            <h4><a href="{{ gallery.get_absolute_url }}">{{ gallery.name }}</a></h4>
-                                            {% if gallery.blurb %}<p class="intro-type">{{ gallery.blurb|striptags|truncatewords:"20" }}{% get_cached_comment_count for gallery as comment_count %}{% if comment_count %}<small>{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</p>{% endif %}  
-                                        </div>
-                                    </div>
-                                {% endif %}
-                            {% endwith %}
-                        {% endfor %}
-                    {% endif %}
-
-                {% else %}<!-- home_sfront.lead_stories -->
-                    {% for story in story_list %}
+                </div>
+                {% endif %} <!-- story.lead_photo -->
+                {% endfor %}<!-- story in homesfront.lead_stories -->
+            {% else %}<!-- home_sfront.lead_stories -->
+                {% for story in story_list %}
                     {% if story.lead_photo %}
                     <div>
                         <a href="{{ story.get_absolute_url }}"><img src="{% mogrify story.lead_photo.cropped.url resize "440x250" %}" alt=""></a>
@@ -245,88 +228,96 @@
                         </div>
                     </div>
                     {% endif %}<!-- story.lead_photo -->
-                    {% endfor %}
+                {% endfor %}
+            {% endif %}
 
-                    {% if home_sfront.photo_gallery %}
-                        {% for gallery in home_sfront.photo_gallery %}
-                            {% with photo=gallery.get_photo_list.0 %}
-                                {% if photo %}
-                                    <div>
-                                        <a href="{{gallery.get_absolute_url}}"><img src="{% mogrify photo.photo.url resize "440x250" %}" alt=""></a>
-                                        <div class="dragdealer-slide-title">
-                                            <span class="category">Photo Gallery</span>
-                                            <h4><a href="{{ gallery.get_absolute_url }}">{{ gallery.name }}</a></h4>
-                                            {% if gallery.blurb %}<p class="intro-type">{{ gallery.blurb|striptags|truncatewords:"20" }}{% get_cached_comment_count for gallery as comment_count %}{% if comment_count %}<small>{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</p>{% endif %}  
-                                        </div>
-                                    </div>
-                                {% endif %}
-                            {% endwith %}
-                        {% endfor %}
+            {% if home_sfront.special_section %}
+                {% with photo=home_sfront.special_section %}
+                    {% get_metadata for home_sfront.special_section as photo_metadata %}
+                    {% if photo_metadata.special_section %}
+                        {% retrieve_object news.staticsection photo_metadata.special_section.content as special %}
+                        {% if special %}
+                            <div>
+                                <a href="{{special.get_absolute_url}}"><img src="{% mogrify photo.photo.url resize "440x250" %}" alt=""></a>
+                                <div class="dragdealer-slide-title">
+                                    <span class="category">Special Section</span>
+                                    <h4><a href="{{ special.get_absolute_url }}">{{ special.title }}</a></h4>
+                                    {% get_metadata for special as special_metadata %}
+                                    {% if special_metadata.description %}<p class="intro-type">{{ special_metadata.description.content|striptags|truncatewords:"20" }}</p>{% endif %}  
+                                </div>
+                            </div>
+                        {% endif %}
                     {% endif %}
+                {% endwith %}
+            {% endif %}
 
-                {% endif %}<!-- sfront.lead_stories -->
-            {% endif %}<!-- sfront.daily_lead_story -->
+            {% if home_sfront.photo_gallery %}
+                {% for gallery in home_sfront.photo_gallery %}
+                    {% with photo=gallery.get_photo_list.0 %}
+                        {% if photo %}
+                            <div>
+                                <a href="{{gallery.get_absolute_url}}"><img src="{% mogrify photo.photo.url resize "440x250" %}" alt=""></a>
+                                <div class="dragdealer-slide-title">
+                                    <span class="category">Photo Gallery</span>
+                                    <h4><a href="{{ gallery.get_absolute_url }}">{{ gallery.name }}</a></h4>
+                                    {% if gallery.blurb %}<p class="intro-type">{{ gallery.blurb|striptags|truncatewords:"20" }}{% get_cached_comment_count for gallery as comment_count %}{% if comment_count %}<small>{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</p>{% endif %}  
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                {% endfor %}
+            {% endif %}
+
             </div> <!-- Carosel -->
         </div>
         
         
         <!-- Blog Tabs 
         ================================================= -->
-        
-        {% if home_sfront.weblog_tabs %}
-        <div class="section section_wide blog_tabs">
-            <div id="tabs">
-                <ul>
-                    {% for weblog in home_sfront.weblog_tabs %}
-                        <li class="tabs-{{weblog.slug}}{% if forloop.counter == 3 %} last{% endif %}"><a class="link-{{weblog.slug}}" href="#tabs-{{ forloop.counter }}">{{weblog.name}}</a></li>
-                    {% endfor %}
-                </ul>
-                {% for weblog in home_sfront.weblog_tabs %}
-                    {% if weblog %}
-                        <div id="tabs-{{ forloop.counter }}" class="main-blog-tab blog-{{weblog.slug}}">
-                            {% get_blog_entries_by_slug weblog.slug 4 as blog_tab_list %}
-                            {% if blog_tab_list %}
-                            <ul class="blog_stories">   
-                                {% if blog_tab_list.0.images.count > 0 %}
-                                    <li class="first-imaged">
-                                        <a class="thumbnail" href="{{ blog_tab_list.0.images.all.0.get_absolute_url }}"><img src="{% mogrify blog_tab_list.0.images.all.0.image.url resize "100x110" %}" title="" alt=""></a>
-                                            <h4 class="headline-small"><a href="{{ blog_tab_list.0.get_absolute_url }}">{{ blog_tab_list.0.title }}</a></h4>
-                                            <p class="intro-type">{% if blog_tab_list.0.summary %}{{ blog_tab_list.0.summary|striptags|truncatewords:"20" }}{% else %}{{ blog_tab_list.0.body|striptags|truncatewords:"20" }}{% endif %}
-                                            <br/>
-                                            <span class="highlight-type">{{ blog_tab_list.0.pub_date|date:"N j" }}</span>
-                                            </p>
-                                    </li>
-                                    <div class="fall_left"><!-- This is taken up by the second fall left div. -->
-                                {% else %}
-                                    <div class="fall_left">
-                                        <li class="first-imageless">
-                                            <h4 class="headline-small"><a href="{{ blog_tab_list.0.get_absolute_url }}">{{ blog_tab_list.0.title }}</a></h4>
-                                            {% render_template_for blog_tab_list.0 in "includes/byline" %}&nbsp;&nbsp;
-                                            <p class="intro-type">{% if blog_tab_list.0.summary %}{{ blog_tab_list.0.summary|striptags|truncatewords:"20" }}{% else %}{{ blog_tab_list.0.body|striptags|truncatewords:"20" }}{% endif %}</p>
-                                            <span class="highlight-type">{{ blog_tab_list.0.pub_date|date:"N j" }}</span>
-                                        </li>
-                                {% endif %}
 
-                                    </div>
-                                    <ul class="blog_sub_stories">
-                                        {% for blog_post in blog_tab_list|slice:"1:" %}
-                                        <li {% if forloop.last %}class="last"{% endif %}>
-                                            <h5 class="headline-list"><a href="{{ blog_post.get_absolute_url }}">{{ blog_post.title }}</a></h5>
-                                        </li>
-                                        {% endfor %}
-                                    </ul> <!--  Blog Sub_Stories --> 
-                            </ul> <!--  Blog Stories  -->                      
-                            <span class="lone-link"><a href="/weblogs/{{ weblog.slug }}">More posts in {{ weblog.title }}</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="/weblogs/">All Blog Posts</a></span>
-                            {% endif %} <!-- entry_list -->
-                        </div>
+        {% if home_sfront.featured_blogs %}
+        <!-- This is obnoxious but I think unavoidable. I tried to use 'Groups' as a organizing tool, but you have to assign every single entry to the group, which isn't elegant. There is not other way of pulling entries for certain blogs -->
+            {% get_latest_entries home_sfront.featured_blogs.0 10 as entry_list %}
+            {% get_latest_entries home_sfront.featured_blogs.1 10 as set_two %}
+            {% get_latest_entries home_sfront.featured_blogs.2 10 as set_three %}
+            {% get_latest_entries home_sfront.featured_blogs.3 10 as set_four %}
+            {% get_latest_entries home_sfront.featured_blogs.4 10 as set_five %}
+            {% get_latest_entries home_sfront.featured_blogs.5 10 as set_six %}
+            {% get_latest_entries home_sfront.featured_blogs.6 10 as set_seven %}
+
+            {% if set_two %}{% merge_lists entry_list by "pub_date" set_two by "pub_date" as entry_list %}{% endif %}
+            {% if set_three %}{% merge_lists entry_list by "pub_date" set_three by "pub_date" as entry_list %}{% endif %}
+            {% if set_four %}{% merge_lists entry_list by "pub_date" set_four by "pub_date" as entry_list %}{% endif %}
+            {% if set_five %}{% merge_lists entry_list by "pub_date" set_five by "pub_date" as entry_list %}{% endif %}
+            {% if set_six %}{% merge_lists entry_list by "pub_date" set_six by "pub_date" as entry_list %}{% endif %}
+            {% if set_seven %}{% merge_lists entry_list by "pub_date" set_seven by "pub_date" as entry_list %}{% endif %}
+            {% if set_eight %}{% merge_lists entry_list by "pub_date" set_eight by "pub_date" as entry_list %}{% endif %}
+            {% if set_nine %}{% merge_lists entry_list by "pub_date" set_nine by "pub_date" as entry_list %}{% endif %}
+            {% if set_ten %}{% merge_lists entry_list by "pub_date" set_ten by "pub_date" as entry_list %}{% endif %}
+
+            {% if entry_list %}
+            <div class="section section_wide featured_blog_entries">
+                <h3>From the Blogs</h3>
+                
+                {% for entry in entry_list|dictsortreversed:"pub_date"|slice:"0:8" %}
+                    {% if forloop.counter == 1 %}
+                        <span class="first blog-{{entry.blog.id}}"></span>
+                        <h4 class="headline-small"><a href="{{entry.get_absolute_url}}">{{entry.title}}</a></h4>
+                        <p class="intro-type">{% if entry.summary %}{{entry.summary|truncatewords:"20"}}{% else %}{{entry.body|truncatewords:"20"}}{%endif%}</p>
+                        <span class="byline">by {{entry.author}}</span>&nbsp;&nbsp;<span class="highlight-type">{{ story.pub_date|date:"N j"}}</span>{% get_cached_comment_count for entry as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
+                        
+            <ul>
+                    {% else %}
+                        <li class="blog-{{entry.blog.id}} {%if forloop.last %}last{%endif%}"><a class="headline-small" href="{{entry.get_absolute_url}}">{{entry.title}}</a>
+                            {% get_cached_comment_count for entry as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</li>
                     {% endif %}
                 {% endfor %}
-                
+                </ul>
+            </div><!-- /Blog Tabs -->
+            {% endif %}
 
-            </div> <!-- Tabs -->
-        </div><!-- /Blog Tabs -->
         {% endif %}
-    
+        
 
 <!-- LATEST MEDIA 
 ============================================================================= -->

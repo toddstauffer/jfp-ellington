@@ -1,7 +1,7 @@
 {% extends "media/photogalleries/base_galleries.html" %}
 
 {% block extended_scripts %}
-  {{block.super}}
+  
 
 <script type="text/javascript">
   
@@ -20,6 +20,9 @@ $(document).ready(function() {
     }
 
     $('.block').each(function(){
+      $(this).css({
+            'position':'absolute'
+        });
         var min = Math.min.apply(Math, blocks);
         var index = $.inArray(min, blocks);
         var leftPos = margin+(index*(colWidth+margin));
@@ -33,9 +36,11 @@ $(document).ready(function() {
     var window_height = Math.max.apply( Math, blocks );
     $('.thumbnail-window').css({'height':window_height});
 });
-
-
 </script>
+{{block.super}}
+
+
+
 
 {% endblock %}
 
