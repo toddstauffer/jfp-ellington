@@ -1,0 +1,110 @@
+{% extends "media/photogalleries/base_galleries.html" %}
+
+{% block extended_scripts %}
+  {{block.super}}
+
+<script type="text/javascript">
+  
+$(document).ready(function() {
+  var colCount = 0;
+    var colWidth = 0;
+    var margin = 5;
+    var windowWidth = 0;
+    var blocks = [];
+
+    windowWidth = $('.thumbnail-window').width();
+    colWidth = $('.block').outerWidth();
+    colCount = Math.floor(windowWidth/(colWidth+margin));
+    for(var i=0;i<colCount;i++) {
+        blocks.push(margin);
+    }
+
+    $('.block').each(function(){
+        var min = Math.min.apply(Math, blocks);
+        var index = $.inArray(min, blocks);
+        var leftPos = margin+(index*(colWidth+margin));
+        $(this).css({
+            'left':leftPos+'px',
+            'top':min+'px'
+        });
+        blocks[index] = min+$(this).outerHeight()+margin;
+    });
+
+    var window_height = Math.max.apply( Math, blocks );
+    $('.thumbnail-window').css({'height':window_height});
+});
+
+
+</script>
+
+{% endblock %}
+
+{% block title %}{{ gallery.name }}{% endblock %}
+{% block body_class %}{{ block.super }} gallery_detail{% endblock %}
+{% block body_id %}gallery_{{ gallery.id }}{% endblock %}
+
+
+{% block feed_link %}
+  {% load content %}
+  <link type="application/rss+xml" rel="alternate" href="/rss/comments/objects/{{ gallery|content_type_id }}/{{ gallery.pk }}/">
+{% endblock %}
+
+
+{% block content_title %}
+  {% load mailfriend rating_tags %}
+
+  {% vote_form for gallery %}
+
+  <p class="back"><a href="/photos/galleries/">Back to photo galleries</a></p>
+  <h2>{{ gallery.name }}</h2>
+  {% if gallery.blurb %}<p>{{ gallery.blurb }}</p>{% endif %}
+  {{ block.super }}
+{% endblock %}
+
+
+{% block content %}
+  {% load mogrify banned comments content %}
+
+  {% render_template_for gallery in "includes/tools" %}
+
+  {% if photo_list %}
+      {% with photo_list.0.photo as photo %}
+          <div class="item">
+            {% if photo.photo %}<a class="thumbnail" href="{{ gallery_photo.get_absolute_url }}" title="Published {{ photo.pub_date|date }}"><img src="{% mogrify photo.photo.url thumbnail "670" %}" alt="photo thumbnail"></a>{% endif %}
+            {% if photo.caption %}<p class="caption">{{ photo.caption|striptags }}</p>{% endif %}
+          </div>
+      {% endwith %}
+        <div class="thumbnail-window">
+          {% for gallery_photo in photo_list|slice:"1:" %}
+            {% with gallery_photo.photo as photo %}
+              {% if photo.photo %}<a class="block thumbnail" href="{{ gallery_photo.get_absolute_url }}" title="Published {{ photo.pub_date|date }}"><img src="{% mogrify photo.photo.url thumbnail "160" %}" alt="photo thumbnail"></a>{% endif %}
+            {% endwith %}
+          {% endfor %}
+        </div>
+
+    {% with gallery as object %}
+      {% include "includes/comments.html" %}
+    {% endwith %}
+  {% else %}
+    <p>Sorry, no photos are available yet. Please check back later.</p>
+  {% endif %}
+{% endblock %}
+
+
+{% block sidebar %}
+  <div class="previous_next">
+    <div class="previous">
+      <p class="no_photo">This is the start of something</p>
+    </div>
+
+    <div class="next">
+      {% if photo_list.1.photo %}
+      <a href="{{ photo_list.0.order.next.get_absolute_url }}"><img src="{% mogrify photo_list.1.photo.photo.url resize "120x100" %}" alt=""></a>
+      {% else %}
+      <p class="no_photo">Wait, you're at the last photo</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {{ block.super }}
+{% endblock %}
