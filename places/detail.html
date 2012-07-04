@@ -213,7 +213,7 @@
     </p>
   {% endif %}
 
-  {% include "includes/ads/300x250.html" %}
+ {% include "includes/ads/Top_300_250.html" %}
 
   <div class="accordion">
     {% if place.get_hours_dict.business_hours_list or place.get_hours_dict.business_open_24_hours %}<h2 class="top"><a href="#">Business hours</a></h2>{% endif %}
@@ -429,5 +429,7 @@
         </ul>
       </div>
     {% endif %}
+
+    {{block.super}}
   </div>
 {% endblock %}
