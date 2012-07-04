@@ -297,22 +297,23 @@
 
             {% if entry_list %}
             <div class="section section_wide featured_blog_entries">
-                <h3>From the Blogs</h3>
+                <h3>JFP Blogs</h3>
                 
                 {% for entry in entry_list|dictsortreversed:"pub_date"|slice:"0:8" %}
                     {% if forloop.counter == 1 %}
-                        <span class="first blog-{{entry.blog.id}}"></span>
+                        <span class="first category blog-{{entry.blog.id}}"><a href="{{entry.blog.get_absolute_url}} ">{{entry.blog.title}}</a></span>
                         <h4 class="headline-small"><a href="{{entry.get_absolute_url}}">{{entry.title}}</a></h4>
                         <p class="intro-type">{% if entry.summary %}{{entry.summary|truncatewords:"20"}}{% else %}{{entry.body|truncatewords:"20"}}{%endif%}</p>
-                        <span class="byline">by {{entry.author}}</span>&nbsp;&nbsp;<span class="highlight-type">{{ story.pub_date|date:"N j"}}</span>{% get_cached_comment_count for entry as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
+                        <span class="byline">By {{entry.author}}</span>&nbsp;&nbsp;<span class="highlight-type">{{ story.pub_date|date:"N j"}}</span>{% get_cached_comment_count for entry as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
                         
             <ul>
                     {% else %}
-                        <li class="blog-{{entry.blog.id}} {%if forloop.last %}last{%endif%}"><a class="headline-small" href="{{entry.get_absolute_url}}">{{entry.title}}</a>
-                            {% get_cached_comment_count for entry as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</li>
+                        <li class="{%if forloop.last %}last{%endif%}"><span class="blog-{{entry.blog.id}}"><a href="{{entry.blog.get_absolute_url}}">{{entry.blog.title}}</a></span><a class="headline-small" href="{{entry.get_absolute_url}}">{{entry.title}}{% get_cached_comment_count for entry as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</a>
+                            </li>
                     {% endif %}
                 {% endfor %}
                 </ul>
+                <span class="lone-link"><a class="lone-link" href="/weblogs/">All Blog Posts</a></span>
             </div><!-- /Blog Tabs -->
             {% endif %}
 
