@@ -1,0 +1,62 @@
+{% extends "base_generic.html" %}
+
+{% block extended_styles %}
+{{block.super}}
+<style type="text/css">
+.event li {
+  display: inline;
+}
+
+.event li.title {
+  font-weight:bold;
+}
+</style>
+{% endblock %}
+
+
+{% block title %}{{ flatpage.title }}{% endblock %}
+{% block body_class %}flatpage_default{% endblock %}
+{% block body_id %}flatpage_{{ flatpage.id }}{% endblock %}
+
+
+
+
+{% block feed_link %}
+  {% load content %}
+  <link type="application/rss+xml" rel="alternate" href="/rss/comments/objects/{{ flatpage|content_type_id }}/{{ flatpage.pk }}/">
+{% endblock %}
+
+
+{% block content_title %}
+  <h2>{{ flatpage.title }}</h2>
+{% endblock %}
+
+
+{% block content %}
+  {% load markup banned comments events content sectionfronts %}
+  {% get_events as event_list start_date "2012-07-11" end_date "2012-07-17" limit 200 %}
+
+  {% get_section_front for "noise" as sfront %}
+
+  {% if sfront.event_categories %}
+    {% for cat in sfront.event_categories %}
+      {% with parent=cat.parent_category %}
+
+        <h4>{{parent}}</h4>
+        {% for eventtime in event_list|dictsort:"event.get_place_name" %}
+          {% if eventtime.event.categories.all.0.parent_category == parent or eventtime.event.categories.all.1.parent_category == parent or eventtime.event.categories.all.2.parent_category == parent or eventtime.event.categories.all.3.parent_category == parent or eventtime.event.categories.all.4.parent_category == parent %}
+          <div class="event">
+            {% render_template_for eventtime in "includes/indesign-event-base" %}
+          </div>
+          {% endif %}
+        {% endfor %}
+
+      {% endwith %}
+
+    {% endfor %}
+
+  {% endif %}
+
+{% endblock %}
+
+

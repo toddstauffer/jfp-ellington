@@ -1,1 +1,13 @@
-{% if object.get_other_event_times|length > 1 %}{% with start_date=object.get_other_event_times.0 %}{% with end_date=object.get_other_event_times|last %}{% ifequal start_date.event_date|date:"M" end_date.event_date|date:"M" %}{{ start_date.event_date|date:"M d" }}-{{ this_end_date.event_date|date:"d" }}{% else %}{{ start_date.event_date|date:"M d" }}-{{ end_date.event_date|date:"M d" }}{% endifequal %}{% endwith %}{% endwith %}{% else %}{{ object.event_date|date:"M d" }}{% endif %}, {{ object.get_time }}
+{% if object.get_other_event_times|length > 1 %}
+	{% with start_date=object.get_other_event_times.0 %}
+	{% with end_date=object.get_other_event_times|last %}
+		{% ifequal start_date.event_date|date:"F" end_date.event_date|date:"F" %}
+			{{ start_date.event_date|date:"F j" }}-{{ this_end_date.event_date|date:"j" }}
+		{% else %}
+			{{ start_date.event_date|date:"F j" }}-{{ end_date.event_date|date:"F j" }}
+		{% endifequal %}
+	{% endwith %}
+	{% endwith %}
+{% else %}
+	{{ object.event_date|date:"F j" }}
+{% endif %}, {{ object.get_time }}

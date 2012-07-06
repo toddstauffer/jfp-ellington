@@ -1,36 +1,10 @@
-
-
-
-
-                    
-                    
-                        <!-- I think this last part is meant to see if it's the same event with different times -->
-                        {% if event.list|dictdistinct:"event"|length > 1 %}
-
-                            <h3>Events at {{ event.grouper }}</h3>
-                            <p>{% render_template_for event.list.0 in "includes/indesign-event-place" %}</p>
-                            {% for object in event.list %}
-                            <ul>
-                                <li>{{ object.event.title }}</li>
-                                <li>{{ object.event_date|date:"M d" }}, {{ object.get_time }}.</li>
-                                <li>{{ object.event.short_description }}</li>
-                                <li>{% render_template_for object in "includes/indesign-event-cost" %}</li>
-                            </ul>
-                            {% endfor %}
-                        
-                        <!-- I think this last part is meant to see if it's the same event with different times -->
-                        {% else %}
-                            
-                            {% with object=event.list.0 %}
-                                <h3>{{ object.event.title }}</h3>
-                                <ul>
-                                    <li>{% render_template_for object in "includes/indesign-event-timespan" %}</li>
-                                    <li>{% render_template_for object in "includes/indesign-event-place" %}</li>
-                                    <li>{{ object.event.short_description }}</li> 
-                                    <li>{% render_template_for object in "includes/indesign-event-cost" %}</li>
-                                    <li>{% render_template_for object in "includes/indesign-event-contact" %}</li>
-                                </ul>
-                            {% endwith %}
-
-                        {% endif %}
-                    
+{% load content %}
+ 
+<ul class="event">
+    <li class="title">{{ object.event.title}}</li>
+    <li class="timespan">{% render_template_for object in "includes/indesign-event-timespan" %}</li>
+    <li class="place">{% render_template_for object in "includes/indesign-event-place" %}</li>
+    <li class="description">{{ object.event.short_description }}</li> 
+    <li class="cost">{% render_template_for object in "includes/indesign-event-cost" %}</li>
+    <li class="contact">{% render_template_for object in "includes/indesign-event-contact" %}</li>
+</ul>
