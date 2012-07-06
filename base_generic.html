@@ -245,7 +245,11 @@
 
     {% include "includes/ads/Top_300_250.html" %}
 
-    
+    {% if section.id == 8 or blog.id == 38 %} <!-- added to Sporst Section and Sports Blog -->
+    <div class="module" style="border:0px;">
+        <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase='http://download.adobe.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0' width='280' height='270' name="294545" id="294545"><param name="movie" value="http://www.blogtalkradio.com/btrplayer.swf?file=http://www.blogtalkradio.com%2Fjfp_podcasts%2Fplay_list.xml%3Fitemcount%3D5&autostart=false&bufferlength=5&volume=80&corner=rounded&callback=http://www.blogtalkradio.com/flashplayercallback.aspx" /><param name="quality" value="high" /><param name="wmode" value="transparent" /><param name="menu" value="false" /><param name="allowScriptAccess" value="always" /><embed src="http://www.blogtalkradio.com/btrplayer.swf" flashvars="file=http://www.blogtalkradio.com%2fjfp_podcasts%2fplay_list.xml%3Fitemcount%3D5&autostart=false&shuffle=false&callback=http://www.blogtalkradio.com/FlashPlayerCallback.aspx&width=280&height=270&volume=80&corner=rounded" width="300" height="270" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" quality="high" wmode="transparent" menu="false" name="294545" id="294545" allowScriptAccess="always"></embed></object>
+    </div>
+    {% endif %}
         
 
     <!--  TWITTER
@@ -261,6 +265,11 @@
         </script>
     </div>
     
+    <div class="module" style="border:0">
+        <link rel="stylesheet" type="text/css" href="http://cache.blogads.com/64926213/feed.css" />
+        <script language="javascript" src="http://cache.blogads.com/64926213/feed.js"></script>
+    </div>
+
     {% include "includes/ads/Top_Skyscraper.html" %}
 
     
