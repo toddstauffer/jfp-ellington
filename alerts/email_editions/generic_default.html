@@ -82,30 +82,7 @@
             <div style="margin-top:10px;border-bottom:1px solid #e0e0e0;">
               <h3 style="color:#000;font-family:'lucida grande',sans-serif;text-transform:uppercase;font-size:21px;margin-bottom:20px;">Today's Events</h3>
                 <p style="color:#444;font-family:'georgia', serif;font-size:13px;margin-top:5px">
-                {% for event in best_bets %}
-                  {% if event.event.priority.priority == 1 %}
-                    <span class="event-title">
-                      <a style="text-decoration:none;" href="{{ event.get_absolute_url }}">
-                        {% render_template_for event in "includes/titles" %}
-                      </a>
-                    </span>
-                    {% if event.start_time %}
-                       at  
-                      <span class="event-time">{{ event.start_time|time:"g:i A"|lower }}</span>
-                    {% endif %}
-                    {% if event.event.place_id or event.event.one_off_place %}
-                       at the
-                      <span class="event-place">
-                        {% if event.event.place_id %}
-                          <a style="text-decoration:none;color:#444;" href="{{ event.event.place.get_absolute_url }}">{{ event.event.place.name|safe }}</a>
-                        {% else %}
-                          {{ event.event.one_off_place|safe }}
-                        {% endif %}
-                      </span>
-                    {% endif %}
-                    ...
-                  {% endif %}
-                {% endfor %}
+                PLACE EVENTS HERE.
                 </p>
               </div>
             {% endif %}
@@ -127,8 +104,8 @@
             <p style="margin: 0; font-size: 13px; text-transform: uppercase; color: #999; font-family:lucida grande', 'helvetica',sans-serif;"><small>Advertisement</small></p>
             {% retrieve_object media.phototype 36 as advertisement %}
                 {% if advertisement.photos.count %}
-                    <img src="{{advertisement.photos.all.1.photo.url}}" style="padding:10px 0 20px 0;">
-                    <img src="{{advertisement.photos.all.0.photo.url}}" style="padding:10px 0 0px 0;">
+                    <img src="{{advertisement.photos.all.2.photo.url}}" style="padding:10px 0 20px 0;">
+                    <img src="{{advertisement.photos.all.1.photo.url}}" style="padding:10px 0 0px 0;">
                 {% endif %}
           </td>
         </tr>
