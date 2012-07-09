@@ -147,7 +147,7 @@
     {% render_template_for story in "includes/byline" %}
 
     {% with story.update_date|default:story.pub_date as display_date %}
-      <p class="datetime">
+      <span class="datetime">
         <a href="{{ story.get_absolute_url }}">
           {% if at_revision %}
             Last updated on {{ at_revision.date_created|date:"l, F j, Y P T" }}
@@ -155,7 +155,7 @@
             {{ display_date|date:"l, F j, Y P T" }}
           {% endif %}
         </a>
-      </p>
+      </span>
     {% endwith %}
 
     {% if user|can_change:story %}

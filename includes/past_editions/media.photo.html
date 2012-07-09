@@ -48,7 +48,7 @@
     <ul class="footer">
         {% with newdate=object.pub_date|date:"Y-m-d" %}
         {% if home_sfront %}
-            {% get_daily_content newdate for news.story as issue_list limit 3 %}
+            {% get_daily_content newdate for news.story as issue_list limit 5 %}
         {% else %}
             {% get_daily_content newdate for news.story as issue_list limit 5 %}
         {% endif %}

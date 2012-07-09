@@ -1,0 +1,32 @@
+{% extends "layouts/themes/default/default.html" %}
+
+
+{% block item_class %}item_news_story{% endblock %}
+
+
+{% block item %}
+  {% load cached_comments content mogrify mailfriend permissions %}
+
+  {% with layer.link|default:object.get_absolute_url as link %}
+  {% with layer.headline|default:object.headline as headline %}
+  {% with layer.subhead|default:object.subhead as subhead %}
+  {% with layer.description|default:object.tease as description %}
+{% render_template_for object in "includes/category" %}
+  <h4 class="headline-small"><a href="{{ link }}{% if section and section.framing %}?{{ section.framing }}{% endif %}">{{ headline }}</a></h4>
+{% if object.tease_photo %}<a href="{{ link }}" class="thumbnail"><img src="{% mogrify object.tease_photo.url resize "100x80" %}" title="" alt="Tease photo"></a>{% else %}{% if object.lead_photo %}<a href="{{ link }}" class="thumbnail"><img src="{% mogrify object.lead_photo.cropped.url resize "100x80" %}" title="" alt="Tease photo"></a>{% endif %}{% endif %}
+  {% if subhead %}<h5 class="subhead-type">{{ subhead }}</h5>{% endif %}
+  {% if description %}<p class="intro-type">{{ description }}</p>{% endif %}
+
+  <ul class="footer">
+    <li>{% if object.one_off_byline %}By {{ object.one_off_byline }}{% else %}{% if object.bylines.count %}By {% for author in object.bylines.all %}<a href="{{ author.get_absolute_url }}">{{ author }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}{% endif %}</li>
+    <li>{{ object.pub_date|date }}</li>
+    {% if user|can_change:object %}
+      <li><a href="/admin/news/story/{{ object.pk }}/" class="admin_link">edit</a></li>
+    {% endif %}
+  </ul>
+
+  {% endwith %}
+  {% endwith %}
+  {% endwith %}
+  {% endwith %}
+{% endblock %}

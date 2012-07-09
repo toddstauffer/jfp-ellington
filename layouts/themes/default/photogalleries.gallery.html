@@ -1,0 +1,26 @@
+{% extends "layouts/themes/default/default.html" %}
+
+
+{% block item_class %}item_photogalleries_gallery{% endblock %}
+
+
+{% block item %}
+  {% load mogrify mailfriend permissions %}
+
+  {% with layer.link|default:object.get_absolute_url as link %}
+  {% with layer.headline|default:object.name as headline %}
+  {% with layer.subhead as subhead %}
+  {% with layer.description|default:object.blurb as description %}
+
+  <a href="{{ link }}"><img src="{% mogrify object.get_first_photo.photo.photo.url thumbnail "670" %}" alt=""></a>
+<span class="category">Photogallery</span>
+  <h4 class="headline-small"><a href="{{ link }}">{{ headline }}</a></h4>
+  {% if subhead %}<h5 class="subhead-type">{{ subhead }}</h5>{% endif %}
+
+  {% if description %}<p class="caption">{{ description|striptags|truncatewords:15 }}</p>{% endif %}
+
+  {% endwith %}
+  {% endwith %}
+  {% endwith %}
+  {% endwith %}
+{% endblock %}

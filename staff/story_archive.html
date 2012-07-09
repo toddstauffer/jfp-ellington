@@ -8,17 +8,27 @@
 
 {% block content_title %}
   <p class="back"><a href="../">Back to profile</a></p>
-  <h2>{{ staffmember.get_full_name }}</h2>
-  <h3>Stories by {{ staffmember.first_name }}</h3>
+  <h2 class="headline-large">{{ staffmember.get_full_name }}</h2>
+  <h3 class="subtitle">{% if request.GET.opinion %}Commentary{% else %}Stories{% endif %} by {{ staffmember.first_name }}</h3>
 {% endblock %}
 
 
 {% block content %}
-  {% load mailfriend content cached_comments %}
+  {% load mailfriend content cached_comments delta search generic_content listutil %}
+
+{% retrieve_object categories.category 91 as op_category %}
+{% retrieve_object categories.category 93 as ed_category %}
+
+{% if request.GET.opinion %}
+  {% exclude_from_list story_list op_category.stories.all as story_only_list %}
+  {% exclude_from_list story_list story_only_list as story_list %}
+  {% exclude_from_list story_list ed_category.stories.all as story_list %}
+{% else %}
+  {% exclude_from_list story_list op_category.stories.all as story_list %}
+  {% exclude_from_list story_list ed_category.stories.all as story_list %}
+{% endif %}
 
   {% if story_list %}
-    <div class="section section_wide">
-      <h3>Recent Stories</h3>
       {% if story_list %}
         <div class="list story_list">
           {% for story in story_list %}
@@ -26,8 +36,8 @@
           {% endfor %}
         </div>
       {% endif %}
-      <p><a class="button" href="./stories/">More stories</a></p>
-    </div>
+    
+    {% comment %}
     {% if staffmember.user.blog_entries.count %}
       <div class="section section_end">
         <h3>Blog Entries</h3>
@@ -40,6 +50,7 @@
         </ul>
       </div>
     {% endif %}
+    {% endcomment %}
   {% endif %}
 
   {% include "includes/pagination.html" %}

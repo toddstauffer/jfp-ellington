@@ -1,6 +1,6 @@
 {% extends "news/base_news.html" %}
 
-{% load mogrify sectionfronts mailfriend listutil content generic_content cached_comments rating_tags numutil events categories weblogs photos metadata %}
+{% load mogrify sectionfronts mailfriend listutil content generic_content cached_comments rating_tags numutil events categories weblogs photos metadata weather %}
 
 
 
@@ -133,22 +133,47 @@
                     <span class="lone-link"><a class="lone-link" href="/news/all/">Latest Stories</a></span>
             </div>
             
-            <!-- NEWSLETTER FORM
-            ======================================================================== -->
+<!-- WEATHER
+        ========================================================== -->
+        {% weather %}
+            {% if conditions %}
+            <div class="weather_forecast">
+                <div class="current_conditions">
+                  <a class="icon" href="/weather/"><img width="75px" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/images/weather/small/{{ conditions.image_name }}.png" alt=""></a>
+                  <ul class="temp">
+                  <li class="temp">
+                    {% get_latest_content for weather.currentcondition as condition_list limit 40 %}
+                    {% if conditions.temperature %}
+                        {{ conditions.temperature|floatformat:0 }}<span class="deg">&deg;</span>
+                    {% else %}
+                        n/a
+                    {% endif %}
+                    </li>
+                </ul>
+
+                  <ul class="day">
+                        <li class="humidity highlight-type">Humidity: {{ conditions.humidity|default_if_none:"n/a" }}</li>
+                        <li class="wind highlight-type">Wind from {{ conditions.wind_compass|default_if_none:"n/a" }} {{ conditions.wind_speed|default_if_none:"n/a" }} mph</li>
+                  </ul>
+                </div>
+                <div class="list future_forecast">
+                  {% for forecast in daily_forecasts|slice:":1" %}
+                    <div class="item">
+                      <ul class="weather_tommorrow">
+                        <li class="weather_tommorrow"><a class="lone-link" href="/weather/">Tomorrow</a></li>
+                        <li class="high highlight-type">{% if forecast.high_temp %}{{ forecast.high_temp|floatformat:0 }}<span class="deg">&deg;</span>{% else %}n/a{% endif %}</li>
+                        <li>&ndash;</li>
+                        <li class="low highlight-type">{% if forecast.low_temp %}{{ forecast.low_temp|floatformat:0 }}<span class="deg">&deg;</span>{% else %}n/a{% endif %}</li>
+                      </ul>
+                    </div>
+                  {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        {% endweather %}
 
             
-            <div class="newsletter-form left-sidebar-section">
-                <h5>JFP Daily<span class="highlight-type">get it once a day</span></h5>
-                <p style="color:#999;"><span>Subscribe</span> to our daily breaking newsletter.</p>
-                <form action="http://visitor.r20.constantcontact.com/d.jsp" method="post" name="ccoptin" target="_blank">
-                        <input type="email" value="" name="ea" class="email" placeholder="email address" required>
-                        <input type="submit" value="Subscribe" name="go" class="button">
-                        <input type="hidden" name="llr" value="r49jo9cab">
-                        <input type="hidden" name="m" value="1102546529265">
-                        <input type="hidden" name="p" value="oi">
-                    </form>
-            </div>
-</form>
+            
 
 
 
@@ -231,24 +256,19 @@
                 {% endfor %}
             {% endif %}
 
-            {% if home_sfront.special_section %}
-                {% with photo=home_sfront.special_section %}
-                    {% get_metadata for home_sfront.special_section as photo_metadata %}
-                    {% if photo_metadata.special_section %}
-                        {% retrieve_object news.staticsection photo_metadata.special_section.content as special %}
-                        {% if special %}
-                            <div>
-                                <a href="{{special.get_absolute_url}}"><img src="{% mogrify photo.photo.url resize "440x250" %}" alt=""></a>
-                                <div class="dragdealer-slide-title">
-                                    <span class="category">Special Section</span>
-                                    <h4><a href="{{ special.get_absolute_url }}">{{ special.title }}</a></h4>
-                                    {% get_metadata for special as special_metadata %}
-                                    {% if special_metadata.description %}<p class="intro-type">{{ special_metadata.description.content|striptags|truncatewords:"20" }}</p>{% endif %}  
-                                </div>
-                            </div>
-                        {% endif %}
+            {% if home_sfront.layouts %}
+                {% for layout in home_sfront.layouts %}
+                    {% if layout.photo %}
+                    <div>
+                        <a href="{{ layout.endpoints.all.0.url }}"><img src="{% mogrify layout.photo.url resize "440x250" %}" alt=""></a>
+                        <div class="dragdealer-slide-title">
+                            <span class="category">Featured Section</span>
+                            <h4><a href="{{ layout.endpoints.all.0.url }}">{{ layout.headline }}</a></h4>
+                            {% if layout.description %}<p class="intro-type">{{ layout.description|truncatewords:"30" }}</p>{% endif %}  
+                        </div>
+                    </div>
                     {% endif %}
-                {% endwith %}
+                {% endfor %}
             {% endif %}
 
             {% if home_sfront.photo_gallery %}
@@ -301,14 +321,28 @@
                 
                 {% for entry in entry_list|dictsortreversed:"pub_date"|slice:"0:8" %}
                     {% if forloop.counter == 1 %}
-                        <span class="first category blog-{{entry.blog.id}}"><a href="{{entry.blog.get_absolute_url}} ">{{entry.blog.title}}</a></span>
+                        <a href="{{entry.blog.get_absolute_url}}" class="category">
+                                {% if entry.blog.tease_image %}
+                                    <img src="{% mogrify entry.blog.tease_image.url resize "65" %}">
+                                {% else %}
+                                    {{entry.blog.title}}
+                                {% endif %}
+                        </a>
                         <h4 class="headline-small"><a href="{{entry.get_absolute_url}}">{{entry.title}}</a></h4>
                         <p class="intro-type">{% if entry.summary %}{{entry.summary|truncatewords:"20"}}{% else %}{{entry.body|truncatewords:"20"}}{%endif%}</p>
                         <span class="byline">By {{entry.author}}</span>&nbsp;&nbsp;<span class="highlight-type">{{ story.pub_date|date:"N j"}}</span>{% get_cached_comment_count for entry as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
                         
             <ul>
                     {% else %}
-                        <li class="{%if forloop.last %}last{%endif%}"><span class="blog-{{entry.blog.id}}"><a href="{{entry.blog.get_absolute_url}}">{{entry.blog.title}}</a></span><a class="headline-small" href="{{entry.get_absolute_url}}">{{entry.title}}{% get_cached_comment_count for entry as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</a>
+                        <li class="{%if forloop.last %}last{%endif%}">
+                            <a href="{{entry.blog.get_absolute_url}}">
+                                {% if entry.blog.tease_image %}
+                                    <img src="{% mogrify entry.blog.tease_image.url resize "65" %}">
+                                {% else %}
+                                    {{entry.blog.title}}
+                                {% endif %}
+                            </a>
+                        </span><a class="headline-small" href="{{entry.get_absolute_url}}">{{entry.title}}{% get_cached_comment_count for entry as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</a>
                             </li>
                     {% endif %}
                 {% endfor %}
@@ -323,7 +357,7 @@
 <!-- LATEST MEDIA 
 ============================================================================= -->
             
-    <div class="section_wide">
+    <div class="section_wide latest_multimedia">
             {% get_latest_content for photogalleries.gallery as latest_gallery %}
             <h3 class="section_tag">Latest Galleries</h3>
             <ul class="homepage-multimedia">

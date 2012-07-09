@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-   {% load content events sectionfronts generic_content rating_tags listutil weather discussions threadedcomments_tags comments permissions %}
+   {% load content events sectionfronts generic_content rating_tags listutil discussions threadedcomments_tags comments permissions %}
 
 {% block fulltitle %}{% block title %}{% endblock %} | Jackson Free Press | Jackson, MS{% endblock %}
 
@@ -184,41 +184,22 @@
 
 
     {% if home_sfront %}
-        <!-- WEATHER
-        ========================================================== -->
-        {% weather %}
-            {% if conditions %}
-            <div class="weather_forecast">
-                <div class="current_conditions">
-                  <a class="icon" href="/weather/"><img width="75px" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/images/weather/small/{{ conditions.image_name }}.png" alt=""></a>
-                  <ul class="day">
-                        <li class="temp">
-                      {% get_latest_content for weather.currentcondition as condition_list limit 40 %}
-                      {% if conditions.temperature %}
-                        {{ conditions.temperature|floatformat:0 }}<span class="deg">&deg;</span>
-                      {% else %}
-                        n/a
-                      {% endif %}
-                        </li>
-                        <li class="humidity highlight-type">Humidity: {{ conditions.humidity|default_if_none:"n/a" }}</li>
-                        <li class="wind highlight-type">Wind from {{ conditions.wind_compass|default_if_none:"n/a" }} {{ conditions.wind_speed|default_if_none:"n/a" }} mph</li>
-                  </ul>
-                </div>
-                <div class="list future_forecast">
-                  {% for forecast in daily_forecasts|slice:":1" %}
-                    <div class="item">
-                      <ul class="weather_tommorrow">
-                        <li class="weather_tommorrow"><a class="lone-link" href="/weather/">Tomorrow</a></li>
-                        <li class="high highlight-type">{% if forecast.high_temp %}{{ forecast.high_temp|floatformat:0 }}<span class="deg">&deg;</span>{% else %}n/a{% endif %}</li>
-                        <li>&ndash;</li>
-                        <li class="low highlight-type">{% if forecast.low_temp %}{{ forecast.low_temp|floatformat:0 }}<span class="deg">&deg;</span>{% else %}n/a{% endif %}</li>
-                      </ul>
-                    </div>
-                  {% endfor %}
-                </div>
+        <!-- NEWSLETTER FORM
+            ======================================================================== -->
+
+            
+            <div class="newsletter-form left-sidebar-section">
+                <h5>JFP Daily<span class="highlight-type">get it once a day</span></h5>
+                <p style="color:#999;"><span>Subscribe</span> to daily breaking about Jackson, MS.</p>
+                <form action="http://visitor.r20.constantcontact.com/d.jsp" method="post" name="ccoptin" target="_blank">
+                        <input type="email" value="" name="ea" class="email" placeholder="email address" required>
+                        <input type="submit" value="Subscribe" name="go" class="button">
+                        <input type="hidden" name="llr" value="r49jo9cab">
+                        <input type="hidden" name="m" value="1102546529265">
+                        <input type="hidden" name="p" value="oi">
+                    </form>
             </div>
-            {% endif %}
-        {% endweather %}
+
     {% endif %}
 
 
@@ -269,10 +250,9 @@
     </div>
     
     <div class="module" style="border:0">
-        
         <script language="javascript" src="http://cache.blogads.com/64926213/feed.js"></script>
     </div>
-
+    
     {% include "includes/ads/Top_Skyscraper.html" %}
 
     
@@ -347,6 +327,13 @@
                 </ul>
             </div>
         </div>
+    </div>
+
+    <div class="module classifieds_ad">
+    <h3>JFPClassifieds.com</h3>
+    <iframe name=ads FRAMEBORDER=0 scrolling=no src='http://ad2adnetwork.biz/ad2ad/bug.php?tpsb=2500464&sessionid=830067107&;p=2500464' width='300' height='130'> 
+    </iframe>
+    <p class="more-events"><a class="lone-link" href="/classifieds/">view or place a classified ad</a></p>
     </div>
     
     
