@@ -3,8 +3,12 @@
 {% load mogrify sectionfronts mailfriend listutil content generic_content cached_comments rating_tags numutil events categories weblogs photos metadata weather %}
 
 
+{% block extended_meta %}
+    {{block.super}}
+    {% retrieve_object news.section 1 as home_section %}
+    {% with home_section as object %}{% include "includes/metadata.html" %}{% endwith %}
+{% endblock %}
 
-{% block fulltitle %}Jackson Free Press{% endblock %}
 
  {% block extended_scripts %}
  {{block.super}}
@@ -85,10 +89,21 @@
     {% get_section_front for "home" as home_sfront %}
     {% get_latest_content for news.story as story_list limit 50 %}
     
-    {% if home_sfront.breaking_news %}
-    <div class="breaking_news">
-        <h3><span class="breaking">BREAKING:</span> <a href="{{ home_sfront.breaking_news.get_absolute_url }}">{{ home_sfront.breaking_news.headline }}</a> <span class="date">{{ home_sfront.breaking_news.pub_date|timesince}} ago ...</span></h3>
-    </div>
+    {% if home_sfront.breaking_news_story or home_sfront.breaking_news_entry %}
+
+        <div class="breaking_news">
+                    <span class="breaking">BREAKING:</span> 
+                        {% if home_sfront.breaking_news_story %}
+                            {% with story=home_sfront.breaking_news_story %}
+                                <h3 class="headline-small"><a href="{{ story.get_absolute_url }}">{{ story.headline }}</a><span class="date">{{ story.pub_date|timesince}} ago ...</span></h3>
+                            {% endwith %}
+                        {% else %}
+                            {% with story=home_sfront.breaking_news_entry %}
+                                <h3 class="headline-small"><a href="{{ story.get_absolute_url }}">{{ story.title }}</a><span class="date">{{ story.pub_date|timesince}} ago ...</span></h3>
+                                
+                            {% endwith %}
+                        {% endif %}
+        </div>
     {% endif %}
     
 

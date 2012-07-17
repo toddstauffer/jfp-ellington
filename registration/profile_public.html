@@ -1,0 +1,29 @@
+{% extends "registration/base_profile.html" %}
+
+{% load comments_tags content social %}
+
+{% block body_class %}{{ block.super }} user_profile{% endblock %}
+
+{% block content %}
+  {% load banned comments social mogrify %}
+
+  <ul>
+    {% if person.get_profile.gender %}<li><strong>Gender:</strong> {{ person.get_profile.gender }}</li>{% endif %}
+    {% if person.get_profile.hometown %}<li><strong>Hometown:</strong> {{ person.get_profile.hometown }}</li>{% endif %}
+    {% if person.get_profile.location %}<li><strong>Location:</strong> {{ person.get_profile.location }}</li>{% endif %}
+    {% if person.get_profile.occupation %}<li><strong>Occupation:</strong> {{ person.get_profile.occupation }}</li>{% endif %}
+    {% if person.get_profile.webpage %}<li><strong>Website:</strong> {{ person.get_profile.webpage|urlizetrunc:"30" }}</li>{% endif %}
+  </ul>
+
+  {% if person.get_profile.bio %}
+    <section>
+      <h3 id="biography">Biography</h3>
+      {{ person.get_profile.bio|linebreaks }}
+    </section>
+  {% endif %}
+    {% comment %}
+      {% with person as object %}
+        {% include "includes/comments.html" %}
+      {% endwith %}
+    {% endcomment %}
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "registration/base_user.html" %}
+
+
+{% block content_title_wrapper %}{% endblock %}
+
+
+{% block content %}
+  {% load banned comments social mogrify %}
+
+  {{ user.get_profile.bio|linebreaks }}
+
+  <ul>
+    {% if user.get_profile.gender %}<li>Gender: {{ user.get_profile.gender }}</li>{% endif %}
+    {% if user.get_profile.hometown %}<li>Hometown: {{ user.get_profile.hometown }}</li>{% endif %}
+    {% if user.get_profile.location %}<li>Location: {{ user.get_profile.location }}</li>{% endif %}
+    {% if user.get_profile.occupation %}<li>Occupation: {{ user.get_profile.occupation }}</li>{% endif %}
+    {% if user.get_profile.webpage %}<li>Website: {{ user.get_profile.webpage|urlizetrunc:"30" }}</li>{% endif %}
+  </ul>
+
+  <div id="wall">
+    <div class="wall_form">
+      {% comment %}
+      {% with user as object %}
+        {% include "includes/comments.html" %}
+      {% endwith %}
+      {% endcomment %}
+    </div>
+  </div>
+{% endblock %}

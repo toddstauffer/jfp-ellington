@@ -47,10 +47,12 @@
           {% facebook_js %}
         {% endif %}
 
+{%comment%}
         {% auth_enabled twitter as twitter_enabled %}
         {% if twitter_enabled %}
           {% twitter_button %}
         {% endif %}
+{%endcomment%}
 
         <form action="{% url openid_redirect %}" method="GET">
           <input type="hidden" name="openid_provider" value="https://www.google.com/accounts/o8/id" />

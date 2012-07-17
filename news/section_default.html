@@ -12,7 +12,7 @@
 
 
 {% block feed_link %}<link type="application/rss+xml" rel="alternate" href="/rss/headlines/{{ section.url }}/">{% endblock %}
-{% block extended_meta %}{% with section as object %}{% include "includes/metadata.html" %}{% endwith %}{% endblock %}
+{% block extended_meta %}{{block.super}}{% with section as object %}{% include "includes/metadata.html" %}{% endwith %}{% endblock %}
 
     
 {% block extended_scripts %}

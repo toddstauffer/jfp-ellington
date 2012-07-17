@@ -6,6 +6,7 @@
 
 {%block extended_meta %}
     <meta name="readability-verification" content="xC8WCBhe2Vj28NSN9dLPgCsUvEtWsFgMbQHTmsJ6"/>
+    <meta name="google-site-verification" content="o1xqWpBZYZbR6E3NRszhHMGzOEq5z0xzbZfm-NZMuGM" />
 {% endblock %}
 
 
@@ -16,9 +17,6 @@
 
 
 {% block extended_scripts %}
-
-
-    
 
     <script type="text/javascript" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/scripts/shadowbox-3.0.3/shadowbox.js"></script>
     <script type="text/javascript" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/scripts/jquery.validate.min.js"></script>
@@ -47,6 +45,24 @@
                          $(this).tabs('rotate', 0, false);
                          $(this).unbind('hover');
                          });
+
+        /*
+    window.Meebo||function(c){function p(){return["<",i,' onload="var d=',g,";d.getElementsByTagName('head')[0].",
+    j,"(d.",h,"('script')).",k,"='//cim.meebo.com/cim?iv=",a.v,"&",q,"=",c[q],c[l]?
+    "&"+l+"="+c[l]:"",c[e]?"&"+e+"="+c[e]:"","'\"></",i,">"].join("")}var f=window,
+    a=f.Meebo=f.Meebo||function(){(a._=a._||[]).push(arguments)},d=document,i="body",
+    m=d[i],r;if(!m){r=arguments.callee;return setTimeout(function(){r(c)},100)}a.$=
+    {0:+new Date};a.T=function(u){a.$[u]=new Date-a.$[0]};a.v=5;var j="appendChild",
+    h="createElement",k="src",l="lang",q="network",e="domain",n=d[h]("div"),v=n[j](d[h]("m")),
+    b=d[h]("iframe"),g="document",o,s=function(){a.T("load");a("load")};f.addEventListener?
+    f.addEventListener("load",s,false):f.attachEvent("onload",s);n.style.display="none";
+    m.insertBefore(n,m.firstChild).id="meebo";b.frameBorder="0";b.name=b.id="meebo-iframe";
+    b.allowTransparency="true";v[j](b);try{b.contentWindow[g].open()}catch(w){c[e]=
+    d[e];o="javascript:var d="+g+".open();d.domain='"+d.domain+"';";b[k]=o+"void(0);"}try{var t=
+    b.contentWindow[g];t.write(p());t.close()}catch(x){b[k]=o+'d.write("'+p().replace(/"/g,
+    '\\"')+'");d.close();'}a.T(1)}({network:"jacksonfreepress_ko16na"});
+  */
+
     </script>
 
 {% endblock %}
@@ -190,7 +206,7 @@
             
             <div class="newsletter-form left-sidebar-section">
                 <h5>JFP Daily<span class="highlight-type">get it once a day</span></h5>
-                <p style="color:#999;"><span>Subscribe</span> to daily breaking about Jackson, MS.</p>
+                <p style="color:#999;">Sign up for daily breaking news about Jackson, MS.</p>
                 <form action="http://visitor.r20.constantcontact.com/d.jsp" method="post" name="ccoptin" target="_blank">
                         <input type="email" value="" name="ea" class="email" placeholder="email address" required>
                         <input type="submit" value="Subscribe" name="go" class="button">
@@ -425,6 +441,10 @@
                 ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
                 var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
               })();
+
+              /*
+                Meebo("domReady");
+                */
 
         </script>
 

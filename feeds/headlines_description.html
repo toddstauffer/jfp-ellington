@@ -1,1 +1,3 @@
-{{ obj.story|safe }}
+{% load stories markuplib %}
+
+{{ obj.story|striptags|linebreaks }}

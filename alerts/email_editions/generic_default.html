@@ -10,15 +10,24 @@
 <html>
   <head></head>
   <body link="#3d7cb1" vlink="#3d7cb1" style="padding: 10px; background-color:#eee;">
+    
+{% retrieve_object media.phototype 36 as advertisement %}
     <div id="newsletter" style="margin:0 auto;width: 750px; padding: 25px 30px; background-color: #fff;">
       <table id="header" cellpadding="0" cellspacing="0" style="border-bottom: 0px dashed #E0E0E0;margin-bottom: 20px;padding-bottom: 0;width: 750px;">
         <tr>
-          <td valign="bottom">
+          <td>
+            {% if advertisement.photos.count %}
+              <img src="{{advertisement.photos.all.0.photo.url}}" style="padding:0 0 20px 0;margin:0;">
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td valign="bottom" style="float:left;">
             <a style="float:left;border:0;text-decoration:none;" href="http://{{ site.domain }}/"><img style="border:0;"src="http://jacksonfreepress.media.clients.ellingtoncms.com/static/jacksonfreepress/2.3.0/images/logos/logo.png"></a>
           </td>
-          <td align="right" valign="bottom">
-            <h2 class="date" style="color: rgb(119, 119, 119); font-family: 'lucida grande','helvetica',sans-serif; font-size: 12px; float: left; margin: 35px 0px -55px 5px;">{% now "l, F j, Y" %}</h2>
-            <p class="tagline"style="color: rgb(153, 153, 153); float: left; font-family: 'lucida grande', 'helvetica', sans-serif; font-size: 12px; margin: 52px 0 0 5px;">Also Online: <a style="text-decoration:none;" href="http://{{ site.domain }}/events/">Events</a>, <a style="text-decoration:none;" href="http://{{ site.domain }}/news/music/listings">Music Listings</a>, <a style="text-decoration:none;" href="http://{{ site.domain }}/restaurants/">Restaurants</a>, <a style="text-decoration:none;" href="http://{{ site.domain }}/weblogs/jackblog/">Jackblog</a></p>
+          <td align="left" valign="bottom" style="float:left;width: 325px;">
+            <h2 class="date" style="color: rgb(119, 119, 119); font-family: 'lucida grande','helvetica',sans-serif; font-size: 12px; float: left; margin:15px 0 0px 10px;">{% now "l, F j, Y" %}</h2>
+            <p class="tagline"style="color: rgb(153, 153, 153); float: left; font-family: 'lucida grande', 'helvetica', sans-serif; font-size: 12px; margin: 0 0 0 10px;">Also Online: <a style="text-decoration:none;" href="http://{{ site.domain }}/events/">Events</a>, <a style="text-decoration:none;" href="http://{{ site.domain }}/news/music/listings">Music Listings</a>, <a style="text-decoration:none;" href="http://{{ site.domain }}/restaurants/">Restaurants</a>, <a style="text-decoration:none;" href="http://{{ site.domain }}/weblogs/jackblog/">Jackblog</a></p>
           </td>
         </tr>
       </table>
@@ -102,10 +111,9 @@
 
           <td align="center" valign="top" style="width: 300px;">
             <p style="margin: 0; font-size: 13px; text-transform: uppercase; color: #999; font-family:lucida grande', 'helvetica',sans-serif;"><small>Advertisement</small></p>
-            {% retrieve_object media.phototype 36 as advertisement %}
                 {% if advertisement.photos.count %}
-                    <img src="{{advertisement.photos.all.2.photo.url}}" style="padding:10px 0 20px 0;">
-                    <img src="{{advertisement.photos.all.1.photo.url}}" style="padding:10px 0 0px 0;">
+                  <img src="{{advertisement.photos.all.1.photo.url}}" style="padding:10px 0 20px 0;">
+                  <img src="{{advertisement.photos.all.2.photo.url}}" style="padding:10px 0 0px 0;">
                 {% endif %}
           </td>
         </tr>
