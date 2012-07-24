@@ -446,7 +446,7 @@
         ==============================================-->
           {% if section.id == 27 or section.id == 65 or section.id == 66 or section.id == 67 %} <!-- If opinion section -->
 
-              {% get_latest_content_for_category "/wire" news.story as wire_stories limit 7 %}
+              {% get_latest_section_content for news.story 'wire' as wire_stories limit 10 %}
               <h3>From the Wire</h3>
               <ul>
               {% for story in wire_stories %}
@@ -459,8 +459,7 @@
           {% endif %}
 
         {% if section.id == 3 %}<!-- Music -->
-
-        {% retrieve_object places.placetype 110 as music_venues %} 
+          {% retrieve_object places.placetype 110 as music_venues %} 
           <h3>Music Venues</h3>
           <ul>
           {% for place in music_venues.place_set.all|dictsort:"updated_date"|slice:":5" %}

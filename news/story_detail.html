@@ -174,7 +174,7 @@
   </div>
   {% get_metadata for story as metadata %}
   {% if metadata.required_credit_info %}{{metadata.required_credit_info.content|safe}}{% endif %}
-  {% if story|is_in_category:"/wire" %}
+  {% if story|is_in_category:"/associated-press" %}
     {% if not metadata.required_credit_info %}
       <p><em>Copyright 2012 Associated Press. All rights reserved. This
 material may not be published, broadcast, rewritten, or redistributed.</em></p>

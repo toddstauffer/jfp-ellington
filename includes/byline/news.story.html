@@ -3,7 +3,7 @@
 <span class="byline">
     {% if not object|is_in_category:"/editorial" %}
         {% if not object.bylines.count %}
-            {% if not object|is_in_category:"/wire" %}
+            {% if not object|is_in_category:"/associated-press" %}
                 By {% if object.one_off_byline %}{{ object.one_off_byline }}{% else %}JFP Staff{% endif %}
             {% endif %}
         {% else %}
@@ -19,13 +19,12 @@
         By Editorial Board
     {% endif %}
 
-    {% if object|is_in_category:"/wire" %}
+    {% if object|is_in_category:"/associated-press" %}
         {% if object.bylines.count %}
             ,
         {% else %}
             By The
         {% endif %}
-            {% get_metadata for object as byline_metadata %}
-            {{ byline_metadata.wire_service.content }}
+            Associated Press
     {% endif %}
 </span>
