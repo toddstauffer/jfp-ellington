@@ -1,59 +1,422 @@
 {% extends "base_generic.html" %}
 
 {% block extended_styles %}
-{{block.super}}
-<style type="text/css">
-.event li {
-  display: inline;
+  {{block.super}}
+  <style type="text/css">
+  .event li {
+    display: inline;
+  }
+
+  .event li.title {
+    font-weight:bold;
+  }
+
+  .date_range input {
+    float:left;
+    width:150px;
+    margin-right: 10px;
+  }
+.date_range button {
+  float:left;
 }
 
-.event li.title {
-  font-weight:bold;
-}
-</style>
+  </style>
 {% endblock %}
 
+{% block extended_scripts %}
+
+<script type="text/javascript">
+  
+      function SortByPlace(a, b) {
+        var aName = a.place.toLowerCase();
+        var bName = b.place.toLowerCase(); 
+        return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+      }
+
+      function SortByDay(a,b) {
+        if (a[0] < b[0]) return -1;
+        if (a[0] > b[0]) return 1;
+        return 0;
+      }
+
+      /* Takes an integer in the form YYYYMMDD.
+      if type = printdate: Aug 3 (string);
+      if type = yesterday: YYYYMMDD of day before that entered (integer). */
+      function returnDate(date, type) {
+
+        var d = date.toString();
+        console.log(type+': '+d);
+        var y = parseFloat(d.substring(0, 4));
+        console.log('y -' + y);
+        var m = parseFloat(d.substring(4, 6))-1; // new Date uses the scale 0-11, and important that there are no leading zeros.
+        console.log('m -' + m);
+        var t = parseFloat(d.substring(6)); // no leading zeros.
+        console.log('t -' + t);
+
+        var mdate = new Date(y,m,t);
+        console.log('mdate: ' + mdate);
+        if (type == 'printdate') {
+          var monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
+          var day = mdate.getDate().toString();
+          if (day.substring(0,1) == '0') {
+            day = day.substring(0,1);
+          }
+          console.log('month return: ' + mdate.getMonth());
+          console.log('printdate return: ' + monthNames[mdate.getMonth()] + ' ' + day);
+          return monthNames[mdate.getMonth()] + ' ' + day;
+        }
+
+        if (type == 'yesterday') {
+          var yester = new Date(y,m,(t-1));
+          console.log(yester);
+          var nY = yester.getFullYear();
+          var nM = yester.getMonth();
+            nM = (nM.length == 1) ? (""+0+nM) : nM;
+          var nD = yester.getDate();
+            nD = (nD.length == 1) ? (""+0+nD) : nD;
+          console.log('yesterday return: ' + parseInt(""+nY+nM+nD));
+          return parseInt(""+nY+nM+nD);
+        }
+
+        if (type == 'tomorrow') {
+          var tomorrow = new Date(y,m,(t+1));
+          console.log(tomorrow);
+          var nY = tomorrow.getFullYear();
+          var nM = tomorrow.getMonth();
+            nM = (nM.length == 1) ? (""+0+nM) : nM;
+          var nD = tomorrow.getDate();
+            nD = (nD.length == 1) ? (""+0+nD) : nD;
+          console.log('tomorrow return: ' + parseInt(""+nY+nM+nD));
+          return parseInt(""+nY+nM+nD);
+        }
+      } 
+
+      function event_times(times, type) {
+
+        /* Make an array of the data in the form Weekday, Start Time, Finish Time. This is so convoluted because of the way I've brought in the data. It would be much better to have brought it in in ul li form. */
+        var days = [];
+
+        /* First, lets take an array of date/time strings and make an array of them, in the format [Date (YYYYMMDD), StartTime (string), FinishTime (string)] This will hopefully make creating the list to print easier. */
+        for (var i = 0; i < times.length; i++) {
+          var str = times[i];
+          var indexofD = ((type == 'recurring') ? str.indexOf('W') : str.indexOf('D'));
+          var indexofS = str.indexOf('S');
+          var indexofF = (str.indexOf('F') != -1) ? str.indexOf('F') : undefined;
+
+          if (type == 'recurring') {
+            d = (indexofD !== -1 ? str.substring(indexofD+1, indexofD+2) : '');
+          }
+          if (type == 'singular') {
+            d = (indexofD !== -1 ? str.substring(indexofD+1, indexofD+9) : '');
+          }
+
+          if (type == 'recurring') {
+            s = (indexofS && indexofF) ? str.substring(indexofS+1, indexofF) : ((indexofS) ? str.substring(indexofS+1, indexofD) : ''); // Forgot that 'W' is at the end. Taking that into account here.
+          } else {
+            s = (indexofS && indexofF) ? str.substring(indexofS+1, indexofF) : ((indexofS) ? str.substring(indexofS+1) : '');
+          }
+
+          f = indexofF ? (type=='recurring' ? str.substring(indexofF+1, indexofD) : str.substring(indexofF+1)) : '';
+
+          d = (d == 'None' || d == undefined ) ? '' : d;
+          s = (s == 'None' || s == undefined ) ? '' : s;
+          f = (f == 'None' || f == undefined ) ? '' : f;
+
+          var compile = [d, s, f];
+          days.push(compile);
+        }
+
+        days = days.sort(SortByDay);
+        var d = ['', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays', 'Sundays']; // Empty space at first interval to better correspond weekday string with days. 
+
+        var wStr = '';
+        for (var i = 0; i < days.length; i++) {
+          console.log('days[i] '+days[i]);
+          var yesterday = days[i-1] ? parseInt(days[i-1][0]) : '';
+          console.log('Official Yesterday:' + yesterday);
+          var yesterdayStartTime = days[i-1] ? days[i-1][1] : '';
+          var yesterdayEndTime = days[i-1] ? days[i-1][2] : '';
+
+          var today = days[i] ? parseInt(days[i][0]) : '';
+          console.log('Official Today: ' + today);
+          var daybeforetoday = (type == 'recurring') ? today-1 : returnDate(today, 'yesterday');
+          var dayaftertoday = (type == 'recurring') ? today+1 : returnDate(today, 'tomorrow');
+          console.log('Day Before Today: '+daybeforetoday);
+          console.log('Day After Today: '+dayaftertoday);
+          var todayStartTime = days[i] ? days[i][1] : '';
+          var todayEndTime = days[i] ? days[i][2] : '';
+          
+          var tomorrow = days[i+1] ? parseInt(days[i+1][0]) : '';
+          var tomorrowStartTime = days[i+1] ? parseInt(days[i+1][1]) : '';
+          var tomorrowEndTime = days[i+1] ? parseInt(days[i+1][2]) : '';
+
+          /* If yesterday is not one less than today, list the day, add day of the week to the string */
+          if (!yesterday || yesterday != daybeforetoday || yesterdayStartTime != todayStartTime || yesterdayEndTime != todayEndTime || tomorrow != dayaftertoday || tomorrowEndTime != todayEndTime || tomorrowEndTime != todayEndTime) {
+            wStr += (type == 'recurring') ? d[today] : returnDate(today, 'printdate');
+            console.log ('we need print date: ' + returnDate(today, 'printdate'));
+            if (todayStartTime != yesterdayStartTime || yesterdayEndTime != todayEndTime || !tomorrow || tomorrow != dayaftertoday || todayStartTime != tomorrowStartTime || tomorrowEndTime != todayEndTime) {
+              if (todayStartTime) {
+                wStr += (todayEndTime && todayStartTime) ? ' from ' : ' at ';
+                wStr += todayStartTime;
+                if (todayEndTime) {
+                  wStr += '-' + todayEndTime;
+                }
+              }
+            }
+          }    
+        }
+
+        if (type == 'recurring') {
+          if (str.indexOf('E') != -1) {
+            var lastDay = str.substring(str.indexOf('E')+1, str.indexOf('E')+9);
+            console.log('lastday:' + lastDay);
+            if (lastDay) {
+              wStr += ' through ' + returnDate(lastDay, 'printdate');
+            }
+          }
+        }
+
+        wStr = wStr.replace(/, $/, "and");
+
+        return wStr; 
+      }
+
+  $(function(){
+      console.log('Start.');
+
+      var start_date = $('.query_start_date').text().replace("-","");
+      console.log(start_date);
+
+      var end_date = $('.query_end_date').text().replace("-","");
+      console.log(end_date);
+
+      if (!start_date) {
+        console.log('No start date. Closing down.');
+        return false;
+      }
+
+      $('.category_block').each(function(a) {
+
+        var events = [];
+        s = '';
+
+        $(this).find('ul.event').each(function(e) {
+          /* Create an object for each event, called eve. */
+          var eve = {};
+          $(this).children('li').each(function() {
+            /* If we chance upon a ul li list of event_times, build an array of it.*/
+            if ($(this).attr('class') == 'event_times' || $(this).attr('class') == 'event_times_recurring') {
+                var times = []
+                $(this).find('ul').children('li').each(function() {
+                  times.push($(this).text());
+                });
+                eve[$(this).attr('class')] = times;
+            /* If it's not an event_times list, just add the variable to the object */
+            } else {
+              eve[$(this).attr('class')] = $(this).text();
+            }
+          });
+          /* Add that object to the event array */
+          events.push(eve);
+          /* So this object should cover all the events for this category */
+        });
+
+        events.sort(SortByPlace);
+
+        var s = '';
+        var e = '';
+        var lastPlace = '';
+        var nextPlace = '';
+        var firstinSeries = '';
+        var inSeries = '';
+        var lastinSeries = '';
+        var noSeries = '';
+        
+
+        for (var i = 0; i < events.length; i++) {
+          e = events[i];
+
+          lastPlace = events[i-1] ? events[i-1].place.toLowerCase() : '';
+          thisPlace = events[i].place.toLowerCase();
+          nextPlace = events[i+1] ? events[i+1].place.toLowerCase() : '';
+
+          firstinSeries = (lastPlace != thisPlace && nextPlace == thisPlace) ? true : false;
+          inSeries = (lastPlace == thisPlace || nextPlace == thisPlace) ? true : false;
+          lastinSeries = (lastPlace == thisPlace && nextPlace != thisPlace) ? true : false;
+          noSeries = (lastPlace != thisPlace && nextPlace != thisPlace) ? true : false;
+          
+          var address = '';
+
+          if (e.address_one || e.address_two) {
+            address = '(';
+            address += e.address_one;
+            if (e.address_two) {
+              address += ', ' + e.address_two;
+            }
+            if (e.place_city) {
+              address += (e.place_city == 'Jackson') ? ')' : ', ' + e.place_city + ')'; 
+            }
+          } else {
+            address = "";
+          }
+
+          if (firstinSeries) {
+            // Include header, format without place
+            s += '<p>';
+            s += '<strong>Events at ' + e.place + '</strong> ' + address;
+            s += '<ul>';
+          }
+
+          if (inSeries) {
+            s += '<li>';
+          }
+
+          if (inSeries || noSeries) {
+            if (noSeries) {
+              s += '<p>';
+            }
+            s += '<strong>' + e.title + '</strong> ';
+
+            /* Times */
+            if (events[i].event_times) {
+              s += event_times(e.event_times, 'singular');
+            }
+            if (events[i].event_times_recurring) {
+              s += event_times(e.event_times_recurring, 'recurring');
+            }
+            s += ', ';
+          }
+          
+          /* Place */
+          if (noSeries) {
+            s += 'at ' + e.place + ' ' + address + '. ';
+          }
+
+          if (noSeries || inSeries) {
+            s += e.description + ' ';
+
+            if (e.age_limit) {
+              s += 'For ages ' + e.age_limit + '; ';
+            }
+
+            /* Cost */
+            if (e.descriptive_cost) {
+              s += e.descriptive_cost;
+            } else {
+              if (e.event_cost_low && e.event_cost_high) {
+                s += '$' + e.event_cost_low + '-' + '$' + e.event_cost_high;
+              } else if (e.event_cost_low) {
+                s += '$' + e.event_cost_low;
+              } else if (e.event_cost_high) {
+                s += '$' + e.event_cost_high;
+              } else if (!e.event_cost_high && !e.event_cost_low) {
+                s += 'Free'
+              }
+            }
+
+            if (e.contact_phone || e.place_phone || e.contact_email || e.place_email || e.related_link) {
+              s += '; ';
+            } else {
+              s += '. ';
+            }
+
+            /* Contact */
+            if (e.contact_phone || e.place_phone) {
+              s += 'Call ' + (e.contact_phone ? e.contact_phone : e.place_phone);
+            }
+
+            if (e.contact_email  || e.place_email || e.related_link) {
+              if (e.contact_phone || e.place_phone) {
+                s += '; ';
+              }
+            }
+
+            if (e.contact_email || e.place_email) {
+              s += 'Email ' + (e.contact_email ? e.contact_email : e.place_email);
+            }
+
+            if (e.related_link) {
+              if (e.contact_email || e.place_email ) {
+                s += '; ';
+              }
+            }
+
+            if (e.related_link) {
+              s += e.related_link;
+            }
+
+            s += '. ';
+          }
+
+          if (inSeries) {
+            s += '</li>';
+          }
+
+          if (noSeries) {
+            s += '</p>';
+          }
+
+          if (lastinSeries) {
+            s += '</ul></p>';
+          }
+        }
+
+        $(this).html("<div>"+s+"<\/div>");
+      
+      });
+  });
+
+</script>
+
+{% endblock %}
 
 {% block title %}{{ flatpage.title }}{% endblock %}
 {% block body_class %}flatpage_default{% endblock %}
 {% block body_id %}flatpage_{{ flatpage.id }}{% endblock %}
-
-
-
 
 {% block feed_link %}
   {% load content %}
   <link type="application/rss+xml" rel="alternate" href="/rss/comments/objects/{{ flatpage|content_type_id }}/{{ flatpage.pk }}/">
 {% endblock %}
 
-
 {% block content_title %}
   <h2>{{ flatpage.title }}</h2>
 {% endblock %}
 
-
 {% block content %}
-  {% load markup banned comments events content sectionfronts %}
-  {% get_events as event_list start_date "2012-07-11" end_date "2012-07-17" limit 200 %}
+  {% load markup banned comments events content sectionfronts listutil %}
 
-  {% get_section_front for "noise" as sfront %}
+  <form class="date_range" action="{{flatpage.url}}" method="get">
+    <input type="text" id="start_date" name="start_date" required pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" title="Start Date, in the format yyyy-mm-dd." placeholder="Start Date (yyyy-mm-dd)"/>
+    <input type="text" id="end_date" name="end_date" required pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" title="end Date, in the format yyyy-mm-dd." placeholder="End Date (yyyy-mm-dd)"/>
+    <button type=submit>Go</button>
+  </form>
 
-  {% if sfront.event_categories %}
-    {% for cat in sfront.event_categories %}
-      {% with parent=cat.parent_category %}
+  {% if request.GET.start_date and request.GET.end_date %}
+    <h3><span class="query_start_date">{{request.GET.start_date}}</span>-<span class="query_end_date">{{request.GET.end_date}}</span></h3>
+    {% with request_start=request.GET.start_date|add:"" %}
+    {% with request_end=request.GET.end_date|add:"" %}
+      {% get_events as event_list start_date "2012-08-01" end_date "2012-12-31" limit 5000 %}
+    
+    {% get_section_front for "noise" as sfront %}
 
-        <h4>{{parent}}</h4>
-        {% for eventtime in event_list|dictsort:"event.get_place_name" %}
-          {% if eventtime.event.categories.all.0.parent_category == parent or eventtime.event.categories.all.1.parent_category == parent or eventtime.event.categories.all.2.parent_category == parent or eventtime.event.categories.all.3.parent_category == parent or eventtime.event.categories.all.4.parent_category == parent %}
-          <div class="event">
-            {% render_template_for eventtime in "includes/indesign-event-base" %}
+    {% if sfront.event_categories %}
+      {% for cat in sfront.event_categories %}
+        {% with parent=cat.parent_category %}
+            <h4>{{parent}}</h4>
+            <div class="category_block">
+            
+          {% for eventtime in event_list|dictdistinct:"event.id" %}
+            {% if eventtime.event.categories.all.0.parent_category == parent or eventtime.event.categories.all.1.parent_category == parent or eventtime.event.categories.all.2.parent_category == parent or eventtime.event.categories.all.3.parent_category == parent or eventtime.event.categories.all.4.parent_category == parent %}
+              {% render_template_for eventtime in "includes/indesign-event-base" %}
+            {% endif %}
+          {% endfor %}
           </div>
-          {% endif %}
-        {% endfor %}
-
-      {% endwith %}
-
-    {% endfor %}
+        {% endwith %}
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+    {% endwith %}
 
   {% endif %}
 

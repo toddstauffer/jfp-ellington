@@ -1,10 +1,55 @@
-{% load content %}
+{% load content metadata listutil%}
  
 <ul class="event">
+
     <li class="title">{{ object.event.title}}</li>
-    <li class="timespan">{% render_template_for object in "includes/indesign-event-timespan" %}</li>
-    <li class="place">{% render_template_for object in "includes/indesign-event-place" %}</li>
-    <li class="description">{{ object.event.short_description }}</li> 
-    <li class="cost">{% render_template_for object in "includes/indesign-event-cost" %}</li>
-    <li class="contact">{% render_template_for object in "includes/indesign-event-contact" %}</li>
+    
+
+    {% if not object.event.is_recurring %}
+	    <li class="event_times">
+	    	<ul>
+			    {% for time in object.event.event_times.all %}
+			    	<li>D{{time.event_date|date:"Ymd"}}S{{time.start_time}}{% if time.finish_time %}F{{time.finish_time}}{% endif %}</li>
+			    {% endfor %}
+			</ul>
+		</li>
+	 {% endif %}
+
+    {% if object.event.is_recurring %}
+	    <li class="event_times_recurring">
+	    	<ul>
+	    		{% for time in object.event.recurring_event_times.all %}
+	    			<li>B{{time.start_date|date:"Ymd"}}E{{time.expire_date|date:"Ymd"}}S{{time.start_time}}{% if time.finish_time %}F{{time.finish_time}}{% endif %}W{{time.day_of_week}}</li>
+	    		{% endfor %}
+	    	</ul>
+	{% endif %}
+
+	{% if object.event.place.name %}
+		<li class="place">{{ object.event.place.name }}</li>
+	{% else %}
+		{% if object.event.one_off_place %}<li class="place">{{ object.event.one_off_place }}</li>{% endif %}
+	{% endif %}
+	{% if object.event.place.address1 %}<li class="address_one">{{ object.event.place.address1 }}</li>{% endif %}
+	{% if object.event.place.address2 %}<li class="address_two">{{ object.event.place.address2 }}</li>{% endif %}
+	{% if object.event.place.city.city %}<li class="place_city">{{ object.event.place.city.city }}</li>{% endif %}
+
+    {% if object.event.short_description %}<li class="description">{{ object.event.short_description }}</li> {% endif %}
+
+	{% if object.event|get_metadata:"descriptive_cost" %}<li class="descriptive_cost">{{ object.event|get_metadata:"descriptive_cost" }}</li>{% endif %}
+	{% if object.event.cost_high %}<li class="event_cost_high">{{ object.event.cost_high|floatformat }}</li>{% endif %}
+	{% if object.event.cost_low %}<li class="event_cost_low">{{ object.event.cost_low|floatformat }}</li>{% endif %}
+	{% if object.event|get_metadata:"child_cost" %}<li class="child_cost">{{ object.event|get_metadata:"child_cost" }}</li>{% endif %}
+	{% if object.event|get_metadata:"student_cost" %}<li class="student_cost">{{ object.event|get_metadata:"student_cost" }}</li>{% endif %}
+	{% if object.event|get_metadata:"senior_cost" %}<li class="senior_cost">{{ object.event|get_metadata:"senior_cost" }}</li>{% endif %}
+	{% if object.event|get_metadata:"member_cost" %}<li class="member_cost">{{ object.event|get_metadata:"member_cost" }}</li>{% endif %}
+	{% if object.event|get_metadata:"advance_cost" %}<li class="advance_cost">{{ object.event|get_metadata:"advance_cost" }}</li>{% endif %}
+	{% if object.event|get_metadata:"book_cost" %}<li class="book_cost">{{ object.event|get_metadata:"book_cost" }}</li>{% endif %}
+
+	{% if object.get_age_limit %}<li class="age_limit">{{ object.event.get_age_limit }}</li>{% endif %}
+
+    {% if object.event|get_metadata:"contact_phone" %}<li class="contact_phone">{{ object.event|get_metadata:"contact_phone" }}</li>{% endif %}
+	{% if object.event.place.get_phone_formatted %}<li class="place_phone">{{ object.event.place.get_phone_formatted }}</li>{% endif %}
+	{% if object.event|get_metadata:"contact_email" %}<li class="contact_email">{{ object.event|get_metadata:"contact_email" }}</li>{% endif %}
+	{% if object.event.place.email %}<li class="place_email">{{ object.event.place.email }}</li>{% endif %}
+	{% if object.event.related_links.all|first %}<li class="related_link">{{ object.event.related_links.all|first }}</li>{% endif %}
 </ul>

@@ -442,9 +442,25 @@
           {% endif %}
         -->
 
-        {% if section.id == 3 %}
+        <!-- Wire Stories
+        ==============================================-->
+          {% if section.id == 27 or section.id == 65 or section.id == 66 or section.id == 67 %} <!-- If opinion section -->
 
-        {% retrieve_object places.placetype 110 as music_venues %}
+              {% get_latest_content_for_category "/wire" news.story as wire_stories limit 7 %}
+              <h3>From the Wire</h3>
+              <ul>
+              {% for story in wire_stories %}
+                {% get_cached_comment_count for story as comment_count %}
+                <li{% if forloop.last %} class="last"{% endif %}><a href="{{ story.get_absolute_url }}">{{ story.headline }}</a>
+                  {% if comment_count %}<small>{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</li>
+              {% endfor %}
+              </ul>
+
+          {% endif %}
+
+        {% if section.id == 3 %}<!-- Music -->
+
+        {% retrieve_object places.placetype 110 as music_venues %} 
           <h3>Music Venues</h3>
           <ul>
           {% for place in music_venues.place_set.all|dictsort:"updated_date"|slice:":5" %}

@@ -1,6 +1,6 @@
 
 {% if object.categories.count > 0 %}
-    {% if object.categories.all.0.name != 'Imported' and object.categories.all.0.name != 'Noise' and object.categories.all.0.name != 'Column' %}
+    {% if object.categories.all.0.name != 'Imported' and object.categories.all.0.name != 'Noise' and object.categories.all.0.name != 'Column' and object.categories.all.0.name != 'Wire'  %}
 
         {% with cat=object.categories.all.0 %}
             {% if cat %}
@@ -14,7 +14,7 @@
         {% endwith %}
 
     {% else %}
-        {% if object.categories.all.1.name != 'Imported' and object.categories.all.1.name != 'Noise' and object.categories.all.1.name != 'Column' %}
+        {% if object.categories.all.1.name != 'Imported' and object.categories.all.1.name != 'Noise' and object.categories.all.1.name != 'Column' and object.categories.all.1.name != 'Wire' %}
 
             {% with cat=object.categories.all.1 %}
             {% if cat %}
@@ -29,7 +29,7 @@
 
         {% else %}
 
-            {% if object.categories.all.2.name != 'Imported' and object.categories.all.2.name != 'Noise' and object.categories.all.2.name != 'Column' %}
+            {% if object.categories.all.2.name != 'Imported' and object.categories.all.2.name != 'Noise' and object.categories.all.2.name != 'Column' and object.categories.all.2.name != 'Wire' %}
 
                 {% with cat=object.categories.all.2 %}
                 {% if cat %}

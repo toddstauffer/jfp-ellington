@@ -1,6 +1,6 @@
 {% extends "news/base_news.html" %}
 
-{% load mogrify sectionfronts mailfriend listutil content generic_content cached_comments rating_tags numutil events categories weblogs photos metadata weather %}
+{% load mogrify sectionfronts mailfriend listutil content generic_content cached_comments rating_tags numutil events categories weblogs photos metadata weather stories %}
 
 
 {% block extended_meta %}
@@ -18,9 +18,9 @@
     // adjust the length of the headline so as not to double over.
     $(document).ready(function() {
       $('.dragdealer-slide-title h4 a').each(function() {
-        if ($(this).html().length > 28) 
+        if ($(this).html().length > 35) 
         {
-          var title = $(this).html().substring(0,28)+'...';
+          var title = $(this).html().substring(0,35)+'...';
           $(this).html(title);
         }
       });
@@ -128,8 +128,11 @@
                     
                     <!-- Need to add place home-sfront.lead_stories -->
 
-                    {% for story in daily_list|slice:":4" %}
+                    {% for story in daily_list|slice:":5" %}
                         <article>
+                            {% if story|is_in_category:"/person-of-the-day" %}
+                                {% render_template_for story in "includes/category" %}
+                            {% endif %}
                             <h4 class="headline-small"><a href="{{ story.get_absolute_url }}">{{ story.headline|striptags }}</a></h4>
                             {% render_template_for story in "includes/byline" %}
                             {% if story.tease %}
@@ -307,6 +310,25 @@
         </div>
         
         
+        <!-- Wire Stories 
+        ================================================= -->
+        {% get_latest_section_content for news.story 'wire' as wire_list limit 30 %}
+        {% exclude_from_list wire_list daily_list as wire_list %}
+        {% if wire_list %}
+        <div class="section section_wide wire_stories">
+            <h3>From the Wire</h3>
+                <ul>
+                {% for story in wire_list|dictsortreversed:"pub_date"|slice:"0:5" %}
+                    <li class="{%if forloop.last %}last{%endif%}">
+                        {% render_template_for story in "includes/category" %}
+                        <a class="headline-small" href="{{story.get_absolute_url}}">{{story.headline}}{% get_cached_comment_count for story as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</a>
+                    </li>
+                {% endfor %}
+                </ul>
+                <span class="lone-link"><a class="lone-link" href="/news/wire/">All Wire Stories</a></span>
+            </div><!-- /Blog Tabs -->
+        {% endif %}
+
         <!-- Blog Tabs 
         ================================================= -->
 
@@ -334,7 +356,7 @@
             <div class="section section_wide featured_blog_entries">
                 <h3>JFP Blogs</h3>
                 
-                {% for entry in entry_list|dictsortreversed:"pub_date"|slice:"0:8" %}
+                {% for entry in entry_list|dictsortreversed:"pub_date"|slice:"0:7" %}
                     {% if forloop.counter == 1 %}
                         <a href="{{entry.blog.get_absolute_url}}" class="category">
                                 {% if entry.blog.tease_image %}
@@ -345,7 +367,7 @@
                         </a>
                         <h4 class="headline-small"><a href="{{entry.get_absolute_url}}">{{entry.title}}</a></h4>
                         <p class="intro-type">{% if entry.summary %}{{entry.summary|truncatewords:"20"}}{% else %}{{entry.body|truncatewords:"20"}}{%endif%}</p>
-                        <span class="byline">By {{entry.author}}</span>&nbsp;&nbsp;<span class="highlight-type">{{ story.pub_date|date:"N j"}}</span>{% get_cached_comment_count for entry as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
+                        <span class="byline">By {{entry.author}}</span>&nbsp;&nbsp;<span class="highlight-type">{{ entry.pub_date|date:"N j"}}</span>{% get_cached_comment_count for entry as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
                         
             <ul>
                     {% else %}

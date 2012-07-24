@@ -224,7 +224,7 @@
         <!-- BEST BETS 
         ============================================= -->
         <div class="section home-best-bets"> <!-- Events -->
-        <h3><a href="/events/">Events <span class="middle-italic">of</span> Note</a></h3>
+        <h3><a href="/events/">Happening Today</a></h3>
 
         {% get_todays_events 50 as event_list %}
 
@@ -288,7 +288,7 @@
                 <ul>
                     {% for comment in comment_list %}
                         <li class="{% if forloop.last %} last{% endif %}">
-                            <p class="comment"><span class="comment-author"><a href="{{comment.user.get_absolute_url}}">{{comment.user_name}}</a></span> <a href="{{ comment.content_object.get_absolute_url }}#c{{ comment.id }}">{{ comment.comment|truncatewords:"30" }}</a></p>
+                            <p class="comment"><span class="comment-author"><a href="{{comment.user.get_absolute_url}}">{{comment.user_name}}</a></span> <a href="{{ comment.content_object.get_absolute_url }}#c{{ comment.id }}">{{ comment.comment|truncatewords:"20" }}</a></p>
                             <p class="highlight-type">{{ comment.submit_date|date:"N j, P" }} on <a href="{{comment.content_object.get_absolute_url}}">{{comment.content_object }}</a>
                             </p>
                         </li>
@@ -347,7 +347,7 @@
 
     <div class="module classifieds_ad">
     <h3>JFPClassifieds.com</h3>
-    <iframe name=ads FRAMEBORDER=0 scrolling=no src='http://ad2adnetwork.biz/ad2ad/bug.php?tpsb=2500464&sessionid=830067107&;p=2500464' width='300' height='130'> 
+    <iframe name=ads FRAMEBORDER=0 scrolling=no src='http://ad2adnetwork.biz/ad2ad/bug.php?tpsb=2500464&sessionid=830067107&;p=2500464' width='300' height='120'> 
     </iframe>
     <p class="more-events"><a class="lone-link" href="/classifieds/">view or place a classified ad</a></p>
     </div>
