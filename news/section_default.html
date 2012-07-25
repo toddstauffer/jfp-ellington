@@ -277,16 +277,13 @@
     {% retrieve_object media.phototype 37 as editorial_cartoons %}
     {% if editorial_cartoons.photos.count %}
         {% with editorial_cartoons.photos.all.0 as photo %}
-        <div class="section" style="width:670px;margin-bottom:20px;border-bottom:1px dashed #e0e0e0;padding-bottom:10px;">
-            <div>
+        <div class="section editorial_cartoon">
               <a style="float:left;" href="{{ photo.get_absolute_url }}"><img src="{% mogrify photo.photo.url resize "670x600" %}" alt=""></a>
-              <div style="float:left;">
                   <span class="byline">By {% if photo.photographer.get_full_name %}<a href="{{ photo.photographer.get_absolute_url }}">{{ photo.photographer.get_full_name }}</a>{% else %}{% if photo.one_off_photographer %}{{photo.one_off_photographer}}{% else %}JFP Staff{% endif %}{% endif %}
                   </span>&nbsp;&nbsp;
                   <span class="highlight-type">{{ photo.pub_date|date:"N j"}}</span>
                   {% get_cached_comment_count for photo as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
-              </div>
-            </div>
+                  <span class="lone-link"><a href="{{ editorial_cartoons.get_absolute_url }}">All Editorial Cartoons</a></span>
         </div>
         {% endwith %}
     {% endif %}
