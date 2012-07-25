@@ -113,7 +113,9 @@
   <div id="target-story_headline_template">
   {% if not story.lead_photo_has_headline %}
     <h2 class="header">{{ story.headline }}</h2>
-    {% if story.subhead %}<h3 class="sub_header">{{ story.subhead }}</h3>{% endif %}
+    {% if not story|is_in_category:"/music-listings" %}
+      {% if story.subhead %}<h3 class="sub_header">{{ story.subhead }}</h3>{% endif %}
+    {% endif %}
   {% endif %}
   </div>
 {% endblock %}
