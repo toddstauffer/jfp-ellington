@@ -1,0 +1,305 @@
+{% extends "base_generic.html" %}
+
+{% load place_tags %}
+
+
+{% block extended_styles %}
+  {{ block.super }}
+  {{ form.media.css }}
+{% endblock %}
+
+
+{% block extended_scripts %}
+  {{ block.super }}
+  {{ form.media.js }}
+  <script type="text/javascript" language="javascript">
+    var favoriteVenues = {{ favorite_venues_json }};
+    
+    jQuery(document).ready(function($) {
+      {% if form.instance.place %}
+        {# handle situation where form had errors or place passed in GET #}
+        {% with form.instance.place as place %}
+          {% get_promoter_status request.user place as promoter_status %}
+          Ellington.UserSubmittedEvents.selectItem({
+            'name': '{{ place.name }}',
+            'url': '{{ place.get_absolute_url }}',
+            'id': '{{ place.pk }}',
+            'address1': '{{ place.address1 }}',
+            'zip_code': '{{ place.zip_code }}',
+            'phone1': '{{ place.phone1 }}',
+            'slug': '{{ place.slug }}',
+            'trusted': {% if promoter_status == "approved" %}true{% else %}false{% endif %}
+          });
+        {% endwith %}
+      {% endif %}
+
+      /* configure the event time formset */
+      Ellington.FormSet('{{ event_time_formset.prefix }}', {
+        addFormCallback: Ellington.UserSubmittedEvents.resetCalendarCallback,
+        deleteFormCallback: Ellington.UserSubmittedEvents.resetCalendarCallback,
+      });
+      Ellington.FormSet('{{ recurring_event_time_formset.prefix }}', {
+        addFormCallback: Ellington.UserSubmittedEvents.resetCalendarCallback,
+        deleteFormCallback: Ellington.UserSubmittedEvents.resetCalendarCallback,
+      });
+
+      /* set up fieldset toggling for recurring/non-recurring */
+      $('#id_is_recurring').change(function() {
+        var is_recurring = $(this).attr('checked');
+        $('.{{ recurring_event_time_formset.prefix }}-fieldset').toggle(is_recurring);
+        $('.{{ event_time_formset.prefix }}-fieldset').toggle(!is_recurring);
+      });
+      
+      /* If recurring event is checked, show it by default */
+      if ($('#id_is_recurring').attr('checked')) {
+        $('.{{ recurring_event_time_formset.prefix }}-fieldset').show();
+        $('.{{ event_time_formset.prefix }}-fieldset').hide();
+      }
+
+      Ellington.UserSubmittedEvents.init();
+
+      Ellington.UGCPhotosOembed('#id_long_description', '{{ request.user.username }}');
+    });
+  </script>
+{% endblock %}
+
+
+{% block title %}Create an event{% endblock %}
+{% block body_class %}{{ block.super }} user_submitted_events{% endblock %}
+
+
+{% block content_title %}
+  <h2>Create an event</h2>
+  <p>Fill out as many fields as possible. If your event requires review, there may be a short delay before the event is posted.</p>
+{% endblock %}
+
+
+{% block content %}
+  {% if form.errors or event_time_formset.errors %}
+    <div class="message message_error">
+      <h4>Please correct the errors below</h4>
+      {% if form.errors %}
+        <p>{{ form.non_field_errors }}</p>
+      {% endif %}
+      {% if event_time_formset.errors %}
+        <p>{{ event_time_formset.non_form_errors }}</p>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <p>Please note that <strong>*bold fields</strong> are required, and you must have <a href="/accounts/register/">an account</a> in order to add events. After contributing an event, you will receive an email notification when it has been posted.</p>
+
+  <form enctype='multipart/form-data' action="." method="post" class="event_form">{% csrf_token %}
+    {% if user.is_authenticated %}
+      <p><strong>Post as</strong> {{ user.username }} (<a href="/accounts/logout/">Sign out</a>)</p>
+    {% endif %}
+
+    <fieldset class="event-form">
+      <p>
+         <label for="id_title" class="required">*{{ form.title.label }}</label>
+         {% if form.title.errors %}<span class="error">{{ form.title.errors|join:", "|escape }}</span>{% endif %}
+         {{ form.title }}
+         <span class="help_text">{{ form.title.help_text }}</span>
+      </p>
+      
+      <p>
+         <label for="id_long_description" class="required">*{{ form.long_description.label }} &amp; Contact Info</label>
+         {% if form.long_description.errors %}<span class="error">{{ form.long_description.errors|join:", "|escape }}</span>{% endif %}
+         {{ form.long_description }} 
+         <span class="help_text">{{ form.long_description.help_text }}</span>
+        <a href="#" class="photo_add_button">Add photo</a>
+      </p>
+
+      <p>
+        {{ form.place.label_tag }}
+        {% if form.place.errors %}<span class="error">{{ form.place.errors|join:", "|escape }}</span>{% endif %}
+        <span id="input-place">
+          <input type="text" id="id_one_off_place" name="one_off_place" value="{% if form.instance.place %}{{ form.instance.place.name }}{% else %}{{ form.data.one_off_place }}{% endif %}" placeholder="Start typing the name of the venue..." />
+          {% if favorite_venues %}<a id="favorite-places" class="quiet" href="javascript:void(0);">Favorites</a>{% endif %}
+          <span class="help_text">{{ form.place.help_text }}</span>
+        </span>
+        <span id="selected-place">
+          <span id="selected-place-info"></span>
+          <a id="clear-place-selection" class="quiet" href="javascript:void(0);">Clear selection</a>
+        </span>
+        {{ form.place }}
+      </p>
+
+      <p id="selected-place"></p>
+
+       <table class="cost_range">
+         <tr colspan="3">
+           <th>Cost range</th>
+         </tr>
+         <tr>  
+           <td>
+             {% if form.cost_low.errors %}<span class="error">{{ form.cost_low.errors|join:", "|escape }}</span>{% endif %}
+             {{ form.cost_low }} 
+           </td>
+           <td>
+              to
+           </td>
+           <td>
+             {% if form.cost_high.errors %}<span class="error">{{ form.cost_high.errors|join:", "|escape }}</span>{% endif %}
+             {{ form.cost_high }}
+         </tr>
+         <tr>
+            <td colspan="3"><span class="help_text">A number (e.g., 5 or 5.50)</span></td>
+         <tr>
+       </table>
+      <p>
+        {{ form.age_lowest.label_tag }} 
+        {% if form.age_lowest.errors %}<span class="error">{{ form.age_lowest.errors|join:", "|escape }}</span>{% endif %}
+        {{ form.age_lowest }}
+        <span class="help_text">{{ form.age_lowest.help_text }}</span>
+      </p>
+
+      <p>
+        {{ form.ticket_website.label_tag }} 
+        {% if form.ticket_website.errors %}<span class="error">{{ form.ticket_website.errors|join:", "|escape }}</span>{% endif %}
+        {{ form.ticket_website }}
+        <span class="help_text">{{ form.ticket_website.help_text }} A valid ticket vendor's website (e.g., http://www.ticketmaster.com or ticketmaster.com)</span>
+      </p>
+
+      <p>
+        {{ form.categories.label_tag }}</p>
+        {% if form.categories.errors %}<span class="error">{{ form.categories.errors|join:", "|escape }}</span>{% endif %}
+      <div>{{ form.categories }}</div>
+      <p><span class="help_text">{{ form.categories.help_text }}</span></p>
+
+      <p>
+        {{ form.is_recurring.label_tag }} 
+        {% if form.is_recurring.errors %}<span class="error">{{ form.is_recurring.errors|join:", "|escape }}</span>{% endif %}
+        {{ form.is_recurring }}
+        <span class="help_text">{{ form.is_recurring.help_text }}</span>
+      </p>
+
+      <p>
+        {{ form.get_email_notification.label_tag }} 
+        {% if form.get_email_notification.errors %}<span class="error">{{ form.get_email_notification.errors|join:", "|escape }}</span>{% endif %}
+        {{ form.get_email_notification }}
+        <span class="help_text">{{ form.get_email_notification.help_text }}</span>
+      </p>
+    </fieldset>
+
+    {# event-time formsets #}
+    {{ event_time_formset.management_form }}
+
+    <fieldset class="{{ event_time_formset.prefix }}-fieldset">
+      <h4>Event Date/Time</h4>
+      {{ event_time_formset.non_form_errors }}
+
+      <table>
+        <thead>
+          <tr>
+            <th class="required">*Date</th>
+            <th class="required">*Start time</th>
+            <th>End time</th>
+          </tr>
+        </thead>
+        {% with event_time_formset.empty_form as form %}
+          <tr class="empty-row {{ event_time_formset.prefix }}">
+            <td>{{ form.event_date }}</td>
+            <td>{{ form.start_time }}</td>
+            <td>{{ form.finish_time }}</td>
+            <td class="del-row"><a href="javascript:void(0)" class="{{ event_time_formset.prefix }}-delete-row">x</a></td>
+          </tr>
+        {% endwith %}
+        {% for form in event_time_formset.forms %}
+          {% if form.non_field_errors %}
+            <tr><td colspan="3">{{ form.non_field_errors }}</td></tr>
+          {% endif %}
+          <tr class="dynamic-form {{ event_time_formset.prefix }}">
+            <td>
+                {% for error in form.event_date.errors %}<span class="error">{{ error|escape }}</span>{% endfor %}
+                {{ form.event_date }}
+            </td>
+            <td>
+                {% for error in form.start_time.errors %}<span class="error">{{ error|escape }}</span>{% endfor %}
+                {{ form.start_time }}
+            </td>
+            <td>
+                {% for error in form.finish_time.errors %}<span class="error">{{ error|escape }}</span>{% endfor %}
+                {{ form.finish_time }}
+            </td>
+            {% if not forloop.first %}
+              <td class="del_row"><a href="javascript:void(0)" class="{{ event_time_formset.prefix }}-delete-row">x</a></td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+        <tr id="{{ event_time_formset.prefix }}-add-row">
+          <td colspan="4"><a href="javascript:void(0)" class="{{ event_time_formset.prefix }}-add-row">+ Add event time</a></td>
+        </tr>
+      </table>
+
+    </fieldset>
+
+    {{ recurring_event_time_formset.management_form }}
+
+    <fieldset class="{{ recurring_event_time_formset.prefix }}-fieldset hidden">
+      <h4>Recurring Event Date/Time</h4>
+      {{ recurring_event_time_formset.non_form_errors }}
+
+      <table>
+        <thead><tr>
+          <th class="required">*Start date</th>
+          <th class="required">*Expire date</th>
+          <th class="required">*Day of week</th>
+          <th class="required">*Start time</th>
+          <th>End time</th>
+        </tr></thead>
+        {% with recurring_event_time_formset.empty_form as form %}
+          <tr class="empty-row {{ recurring_event_time_formset.prefix }}">
+            <td>{{ form.start_date }}</td>
+            <td>{{ form.expire_date }}</td>
+            <td>{{ form.day_of_week }}</td>
+            <td class="time_field">{{ form.start_time }}</td>
+            <td class="time_field">{{ form.finish_time }}</td>
+            <td class="del-row"><a href="javascript:void(0)" class="{{ recurring_event_time_formset.prefix }}-delete-row">x</a></td>
+          </tr>
+        {% endwith %}
+        {% for form in recurring_event_time_formset.forms %}
+          {% if form.non_field_errors %}
+            <tr><td colspan="6">{{ form.non_field_errors }}</td></tr>
+          {% endif %}
+          <tr class="dynamic-form {{ recurring_event_time_formset.prefix }}">
+            <td>
+                {% for error in form.start_time.errors %}<span class="error">{{ error|escape }}</span>{% endfor %}
+                {{ form.start_date }}
+            </td>
+            <td>
+                {% for error in form.expire_date.errors %}<span class="error">{{ error|escape }}</span>{% endfor %}
+                {{ form.expire_date }}
+            </td>
+            <td>
+                {% for error in form.day_of_week.errors %}<span class="error">{{ error|escape }}</span>{% endfor %}
+                {{ form.day_of_week }}
+            </td>
+            <td class="time_field">
+                {% for error in form.start_time.errors %}<span class="error">{{ error|escape }}</span>{% endfor %}
+                {{ form.start_time }}
+            </td>
+            <td class="time_field">
+                {% for error in form.finish_time.errors %}<span class="error">{{ error|escape }}</span>{% endfor %}
+                {{ form.finish_time }}
+            </td>
+            {% if not forloop.first %}
+              <td class="del-row">
+                <a href="javascript:void(0)" class="{{ recurring_event_time_formset.prefix }}-delete-row">x</a>
+              </td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+        <tr id="{{ recurring_event_time_formset.prefix }}-add-row">
+          <td colspan="5"><a href="javascript:void(0)" class="{{ recurring_event_time_formset.prefix }}-add-row">+ Add event time</a></td>
+        </tr>
+      </table>
+
+    </fieldset>
+
+    <p class="submit">
+      <button type="submit">Send</button>
+    </p>
+  </form>
+  {% include "media/includes/oembed-ugc.html" %}
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "news/base_documents.html" %}
+
+
+{% block title %}Latest Documents{% endblock %}
+{% block body_class %}{{ block.super }} document_archive{% endblock %}
+
+
+{% block content_title %}
+  <h2>JFP Document Morgue</h2>
+  {{ block.super }}
+{% endblock %}
+
+
+{% block content_search %}
+  <form action="{% url ellington_search_vertical "news.document" %}" method="get" class="vertical_search_form" autocomplete="off">
+    <p>
+      <input type="text" name="q" value="" placeholder="Search documents">
+      <button type="submit">Search</button>
+    </p>
+  </form>
+{% endblock %}
+
+
+{% block content %}
+  {% load content %}
+
+  <div class="list document_list">
+    {% for document in latest %}
+      {% render_template_for document in "includes/lists" %}
+    {% endfor %}
+  </div>
+
+  {% include "includes/pagination.html" %}
+
+  {% if date_list %}
+  <div class="archive_content">
+    <h4>Archive by year</h4>
+    <p>
+      {% for date in date_list %}<a href="{{ date.year }}/">{{ date.year }}</a> {% endfor %}
+    </p>
+  </div>
+  {% endif %}
+{% endblock %}

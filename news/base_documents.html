@@ -1,0 +1,33 @@
+{% extends "media/base_media.html" %}
+
+
+{% block title %}Documents{% endblock %}
+{% block body_class %}documents{% endblock %}
+
+
+{% block feed_link %}<link type="application/rss+xml" rel="alternate" href="/rss/documents/">{% endblock %}
+
+
+{% block content_title %}
+  <p class="feed"><a href="/rss/documents/" title="Subscribe to RSS feed">Subscribe</a></p>
+{% endblock %}
+
+
+{% block sidebar %}
+  {% load content %}
+
+  {% get_latest_content for news.document as document_list limit 6 %}
+
+  <div class="module latest-documents">
+    <h3><a href="/documents/">Latest Documents</a></h3>
+    <ul>
+      {% for document in document_list %}
+      <li {% if forloop.last %}class="last"{% endif %}><a class="headline-small" href="{{ document.get_absolute_url }}">{{ document.title }}<br/>
+        <span class="datetime">Published {{ document.pub_date|date }}</span></a></li>
+      {% endfor %}
+    </ul>
+    <p class="footer more"><a href="/documents/">More archives</a></p>
+  </div>
+
+  {{block.super}}
+{% endblock %}

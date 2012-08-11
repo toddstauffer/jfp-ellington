@@ -45,6 +45,7 @@
     <p class="search">{{ form.cuisine }} {{ form.region }} {{ form.q }} <input type="submit" value="Search" class="button"></p>
 
     <div class="content_sidebar">
+      {% comment %}
       <h3>Attributes</h3>
       <ul class="attribute_list">
         <li{% if form.has_delivery.data == "2" %} class="on"{% endif %}>
@@ -72,7 +73,7 @@
           {{ form.outdoor_seating }}
         </li>
       </ul>
-      
+      {% endcomment %}
       <h3>Cuisines</h3>
       <ul class="cuisine_list">
       {% for choice in form.cuisine.field.choices %}

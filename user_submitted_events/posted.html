@@ -1,0 +1,34 @@
+{% extends "base_generic.html" %}
+
+
+{% block title %}Event created successfully{% endblock %}
+
+
+{% block content_title %}
+  <h2>Event created successfully</h2>
+{% endblock %}
+
+
+{% block content %}
+  {% if event %}
+    {% if event.status == 1 %}
+      <p>Thank you for contributing your event.  It has been added to the calendar.</p>
+    {% else %}
+      <p>Thank you for contributing your event.  It is being reviewed by the site editors.</p>
+      {% if event.get_email_notification %}
+        <p>You'll receive an email when we decide whether to post it.</p>
+      {% endif %}
+    {% endif %}
+  {% else %}
+    {# provided for backward compatibility #}
+    <p>Thanks for contributing your event. If you elected to get an e-mail when we decide whether to post it, you'll be hearing from us within a few days.</p>
+  {% endif %}
+  
+  <ul>
+    {% if event.status == 1 %}
+      <li><a href="{{ event.get_absolute_url }}">View your event</a></li>
+    {% endif %}
+    <li><a href="{% url ellington_events_submit %}">Create an event</a></li>
+    <li><a href="/">Return to the home page</a></li>
+  </ul>
+{% endblock %}

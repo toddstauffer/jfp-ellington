@@ -33,11 +33,22 @@
   </div>
 
   <ul class="title_info">
+    {% get_metadata for event.event as eventmeta %}
     <li><strong>When:</strong> <span>{% if event.is_in_the_past or not event.happens_this_year %}{{ event.event_date|date:"l, F j, Y" }}{% else %}{{ event.event_date|date:"l, F j" }}{% endif %}, {{ event.get_time }}</span></li>
     <li><strong>Where:</strong> <span>{% if event.event.one_off_place %}{{ event.event.one_off_place }}{% else %}<a href="{{ event.event.place.get_absolute_url }}">{{ event.event.place.name }}</a>, {{ event.event.place.city.city }}{% endif %}</span></li>
-    <li><strong>Cost:</strong> <span>{% if event.event.get_cost %}{{ event.event.get_cost }}{% else %}Not available{% endif %} {% if not event.is_in_the_past %}{% if event.event.ticket_website %}<a href="{{ event.event.ticket_website|fix_ampersands }}" class="buy_tickets">buy tickets</a>{% endif %}{% endif %}</span></li>
-    <li><strong>Age limit:</strong> <span>{{ event.event.get_age_limit }}</span></li>
-    {% get_metadata for event.event as eventmeta %}
+    {% if eventmeta.descriptive_cost or event.event.get_cost or event.event.ticket_website %}
+      <li><strong>Cost:</strong> <span>
+      {% if eventmeta.descriptive_cost %}
+        {{ eventmeta.descriptive_cost.content }}
+      {% else %}
+        {% if event.event.get_cost %}{{ event.event.get_cost }}{% else %}Not Available{% endif %}
+      {% endif %} {% if not event.is_in_the_past %}{% if event.event.ticket_website %}<a href="{{ event.event.ticket_website|fix_ampersands }}" class="buy_tickets">buy tickets</a>{% endif %}{% endif %}
+      </span></li>
+    {% endif %}
+    {% if event.event.age_lowest %}
+      <li><strong>Age limit:</strong> <span>{{ event.event.get_age_limit }}</span></li>
+    {% endif %}
+    
     {% if eventmeta.contact_name %}<li><strong>Contact Name:</strong> <span>{{ eventmeta.contact_name.content }}</span></li>{% endif %}
     {% if eventmeta.contact_phone %}<li><strong>Contact Phone:</strong> <span>{{ eventmeta.contact_phone.content }}</span></li>{% endif %}
     {% if eventmeta.contact_email %}<li><strong>Contact E-mail:</strong> <span>{{ eventmeta.contact_email.content }}</span></li>{% endif %}

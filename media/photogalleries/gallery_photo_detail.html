@@ -1,0 +1,82 @@
+{% extends "media/photogalleries/base_galleries.html" %}
+
+
+{% block title %}Gallery photo{% endblock %}
+{% block body_class %}{{ block.super }} gallery_photo_detail{% endblock %}
+{% block body_id %}gallery_photo_{{ photo.id }}{% endblock %}
+
+
+{% block feed_link %}
+  {% load content %}
+  <link type="application/rss+xml" rel="alternate" href="/rss/comments/objects/{{ photo.photo|content_type_id }}/{{ photo.photo.pk }}/">
+{% endblock %}
+
+
+{% block content_title %}
+  <p class="back"><a href="{{ photo.gallery.get_absolute_url }}">Back to gallery</a></p>
+  <h2>{{ photo.gallery.name }}</h2>
+{% endblock %}
+
+
+{% block content %}
+  {% load mogrify banned comments social mailfriend content %}
+
+  <p><img src="{% mogrify photo.photo.photo.url thumbnail "670" %}" alt="Photo detail"></p>
+{% if photo.photo.caption %}<p class="caption">{{ photo.photo.caption|striptags }}</p>{% endif %}
+  <div class="content_info">
+    <p class="byline">
+    {% if photo.photo.photographer or photo.photo.one_off_photographer %}
+      {% if photo.photo.photographer %}
+        Photo by <a href="{{ photo.photo.photographer.get_absolute_url }}">{{ photo.photo.photographer.first_name }} {{ photo.photo.photographer.last_name }}</a>
+      {% else %}
+        {{ photo.photo.one_off_photographer }}
+      {% endif %}
+    {% else %}
+      {{ photo.photo.credit }}
+    {% endif %}
+    </p>
+    <p class="datetime">{{ photo.photo.pub_date|date }}</p>
+  </div>
+
+  {% render_template_for photo.photo in "includes/tools" %}
+
+
+  {% if photo.photo.get_story_list %}
+    <h3>Stories this photo appears in:</h3>
+    <div class="list">
+      {% for story in photo.photo.get_story_list %}
+        {% render_template_for story in "includes/lists" %}
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% with photo.photo as object %}
+    {% include "includes/comments.html" %}
+  {% endwith %}
+{% endblock %}
+
+
+{% block sidebar_ad %}{% endblock %}
+
+
+{% block sidebar %}
+  <div class="previous_next">
+    <div class="previous">
+      {% if photo.order.previous %}
+      <a href="{{ photo.order.previous.get_absolute_url }}" title="{{ photo.order.previous.photo.caption }}"><img src="{% mogrify photo.order.previous.photo.photo.url resize "120x100" %}" alt=""></a>
+      {% else %}
+      <p class="no_photo">You are at the first photo</p>
+      {% endif %}
+    </div>
+
+    <div class="next">
+      {% if photo.order.next %}
+      <a href="{{ photo.order.next.get_absolute_url }}"><img src="{% mogrify photo.order.next.photo.photo.url resize "120x100" %}" alt=""></a>
+      {% else %}
+      <p class="no_photo">You are at the last photo</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {{ block.super }}
+{% endblock %}

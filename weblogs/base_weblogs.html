@@ -67,7 +67,7 @@
     <p class="header_image"><img src="{% mogrify group.header_image.url thumbnail "300" %}" alt=""></p>
   {% else %}
     {% if blog and blog.header_image %}
-      <p class="header_image"><img src="{% mogrify blog.header_image.url thumbnail "300" %}" alt=""></p>
+      <p class="header_image"><a href="{{ blog.get_absolute_url }}"><img src="{% mogrify blog.header_image.url thumbnail "300" %}" alt=""></a></p>
     {% endif %}
   {% endif %}
   {{ block.super }}

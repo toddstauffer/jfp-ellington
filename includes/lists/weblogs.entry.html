@@ -5,8 +5,13 @@
   {% load content markup mogrify mailfriend cached_comments %}
 
   {% if not blog %}
-    <p><small><a class="category" href="{{ object.blog.get_absolute_url }}">{{ object.blog.title }}</a></small></p>
-    {% if object.blog.tease_image %}<a class="thumbnail" href="{{ object.blog.get_absolute_url }}"><img src="{% mogrify object.blog.tease_image.url thumbnail "150" %}" title="" alt=""></a>{% endif %}
+    
+    {% if object.blog.tease_image %}
+      <p><a class="category" href="{{ object.blog.get_absolute_url }}"><img src="{% mogrify object.blog.tease_image.url thumbnail "150" %}" title="" alt="">
+      </a></p>
+    {% else %}
+      <p><small><a class="category" href="{{ object.blog.get_absolute_url }}">{{ object.blog.title }}</a></small></p>
+    {% endif %}
   {% endif %}
   <h4 class="headline-archive"><a href="{{ object.get_absolute_url }}">{{ object.title }}</a></h4>
   <p class="intro-type">{% if object.summary %}{{ object.summary|striptags }}{% else %}{{ object.body|markdown|striptags|truncatewords:"50" }}{% endif %}</p>

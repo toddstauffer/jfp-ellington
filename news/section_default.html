@@ -22,7 +22,7 @@
 
       // DRAGDEALER
 
-    // adjust the length of the headline so as not to double over.
+    /* adjust the length of the headline so as not to double over.
     $(document).ready(function() {
       $('.dragdealer-slide-title h4 a').each(function() {
         if ($(this).html().length > 31) 
@@ -32,6 +32,7 @@
         }
       });
     });
+    */
 
     // make rotate
     setInterval(
@@ -81,6 +82,8 @@
                });
       */
         </script>
+
+
         
 {% endblock %}
 
@@ -195,8 +198,6 @@
     {% endif %}
    
   {% endif %}
-
-  
 
 
   {% if not section.id == 8 %} <!-- If this isn't the sports section -->

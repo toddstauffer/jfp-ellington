@@ -1,7 +1,7 @@
 {% extends "news/base_news.html" %}
 
 
-{% load layout_tags rating_tags metadata content stories mogrify banned comments mailfriend weblogs more_like_this permissions %}
+{% load layout_tags rating_tags metadata content stories mogrify banned comments mailfriend weblogs more_like_this permissions listutil %}
 
 
 {% block title %}{{ story.headline }}{% endblock %}
@@ -109,7 +109,6 @@
 {% endblock %}
 
 {% block content_title %}
-  {% vote_form for story %}
   <div id="target-story_headline_template">
   {% if not story.lead_photo_has_headline %}
     <h2 class="header">{{ story.headline }}</h2>
@@ -161,8 +160,9 @@
     {% endwith %}
 
     {% if user|can_change:story %}
-      &nbsp;&nbsp;<span class="highlight-type"><a href="/admin/news/story/{{ story.pk }}/" class="admin_link">edit</a></span>
+      <span class="highlight-type edit-link"><a href="/admin/news/story/{{ story.pk }}/">edit</a></span>
     {% endif %}
+    {% vote_form for story %}
   </div>
 
   
@@ -192,6 +192,18 @@ material may not be published, broadcast, rewritten, or redistributed.</em></p>
     <ul>
       {% for story in recommended_list %}
       <li><a href="{{ story.object.get_absolute_url }}">{{ story.object.headline }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if story.bylines.count == 1 %}
+  <div class="recommended">
+    <h3>More stories by this author</h3>
+    <ul>
+      {% exclude_from_list story.bylines.all.0.stories.all story as author_list %}
+      {% for story in author_list|slice:":5" %}
+        <li><a href="{{ story.get_absolute_url }}">{{ story.headline }}</a></li>
       {% endfor %}
     </ul>
   </div>

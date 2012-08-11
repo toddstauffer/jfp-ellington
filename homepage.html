@@ -15,7 +15,7 @@
  <script type="text/javascript"?>
     // DRAGDEALER
 
-    // adjust the length of the headline so as not to double over.
+    /* adjust the length of the headline so as not to double over.
     $(document).ready(function() {
       $('.dragdealer-slide-title h4 a').each(function() {
         if ($(this).html().length > 35) 
@@ -25,6 +25,7 @@
         }
       });
     });
+    */
 
     // make rotate
     setInterval(
@@ -341,6 +342,8 @@
             {% get_latest_entries home_sfront.featured_blogs.4 10 as set_five %}
             {% get_latest_entries home_sfront.featured_blogs.5 10 as set_six %}
             {% get_latest_entries home_sfront.featured_blogs.6 10 as set_seven %}
+            {% get_latest_entries home_sfront.featured_blogs.7 10 as set_eight %}
+            
 
             {% if set_two %}{% merge_lists entry_list by "pub_date" set_two by "pub_date" as entry_list %}{% endif %}
             {% if set_three %}{% merge_lists entry_list by "pub_date" set_three by "pub_date" as entry_list %}{% endif %}

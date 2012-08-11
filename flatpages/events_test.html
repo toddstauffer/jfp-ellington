@@ -156,7 +156,7 @@
             console.log ('we need print date: ' + returnDate(today, 'printdate'));
             if (todayStartTime != yesterdayStartTime || yesterdayEndTime != todayEndTime || !tomorrow || tomorrow != dayaftertoday || todayStartTime != tomorrowStartTime || tomorrowEndTime != todayEndTime) {
               if (todayStartTime) {
-                wStr += (todayEndTime && todayStartTime) ? ' from ' : ' at ';
+                wStr += (todayEndTime && todayStartTime) ? ', ' : ', ';
                 wStr += todayStartTime;
                 if (todayEndTime) {
                   wStr += '-' + todayEndTime;
@@ -396,7 +396,7 @@
     <h3><span class="query_start_date">{{request.GET.start_date}}</span>-<span class="query_end_date">{{request.GET.end_date}}</span></h3>
     {% with request_start=request.GET.start_date|add:"" %}
     {% with request_end=request.GET.end_date|add:"" %}
-      {% get_events as event_list start_date "2012-08-01" end_date "2012-12-31" limit 5000 %}
+      {% get_events as event_list start_date "2012-08-15" end_date "2012-08-22" limit 5000 %}
     
     {% get_section_front for "noise" as sfront %}
 

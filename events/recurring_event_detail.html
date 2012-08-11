@@ -25,21 +25,38 @@
 {% block content_title_wrapper %}{% endblock %}
 
 {% block content %}
-  {% load banned comments mailfriend weblogs social content oembed_tags %}
+  {% load banned comments mailfriend weblogs social content oembed_tags metadata %}
 
   <div class="title">
     <h2>{% if event.is_cancelled %}CANCELLED: {% else %}{% if event.is_sold_out %}SOLD OUT: {% endif %}{% endif %}{{ event.title }}</h2>
     {% if event.short_description %}<h3>{{ event.short_description }}</h3>{% endif %}
   </div>
 
+
   <ul class="title_info">
+    {% get_metadata for event as eventmeta %}
     <li><strong>Ongoing:</strong> <span>{% if expire_date %}until {{ expire_date|date:"l, F j, Y" }}{% else %}indefinitely{% endif %}</span></li>
     {% for time in event.recurring_event_times.all %}
     <li><strong>{{ time.get_day }}:</strong> <span>{{ time.start_time|time:"g:iA"|lower }}</span></li>
     {% endfor %}
     <li><strong>Where:</strong> <span>{% if event.one_off_place %}{{ event.one_off_place }}{% else %}<a href="{{ event.place.get_absolute_url }}">{{ event.place.name }}</a>, {{ event.place.city.city }}{% endif %}</span></li>
-    <li><strong>Cost:</strong> <span>{% if event.get_cost %}{{ event.get_cost }}{% else %}Not available{% endif %} {% if not event.is_in_the_past %}{% if event.ticket_website %}<a href="{{ event.ticket_website|fix_ampersands }}" class="buy_tickets">buy tickets</a>{% endif %}{% endif %}</span></li>
-    <li><strong>Age limit:</strong> <span>{{ event.get_age_limit }}</span></li>
+    {% if eventmeta.descriptive_cost or event.get_cost or event.ticket_website %}
+      <li><strong>Cost:</strong> <span>
+      {% if eventmeta.descriptive_cost %}
+        {{ eventmeta.descriptive_cost.content }}
+      {% else %}
+        {% if event.get_cost %}{{ event.get_cost }}{% else %}Not Available{% endif %}
+      {% endif %} {% if not event.is_in_the_past %}{% if event.ticket_website %}<a href="{{ event.ticket_website|fix_ampersands }}" class="buy_tickets">buy tickets</a>{% endif %}{% endif %}
+      </span></li>
+    {% endif %}
+    {% if event.age_lowest %}
+      <li><strong>Age limit:</strong> <span>{{ event.get_age_limit }}</span></li>
+    {% endif %}
+    
+    {% if eventmeta.contact_name %}<li><strong>Contact Name:</strong> <span>{{ eventmeta.contact_name.content }}</span></li>{% endif %}
+    {% if eventmeta.contact_phone %}<li><strong>Contact Phone:</strong> <span>{{ eventmeta.contact_phone.content }}</span></li>{% endif %}
+    {% if eventmeta.contact_email %}<li><strong>Contact E-mail:</strong> <span>{{ eventmeta.contact_email.content }}</span></li>{% endif %}
+    <li><strong>Categories:</strong> <span>{% for category in event.categories.all %}<a href="/events/search/?category={{ category.id }}">{{ category.display_name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</span></li>
   </ul>
 
 

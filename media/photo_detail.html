@@ -1,0 +1,51 @@
+{% extends "media/base_photos.html" %}
+
+
+{% block title %}Photo{% endblock %}
+{% block body_class %}{{ block.super }} photo_detail{% endblock %}
+{% block body_id %}photo_{{ object.id }}{% endblock %}
+
+
+{% block feed_link %}
+  {% load content %}
+  <link type="application/rss+xml" rel="alternate" href="/rss/comments/objects/{{ object|content_type_id }}/{{ object.pk }}/">
+{% endblock %}
+
+
+{% block content_title_wrapper %}{% endblock %}
+
+{% block content %}
+  {% load mogrify banned comments content %}
+
+  <p><img src="{% mogrify object.photo.url thumbnail "670" %}" alt="Photo detail"></p>
+  {% if object.caption %}<p class="caption">{{ object.caption|striptags }}</p>{% endif %}
+
+  <div class="content_info">
+    <p class="byline">
+    {% if object.photographer or object.one_off_photographer %}
+      {% if object.photographer %}
+        Photo by <a href="{{ object.photographer.get_absolute_url }}">{{ object.photographer.first_name }} {{ object.photographer.last_name }}</a>
+      {% else %}
+        {{ object.one_off_photographer }}
+      {% endif %}
+    {% else %}
+      {{ object.credit }}
+    {% endif %}
+    </p>
+    <p class="datetime">{{ object.pub_date|date }}</p>
+  </div>
+
+  {% render_template_for object in "includes/tools" %}
+
+  
+  {% if object.get_story_list %}
+    <h3>Stories this photo appears in:</h3>
+    <div class="list">
+      {% for story in object.get_story_list %}
+        {% render_template_for story in "includes/lists" %}
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% include "includes/comments.html" %}
+{% endblock %}

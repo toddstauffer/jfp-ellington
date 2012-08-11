@@ -20,11 +20,11 @@
 
 
 {% block content_title %}
-  {% load rating_tags %}
-
-  {% vote_form for object %}
-
+  
+  
   <p class="back"><a href="{{ blog.get_absolute_url }}">{{ blog.title }}</a></p>
+  
+
   <h2>{{ object.title }}</h2>
   <ul class="inline_list">
     {% if user == object.author %}
@@ -36,11 +36,15 @@
 
 
 {% block content %}
-  {% load weblogs markup banned blogrify comments cached_comments content oembed_tags anonymity generic_markup %}
+  {% load weblogs markup banned blogrify comments cached_comments content oembed_tags anonymity generic_markup rating_tags permissions %}
 
   <div class="content_info">
-    <p class="byline">By {% if object.author.staffmember %} <a href="{{ object.author.staffmember.get_absolute_url }}">{{ object.author.staffmember|display_name }}</a> {% else %}<a href="{{ object.author.get_absolute_url }}">{{ object.author|display_name }}</a>{% endif %}</p>
-    <p class="datetime">{{ object.pub_date|date }}</p>
+    {% render_template_for object in "includes/byline" %}
+    <span class="datetime">{{ object.pub_date|date }}</span>
+    {% if user|can_change:object %}
+      <span class="highlight-type edit-link"><a href="/weblogs/edit/entry/{{ object.id }}/">edit</a></span>
+    {% endif %}
+    {% vote_form for object %}
   </div>
 
   

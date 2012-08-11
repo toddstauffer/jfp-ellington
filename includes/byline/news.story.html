@@ -19,12 +19,5 @@
         By Editorial Board
     {% endif %}
 
-    {% if object|is_in_category:"/associated-press" %}
-        {% if object.bylines.count %}
-            ,
-        {% else %}
-            By The
-        {% endif %}
-            Associated Press
-    {% endif %}
+    {% if object|is_in_category:"/associated-press" %}{% if object.bylines.count %},{% else %}By The{% endif %} Associated Press{% endif %}
 </span>
