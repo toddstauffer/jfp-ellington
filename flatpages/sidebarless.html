@@ -1,4 +1,12 @@
 {% extends "flatpages/default.html" %}
+{% block extended_styles %}
+{{block.super}}
+<style type="text/css">
+.content {
+	width:100% !important;
+}
+</style>
+{% endblock %}
 {% block body_class %}flatpage_default sidebarless{% endblock %}
 
 {%block sidebar_wrapper %}

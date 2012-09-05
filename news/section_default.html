@@ -200,9 +200,8 @@
   {% endif %}
 
 
-  {% if not section.id == 8 %} <!-- If this isn't the sports section -->
-    {% regroup story_list by lead_photo as lead_photo_list %}
-    {% if lead_photo_list.1.list.0.lead_photo or sfront.photo_gallery or sfront.daily_lead_story or sfront.lead_stories %}
+  {% regroup story_list by lead_photo as lead_photo_list %}
+    {% if lead_photo_list.0.list.0.lead_photo or lead_photo_list.1.list.0.lead_photo or lead_photo_list.2.list.0.lead_photo or lead_photo_list.3.list.0.lead_photo or lead_photo_list.4.list.0.lead_photo or sfront.daily_lead_story and sfront.daily_lead_story.lead_photo or sfront.lead_stories.0 and sfront.lead_stories.0.lead_photo or sfront.lead_stories.1 and sfront.lead_stories.1.lead_photo or sfront.lead_stories.2 and sfront.lead_stories.2.lead_photo or sfront.lead_stories.3 and sfront.lead_stories.3.lead_photo or sfront.lead_stories.4 and sfront.lead_stories.4.lead_photo %}
   
       <div class="carousel section">
 
@@ -228,28 +227,29 @@
             {% else %}
                 {% if sfront.lead_stories %}
                     {% for story in sfront.lead_stories %}
+                      {% if story.lead_photo %}
+                      <div>
+                          <a href="{{ story.get_absolute_url }}"><img src="{% mogrify story.lead_photo.cropped.url resize "670x400" %}" alt=""></a>
+                          <div class="dragdealer-slide-title">
+                              {% render_template_for story in "includes/category" %}
+                              <h4><a href="{{ story.get_absolute_url }}">{{ story.headline }}</a></h4>
+                              {% if story.tease %}<p class="intro-type">{{ story.tease|striptags|truncatewords:"20" }}</p>{% endif %}
+                              
+                              <span class="byline">{% if not story.bylines.count %}By {% if story.one_off_byline %}{{ story.one_off_byline }}{% else %}JFP Staff{% endif %}{% else %}{% if story.bylines.count %}By {% for author in story.bylines.all %}<a href="{{ author.get_absolute_url }}">{{ author }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}{% endif %}</span>&nbsp;&nbsp;
+                              
+                              <span class="highlight-type">{{ story.pub_date|date:"N j"}}</span>
 
-                    {% if story.lead_photo %}
-                    <div>
-                        <a href="{{ story.get_absolute_url }}"><img src="{% mogrify story.lead_photo.cropped.url resize "670x400" %}" alt=""></a>
-                        <div class="dragdealer-slide-title">
-                            {% render_template_for story in "includes/category" %}
-                            <h4><a href="{{ story.get_absolute_url }}">{{ story.headline }}</a></h4>
-                            {% if story.tease %}<p class="intro-type">{{ story.tease|striptags|truncatewords:"20" }}</p>{% endif %}
-                            
-                            <span class="byline">{% if not story.bylines.count %}By {% if story.one_off_byline %}{{ story.one_off_byline }}{% else %}JFP Staff{% endif %}{% else %}{% if story.bylines.count %}By {% for author in story.bylines.all %}<a href="{{ author.get_absolute_url }}">{{ author }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}{% endif %}</span>&nbsp;&nbsp;
-                            
-                            <span class="highlight-type">{{ story.pub_date|date:"N j"}}</span>
-
-                            {% get_cached_comment_count for story as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
-                        </div>
-                    </div>
-                    {% endif %} <!-- story.lead_photo -->
+                              {% get_cached_comment_count for story as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
+                          </div>
+                      </div>
+                      {% endif %} <!-- story.lead_photo -->
                     {% endfor %}<!-- story in homesfront.lead_stories -->
 
                 {% else %}<!-- sfront.lead_stories -->
-                    {% for story in story_list|slice:"0:7" %}
-                      {% if story.lead_photo %}
+
+                  {% for list in lead_photo_list|slice:":7" %}
+                    {% with story=list.list.0 %}  
+                      {% if story.lead_photo %}  
                         <div>
                             <a href="{{ story.get_absolute_url }}"><img src="{% mogrify story.lead_photo.cropped.url resize "670x400" %}" alt=""></a>
                             <div class="dragdealer-slide-title">
@@ -264,15 +264,15 @@
                                 {% get_cached_comment_count for story as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
                             </div>
                         </div>
-                      {% endif %}<!-- story.lead_photo -->
-                    {% endfor %}
+                        {% endif %}
+                      {% endwith %}
+                  {% endfor %}
 
                 {% endif %}<!-- sfront.lead_stories -->
             {% endif %}<!-- sfront.daily_lead_story -->
 
-      </div> <!-- /Carosel -->
+      </div> <!-- /Carousel -->
     {% endif %}
-  {% endif %}
 
   {% ifequal section.id 63 %} <!-- Opinion Section editorial cartoon -->
     {% retrieve_object media.phototype 37 as editorial_cartoons %}

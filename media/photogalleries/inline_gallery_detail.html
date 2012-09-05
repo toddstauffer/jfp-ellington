@@ -1,0 +1,53 @@
+{% extends "media/photogalleries/base_galleries.html" %}
+
+
+{% block title %}{{ gallery.name }}{% endblock %}
+{% block body_class %}{{ block.super }} gallery_detail{% endblock %}
+{% block body_id %}gallery_{{ gallery.id }}{% endblock %}
+
+
+{% block feed_link %}
+  {% load content %}
+  <link type="application/rss+xml" rel="alternate" href="/rss/comments/objects/{{ gallery|content_type_id }}/{{ gallery.pk }}/">
+{% endblock %}
+
+
+{% block content_title %}
+  {% load mailfriend rating_tags %}
+
+  {% vote_form for gallery %}
+
+  <p class="back"><a href="/photos/galleries/">Back to photo galleries</a></p>
+  <h2>{{ gallery.name }}</h2>
+  {% if gallery.blurb %}<p>{{ gallery.blurb }}</p>{% endif %}
+  {{ block.super }}
+{% endblock %}
+
+
+{% block content %}
+  {% load mogrify banned comments content %}
+
+  {% render_template_for gallery in "includes/tools" %}
+
+  {% if photo_list %}
+    <div class="list">
+      {% for gallery_photo in photo_list %}
+        {% with gallery_photo.photo as photo %}
+          <div class="item">
+            {% if photo.photo %}<a class="thumbnail" href="{{ gallery_photo.get_absolute_url }}" title="Published {{ photo.pub_date|date }}"><img src="{% mogrify photo.photo.url thumbnail "990" %}" alt="photo thumbnail"></a>{% endif %}
+            {% if photo.caption %}<p class="caption">{{ photo.caption|striptags|truncatewords:15 }}</p>{% endif %}
+          </div>
+        {% endwith %}
+      {% endfor %}
+    </div>
+
+    {% with gallery as object %}
+      {% include "includes/comments.html" %}
+    {% endwith %}
+  {% else %}
+    <p>Sorry, no photos are available yet. Please check back later.</p>
+  {% endif %}
+{% endblock %}
+
+
+{% block sidebar_wrapper %}{% endblock %}
