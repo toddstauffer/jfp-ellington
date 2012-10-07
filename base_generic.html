@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-   {% load content events sectionfronts generic_content rating_tags listutil discussions threadedcomments_tags comments permissions %}
+   {% load content events sectionfronts generic_content rating_tags listutil discussions threadedcomments_tags comments permissions fragments socialregistration_tags facebook_tags twitter_tags %}
 
 {% block fulltitle %}{% block title %}{% endblock %} | Jackson Free Press | Jackson, MS{% endblock %}
 
@@ -12,60 +12,7 @@
 
 {% block extended_styles %}
     <link rel="stylesheet" type="text/css" href="http://cache.blogads.com/64926213/feed.css" />
-    <link rel="stylesheet" href="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/jfp-live/mod.css" type="text/css" media="screen">
-{% endblock %}
-
-
-{% block extended_scripts %}
-
-    <script type="text/javascript" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/scripts/shadowbox-3.0.3/shadowbox.js"></script>
-    <script type="text/javascript" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/scripts/jquery.validate.min.js"></script>
-    <script>
-    // Shadowbox
-    Shadowbox.init();
-
-    // validate user_agreement
-    $(document).ready(function(){
-        $(".signup_form").validate();
-        $(".signin_form").validate();
-      });
-
-
-        // Active discussion rotating tabs
-        $(function(){
-          $('#comments-tabs').tabs({ fx: { opacity: 'toggle' } }); //.tabs('rotate', 3000);
-          $('#comments-tabs').hover(function(){
-                           $(this).tabs('rotate', 0, false);
-                           },function(){
-                           $(this).tabs({ fx: { opacity: 'toggle' } }); //.tabs('rotate', 50000);
-                           }
-                           );
-          });
-        $('#comments-tabs').click(function(){
-                         $(this).tabs('rotate', 0, false);
-                         $(this).unbind('hover');
-                         });
-
-
-        /*
-    window.Meebo||function(c){function p(){return["<",i,' onload="var d=',g,";d.getElementsByTagName('head')[0].",
-    j,"(d.",h,"('script')).",k,"='//cim.meebo.com/cim?iv=",a.v,"&",q,"=",c[q],c[l]?
-    "&"+l+"="+c[l]:"",c[e]?"&"+e+"="+c[e]:"","'\"></",i,">"].join("")}var f=window,
-    a=f.Meebo=f.Meebo||function(){(a._=a._||[]).push(arguments)},d=document,i="body",
-    m=d[i],r;if(!m){r=arguments.callee;return setTimeout(function(){r(c)},100)}a.$=
-    {0:+new Date};a.T=function(u){a.$[u]=new Date-a.$[0]};a.v=5;var j="appendChild",
-    h="createElement",k="src",l="lang",q="network",e="domain",n=d[h]("div"),v=n[j](d[h]("m")),
-    b=d[h]("iframe"),g="document",o,s=function(){a.T("load");a("load")};f.addEventListener?
-    f.addEventListener("load",s,false):f.attachEvent("onload",s);n.style.display="none";
-    m.insertBefore(n,m.firstChild).id="meebo";b.frameBorder="0";b.name=b.id="meebo-iframe";
-    b.allowTransparency="true";v[j](b);try{b.contentWindow[g].open()}catch(w){c[e]=
-    d[e];o="javascript:var d="+g+".open();d.domain='"+d.domain+"';";b[k]=o+"void(0);"}try{var t=
-    b.contentWindow[g];t.write(p());t.close()}catch(x){b[k]=o+'d.write("'+p().replace(/"/g,
-    '\\"')+'");d.close();'}a.T(1)}({network:"jacksonfreepress_ko16na"});
-  */
-
-    </script>
-
+    <link rel="stylesheet" href="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/jfp-less/mod.css" type="text/css" media="screen">
 {% endblock %}
 
 {% block toolbar_tabs %}
@@ -128,7 +75,7 @@
             <ul class="u2">
                 <li class="l1"><a href="/news/opinion">Home</a></li>
                 <li class="l2"><a href="/news/editorials">Editorials</a></li>
-                <li class="l3"><a href="/weblogs/">Blog Entries</a></li>
+                <li class="l3"><a href="/weblogs/">Weblogs</a></li>
             </ul>
         </li>
         <li class="l3"><a href="/news/arts/">Arts</a>
@@ -164,12 +111,16 @@
         <li class="l6"><a href="/news/lifestyle/">Life+Style</a>
             <ul class="u6">
                 <li class="l1"><a href="/news/lifestyle/">Home</a></li>
-                <li class="l2"><a href="/news/bodysoul/">Body/Soul</a></li>
+                <li class="l2"><a href="/news/bodysoul/">Body+Soul</a></li>
                 <li class="l3"><a href="/news/good/">GOOD Ideas</a></li>
-                <li class="l4"><a href="/news/habitat/">Habitat</a></li>
+                <li class="l2"><a href="/news/faith/">Faith</a></li>
+                <li class="l4"><a href="/news/home-garden/">Home & Garden</a></li>
                 <li class="l5"><a href="/news/hitched/">Hitched</a></li>
                 <li class="l6"><a href="/news/flystyle/">Fly! Style</a></li>
-                <li class="l7"><a href="/weblogs/fly/">Fly! Blog</a></li>
+                <li class="l5"><a href="/news/girl-about-town/">Girl About Town</a></li>
+                <li class="l4"><a href="/news/running-recreation/">Running & Recreation</a></li>
+                <li class="l3"><a href="/news/travel/">Travel</a></li>
+                
             </ul>
         </li>
         <li class="l7"><a href="/news/food&drink/">Food+Drink</a>
@@ -191,60 +142,91 @@
     </ul>
     
 {% endblock %}
-    
 
-{% block sidebar_ad %}
-{% endblock %}
-
-{% block sidebar %}
-    {% load content %}
-
-
-    {% if home_sfront %}
-        <!-- NEWSLETTER FORM
-            ======================================================================== -->
-
+{% block breaking %}
+    <div id="breaking" style="display:none">
+        <div class="wrapper">
+            <a href="#" id="breaking-hide-button" class="ui-state-default ui-corner-all" TITLE="Close this message.">X</a>
+            <h2>Welcome to the Jackson Free Press <span class="intro">In case this is your first time here ...</span></h2>
             
-            <div class="newsletter-form left-sidebar-section">
-                <h5>JFP Daily<span class="highlight-type">get it once a day</span></h5>
-                <p style="color:#999;">Sign up for daily breaking news about Jackson, MS.</p>
-                <form action="http://visitor.r20.constantcontact.com/d.jsp" method="post" name="ccoptin" target="_blank">
+            <div class="column newsletter-form">
+                <section>
+                    <h5>Things you can do</h5>
+                    <ul>
+                        <li>Post a comment.</li>
+                        <li>Start a weblog.</li>
+                        <li>Post an event listing.</li>
+                        <li>Sign up for alerts.</li>
+                        <li>Share and favorite stories.</li>
+                        <li>Upload a photo.</li>
+                    </ul>
+                </section>
+                <section>
+                    <h5>JFP Daily<span class="highlight-type">get it once a day</span></h5>
+                    <p class="newsletter-intro">Recieve breaking news about Jackson in your inbox everyday.</p>
+                    <form action="http://visitor.r20.constantcontact.com/d.jsp" method="post" name="ccoptin" target="_blank">
                         <input type="email" value="" name="ea" class="email" placeholder="email address" required>
                         <input type="submit" value="Subscribe" name="go" class="button">
                         <input type="hidden" name="llr" value="r49jo9cab">
                         <input type="hidden" name="m" value="1102546529265">
                         <input type="hidden" name="p" value="oi">
                     </form>
+                </section>
             </div>
 
-    {% endif %}
+                <div class="column login-form">
+                    <h5>Log in <i>or</i> <a href="">Sign up</a></h5>
+                    <div class="fields">
+                      <form action="/accounts/login/" method="post" class="signin_form">{% csrf_token %}
+                        <div class="signin_fields">
+                            <p><label for="id_username">Username</label><input type="text" name="username" value="" id="id_username"> </p>
+                            <p><label for="id_password">Password <a href="/accounts/password/reset/"><small>Forgot?</small></a></label>
+                            <input type="password" name="password" value="" id="id_password"></p>
+                            <p><button type="submit">Sign in</button></p>
+                        </div>
+                        <input type="hidden" name="next" value="{{ request.path }}?login" id="next">
+                      </form>
 
+                      <div id="openid_form" style="display:none;">
+                        {% load openid_tags %}
+                        {% openid_form %}
+                      </div>
 
+                      {% open_id_errors request %}
+                      {% if openid_error %}
+                        <div id="open_id_error">
+                          <p class="errors">The OpenID provider {% if openid_provider %}"{{ openid_provider }}"{% else %}url{% endif %} you entered wasn't valid. <a href="#" class="openid_link">Try again</a></p>
+                        </div>
+                      {% endif %}
+                    </div>
+                    <div class="social_registration">
+                      <h5 class="subhead">Or login with:</h5>
+                      {% auth_enabled facebook as facebook_enabled %}
+                      {% if facebook_enabled %}
+                        {% facebook_button %}
+                        {% facebook_js %}
+                      {% endif %}
+                      {% auth_enabled twitter as twitter_enabled %}
+                      {% if twitter_enabled %}
+                        {% twitter_button %}
+                      {% endif %}
+                      <form action="{% url openid_redirect %}" method="get" class="google_button">
+                        <input type="hidden" name="openid_provider" value="https://www.google.com/accounts/o8/id" />
+                        <button type="submit">Google</button>
+                      </form>
 
-    {% if home_sfront %}
-        <!-- BEST BETS 
-        ============================================= -->
-        <div class="section home-best-bets"> <!-- Events -->
-        <h3><a href="/events/">Happening Today</a></h3>
+                      <a class="button" href="#openid_form" onclick="$(this.hash).toggle(); return false;">OpenID</a>
+                    </div>
+                </div>
+        </div>
+    </div>
+{% endblock %}
 
-        {% get_todays_events 50 as event_list %}
+{% block sidebar_ad %}
+{% endblock %}
 
-        {% if event_list %}
-        <ul>
-             <!-- We want to show non-recurring events first so sort based on 'is_recurring' field. -->
-            {% for event in event_list|dictsort:"event.is_recurring"|slice:"6" %}
-                <li class="event-{{forloop.counter}}">
-                    {% render_template_for event in "includes/homepage_events" %}
-                </li>
-            {% endfor %}
-        </ul>
-            <p class="more-events"><a class="lone-link" href="/events/">more events</a></p>
-        {% endif %}
-        </div> 
-        <!-- /Events -->
-    {% endif %}
-
-    {% include "includes/ads/Top_300_250.html" %}
+{% block sidebar %}
+    {% load content %}
 
     
         
@@ -422,6 +404,10 @@
             <a href="/advertise/classifieds/">Classifieds</a>,
             <a href="mailto:todd@jacksonfreepress.com">Email the Publisher</a>
           </dd>
+          <dt>Jobs</dt>
+          <dd>
+            <a href="http://www.jackpedia.com/w/index.php/JFP_Jobs">At the JFP</a>
+          </dd>
         </dl>
         <p >
         &copy; Jackson Free Press, Inc.<br/>
@@ -449,6 +435,75 @@
                 */
 
         </script>
+
+        <script type="text/javascript" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/scripts/shadowbox-3.0.3/shadowbox.js"></script>
+    <script type="text/javascript" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/scripts/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/scripts/jquery.cookie.js"></script>
+    <script>
+    // Shadowbox
+    Shadowbox.init();
+
+    // validate user_agreement
+    $(document).ready(function(){
+        $(".signup_form").validate();
+        $(".signin_form").validate();
+      });
+
+
+        // Active discussion rotating tabs
+        $(function(){
+          $('#comments-tabs').tabs({ fx: { opacity: 'toggle' } }); //.tabs('rotate', 3000);
+          $('#comments-tabs').hover(function(){
+                           $(this).tabs('rotate', 0, false);
+                           },function(){
+                           $(this).tabs({ fx: { opacity: 'toggle' } }); //.tabs('rotate', 50000);
+                           }
+                           );
+          });
+        $('#comments-tabs').click(function(){
+                         $(this).tabs('rotate', 0, false);
+                         $(this).unbind('hover');
+                         });
+
+
+        /*
+    window.Meebo||function(c){function p(){return["<",i,' onload="var d=',g,";d.getElementsByTagName('head')[0].",
+    j,"(d.",h,"('script')).",k,"='//cim.meebo.com/cim?iv=",a.v,"&",q,"=",c[q],c[l]?
+    "&"+l+"="+c[l]:"",c[e]?"&"+e+"="+c[e]:"","'\"></",i,">"].join("")}var f=window,
+    a=f.Meebo=f.Meebo||function(){(a._=a._||[]).push(arguments)},d=document,i="body",
+    m=d[i],r;if(!m){r=arguments.callee;return setTimeout(function(){r(c)},100)}a.$=
+    {0:+new Date};a.T=function(u){a.$[u]=new Date-a.$[0]};a.v=5;var j="appendChild",
+    h="createElement",k="src",l="lang",q="network",e="domain",n=d[h]("div"),v=n[j](d[h]("m")),
+    b=d[h]("iframe"),g="document",o,s=function(){a.T("load");a("load")};f.addEventListener?
+    f.addEventListener("load",s,false):f.attachEvent("onload",s);n.style.display="none";
+    m.insertBefore(n,m.firstChild).id="meebo";b.frameBorder="0";b.name=b.id="meebo-iframe";
+    b.allowTransparency="true";v[j](b);try{b.contentWindow[g].open()}catch(w){c[e]=
+    d[e];o="javascript:var d="+g+".open();d.domain='"+d.domain+"';";b[k]=o+"void(0);"}try{var t=
+    b.contentWindow[g];t.write(p());t.close()}catch(x){b[k]=o+'d.write("'+p().replace(/"/g,
+    '\\"')+'");d.close();'}a.T(1)}({network:"jacksonfreepress_ko16na"});
+  */
+
+    // Newsletter/Signup Modal
+
+    $(document).ready(function() {
+
+        var visited = $.cookie("jfp-visited")
+
+        if (visited == null) {
+            $("#breaking").delay(1000).show("slide", { direction: "down" }, 500);
+            $.cookie('jfp-visited', 'yes');       
+        }
+
+        // set cookie
+        $.cookie('jfp-visited', 'yes', { expires: 365, path: '/' });
+
+        // set effect from select menu value
+        $( "#breaking-hide-button" ).click(function() {
+            $( "#breaking" ).hide( "slide", { direction: "up" }, 500);
+            return false;
+        });
+    });
+    </script>
 
         
 

@@ -63,6 +63,16 @@
         }
     );
 
+    // Restaurant Search
+        jQuery(function() {
+       
+       // The form must be reset because the browser remembers values from the previous post. If we come back from a redirect we don't want the values remembered. See Case #8036.
+        
+       jQuery('.restaurant_search_form')[0].reset();
+       
+        });
+      
+
 </script>
  {% endblock %}
 
@@ -96,14 +106,15 @@
                     <span class="breaking">BREAKING:</span> 
                         {% if home_sfront.breaking_news_story %}
                             {% with story=home_sfront.breaking_news_story %}
-                                <h3 class="headline-small"><a href="{{ story.get_absolute_url }}">{{ story.headline }}</a><span class="date">{{ story.pub_date|timesince}} ago ...</span></h3>
+                                <h3 class="headline-small"><a href="{{ story.get_absolute_url }}">{{ story.headline }}</a>{% render_template_for story in "includes/date" %}</h3>
                             {% endwith %}
                         {% else %}
                             {% with story=home_sfront.breaking_news_entry %}
-                                <h3 class="headline-small"><a href="{{ story.get_absolute_url }}">{{ story.title }}</a><span class="date">{{ story.pub_date|timesince}} ago ...</span></h3>
+                                <h3 class="headline-small"><a href="{{ story.get_absolute_url }}">{{ story.title }}</a>{% render_template_for story in "includes/date" %}</h3>
                                 
                             {% endwith %}
                         {% endif %}
+
         </div>
     {% endif %}
     
@@ -131,7 +142,7 @@
 
                     {% for story in daily_list|slice:":5" %}
                         <article>
-                            {% if story|is_in_category:"/person-of-the-day" %}
+                            {% if story|is_in_category:"/person-of-the-day" or story|is_in_category:"/jacksonian" %}
                                 {% render_template_for story in "includes/category" %}
                             {% endif %}
                             <h4 class="headline-small"><a href="{{ story.get_absolute_url }}">{{ story.headline|striptags }}</a></h4>
@@ -226,7 +237,7 @@
                             
                             {% render_template_for story in "includes/byline" %}&nbsp;&nbsp;
                             
-                            <span class="highlight-type">{{ story.pub_date|date:"N j"}}</span>
+                            {% render_template_for story in "includes/date" %}
 
                             {% get_cached_comment_count for story as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
                         </div>
@@ -247,7 +258,7 @@
                         
                         {% render_template_for story in "includes/byline" %}&nbsp;&nbsp;
                         
-                        <span class="highlight-type">{{ story.pub_date|date:"N j"}}</span>
+                        {% render_template_for story in "includes/date" %}
 
                         {% get_cached_comment_count for story as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
                     </div>
@@ -332,67 +343,46 @@
 
         <!-- Blog Tabs 
         ================================================= -->
+    
 
-        {% if home_sfront.featured_blogs %}
-        <!-- This is obnoxious but I think unavoidable. I tried to use 'Groups' as a organizing tool, but you have to assign every single entry to the group, which isn't elegant. There is not other way of pulling entries for certain blogs -->
-            {% get_latest_entries home_sfront.featured_blogs.0 10 as entry_list %}
-            {% get_latest_entries home_sfront.featured_blogs.1 10 as set_two %}
-            {% get_latest_entries home_sfront.featured_blogs.2 10 as set_three %}
-            {% get_latest_entries home_sfront.featured_blogs.3 10 as set_four %}
-            {% get_latest_entries home_sfront.featured_blogs.4 10 as set_five %}
-            {% get_latest_entries home_sfront.featured_blogs.5 10 as set_six %}
-            {% get_latest_entries home_sfront.featured_blogs.6 10 as set_seven %}
-            {% get_latest_entries home_sfront.featured_blogs.7 10 as set_eight %}
-            
-
-            {% if set_two %}{% merge_lists entry_list by "pub_date" set_two by "pub_date" as entry_list %}{% endif %}
-            {% if set_three %}{% merge_lists entry_list by "pub_date" set_three by "pub_date" as entry_list %}{% endif %}
-            {% if set_four %}{% merge_lists entry_list by "pub_date" set_four by "pub_date" as entry_list %}{% endif %}
-            {% if set_five %}{% merge_lists entry_list by "pub_date" set_five by "pub_date" as entry_list %}{% endif %}
-            {% if set_six %}{% merge_lists entry_list by "pub_date" set_six by "pub_date" as entry_list %}{% endif %}
-            {% if set_seven %}{% merge_lists entry_list by "pub_date" set_seven by "pub_date" as entry_list %}{% endif %}
-            {% if set_eight %}{% merge_lists entry_list by "pub_date" set_eight by "pub_date" as entry_list %}{% endif %}
-            {% if set_nine %}{% merge_lists entry_list by "pub_date" set_nine by "pub_date" as entry_list %}{% endif %}
-            {% if set_ten %}{% merge_lists entry_list by "pub_date" set_ten by "pub_date" as entry_list %}{% endif %}
-
-            {% if entry_list %}
+    {% get_latest_objects weblogs.FeaturedEntry 500 as featured_posts %}
+    {% if featured_posts %}
             <div class="section section_wide featured_blog_entries">
                 <h3>JFP Blogs</h3>
                 
-                {% for entry in entry_list|dictsortreversed:"pub_date"|slice:"0:7" %}
-                    {% if forloop.counter == 1 %}
-                        <a href="{{entry.blog.get_absolute_url}}" class="category">
-                                {% if entry.blog.tease_image %}
-                                    <img src="{% mogrify entry.blog.tease_image.url resize "65" %}">
-                                {% else %}
-                                    {{entry.blog.title}}
-                                {% endif %}
-                        </a>
-                        <h4 class="headline-small"><a href="{{entry.get_absolute_url}}">{{entry.title}}</a></h4>
-                        <p class="intro-type">{% if entry.summary %}{{entry.summary|truncatewords:"20"}}{% else %}{{entry.body|truncatewords:"20"}}{%endif%}</p>
-                        <span class="byline">By {{entry.author}}</span>&nbsp;&nbsp;<span class="highlight-type">{{ entry.pub_date|date:"N j"}}</span>{% get_cached_comment_count for entry as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
-                        
-            <ul>
-                    {% else %}
-                        <li class="{%if forloop.last %}last{%endif%}">
-                            <a href="{{entry.blog.get_absolute_url}}">
-                                {% if entry.blog.tease_image %}
-                                    <img src="{% mogrify entry.blog.tease_image.url resize "65" %}">
-                                {% else %}
-                                    {{entry.blog.title}}
-                                {% endif %}
+                {% for post in featured_posts|dictsortreversed:"featured_date"|slice:"0:7" %}
+                    {% with entry=post.entry %}
+                        {% if forloop.counter == 1 %}
+                            <a href="{{entry.blog.get_absolute_url}}" class="category">
+                                    {% if entry.blog.tease_image %}
+                                        <img src="{% mogrify entry.blog.tease_image.url resize "65" %}">
+                                    {% else %}
+                                        {{entry.blog.title}}
+                                    {% endif %}
                             </a>
-                        </span><a class="headline-small" href="{{entry.get_absolute_url}}">{{entry.title}}{% get_cached_comment_count for entry as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</a>
-                            </li>
-                    {% endif %}
+                            <h4 class="headline-small"><a href="{{entry.get_absolute_url}}">{{entry.title}}</a></h4>
+                            <p class="intro-type">{% if entry.summary %}{{entry.summary|truncatewords:"20"}}{% else %}{{entry.body|truncatewords:"20"}}{%endif%}</p>
+                            <span class="byline">By {{entry.author}}</span>&nbsp;&nbsp;{% render_template_for story in "includes/date" %}{% get_cached_comment_count for entry as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
+                            
+                            <ul>
+                        {% else %}
+                            <li class="{%if forloop.last %}last{%endif%}">
+                                <a href="{{entry.blog.get_absolute_url}}">
+                                    {% if entry.blog.tease_image %}
+                                        <img src="{% mogrify entry.blog.tease_image.url resize "65" %}">
+                                    {% else %}
+                                        {{entry.blog.title}}
+                                    {% endif %}
+                                </a>
+                            </span><a class="headline-small" href="{{entry.get_absolute_url}}">{{entry.title}}{% get_cached_comment_count for entry as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</small>{% endif %}</a>
+                                </li>
+                        {% endif %}
+                    {% endwith %}
                 {% endfor %}
                 </ul>
-                <span class="lone-link"><a class="lone-link" href="/weblogs/">All Blog Posts</a></span>
+                <span class="lone-link"><a href="/weblogs/">All Posts</a> | <a href="/weblogs/list/">All Blogs</a></span>
             </div><!-- /Blog Tabs -->
             {% endif %}
-
-        {% endif %}
-        
 
 <!-- LATEST MEDIA 
 ============================================================================= -->
@@ -430,13 +420,11 @@
                     {% endfor %}
                 </li>
                 <li class="multimedia-small multimedia-far-right">
-                   <img style="float:left;width:10px;padding-top:3px;" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/images/arrows/top.gif"/>
-                   <span class="category video"><a href="/galleries/">Gallery</a></span>
-                   <span class="caption video-caption"><a href="{{ latest_video.1.get_absolute_url }}">{{ latest_gallery.1.name }}</a></span>
+                   <img style="float:left;width:10px;padding: 4px 3px 0 0" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/images/arrows/top.gif"/>
+                   <a class="headline-small" href="{{ latest_gallery.1.get_absolute_url }}">{{ latest_gallery.1.name }}</a>
                    <br/>
-                   <img style="float:left;width:5px;height:10px;padding:2px 0 0 5px;clear:both;" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/images/arrows/left.gif"/>
-                    <span class="category video"><a href="/galleries/">Gallery</a></span>
-                   <span class="caption video-caption"><a href="{{ latest_video.0.get_absolute_url }}">{{ latest_gallery.0.name }}</a></span>
+                   <img style="float:left;width:5px;height:10px;padding:3px 3px 0 0;clear:both;" src="{{ STATIC_MEDIA_URL }}jacksonfreepress/2.3.0/images/arrows/left.gif"/>
+                   <a class="headline-small" href="{{ latest_gallery.0.get_absolute_url }}">{{ latest_gallery.0.name }}</a>
                 </li>
 
                 {% for gallery in latest_gallery|slice:"3:6" %}
@@ -453,11 +441,7 @@
 
                 {% for gallery in latest_gallery|slice:"3:6" %}
                     <li class="multimedia-small{% if forloop.counter == 3 %} multimedia-far-right{% endif %}">
-                        <span class="category"><a href="/photos/galleries/">Gallery</a></span>
-                        <br/>
-                        <span class="caption"><a href="{{ gallery.get_absolute_url }}">{{ gallery.name }}</a></span>
-                        <br/>
-                        <span class="highlight-type">{{ gallery.creation_date|date:"M d" }}</span>
+                        <a class="headline-small" href="{{ gallery.get_absolute_url }}">{{ gallery.name }}</a>
                     </li>
                 {% endfor %}
             </ul>
@@ -474,6 +458,78 @@
 
     {% endif %} <!-- if sfront -->
 {% endblock %} <!-- content -->
+
+
+
+{% block sidebar_ad %}
+{% endblock %}
+
+{% block sidebar %}
+
+        {% comment %}
+        <!-- NEWSLETTER FORM
+            ======================================================================== -->
+
+            
+            <div class="newsletter-form left-sidebar-section">
+                <h5>JFP Daily<span class="highlight-type">get it once a day</span></h5>
+                <p style="color:#999;">Sign up for daily breaking news about Jackson, MS.</p>
+                <form action="http://visitor.r20.constantcontact.com/d.jsp" method="post" name="ccoptin" target="_blank">
+                    <input type="email" value="" name="ea" class="email" placeholder="email address" required>
+                    <input type="submit" value="Subscribe" name="go" class="button">
+                    <input type="hidden" name="llr" value="r49jo9cab">
+                    <input type="hidden" name="m" value="1102546529265">
+                    <input type="hidden" name="p" value="oi">
+                </form>
+            </div>
+        {% endcomment %}
+
+        <div class="homepage-restaurants left-sidebar-section">
+                <h5>Local Restaurants<span class="highlight-type">discover Jackson's best</span></h5>
+                <form action="/restaurants/search/" method="get" class="restaurant_search_form">
+                    <input type="text" id="id_q" type="text" name="q" placeholder="search by name/keyword" />
+                    <input type="submit" value="search" class="button" />
+                </form>
+                <h5 class="secondary">Featured</h5>
+                {% get_random_objects restaurants.Restaurant 5 as restaurant_list %}
+                {% if restaurant_list %}
+                    <ul>
+                    {% for obj in restaurant_list|dictsort:"place.name" %}
+                      {% with place=obj.place %}
+                        <li><a href="{{place.get_absolute_url}}">{{place.name}}</a></li>
+                      {% endwith %}
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+        <!-- BEST BETS 
+        ============================================= -->
+        <div class="section home-best-bets"> <!-- Events -->
+        <h3><a href="/events/">Happening Today</a></h3>
+
+        {% get_todays_events 50 as event_list %}
+
+        {% if event_list %}
+            <ul>
+                 <!-- We want to show non-recurring events first so sort based on 'is_recurring' field. -->
+                {% for event in event_list|dictsort:"event.is_recurring"|slice:"6" %}
+                    <li class="event-{{forloop.counter}}">
+                        {% render_template_for event in "includes/homepage_events" %}
+                    </li>
+                {% endfor %}
+            </ul>
+            <p class="more-events"><a class="lone-link" href="/events/">more events</a></p>
+        {% endif %}
+        </div> 
+        <!-- /Events -->
+
+    {% include "includes/ads/Top_300_250.html" %}
+
+    {{block.super}}
+
+{% endblock %}
+
 
 
 

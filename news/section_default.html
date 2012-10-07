@@ -217,7 +217,7 @@
                             
                             <span class="byline">{% if not story.bylines.count %}By {% if story.one_off_byline %}{{ story.one_off_byline }}{% else %}JFP Staff{% endif %}{% else %}{% if story.bylines.count %}By {% for author in story.bylines.all %}<a href="{{ author.get_absolute_url }}">{{ author }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}{% endif %}</span>&nbsp;&nbsp;
                             
-                            <span class="highlight-type">{{ story.pub_date|date:"N j"}}</span>
+                            {% render_template_for story in "includes/date" %}
 
                             {% get_cached_comment_count for story as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
                         </div>
@@ -237,7 +237,7 @@
                               
                               <span class="byline">{% if not story.bylines.count %}By {% if story.one_off_byline %}{{ story.one_off_byline }}{% else %}JFP Staff{% endif %}{% else %}{% if story.bylines.count %}By {% for author in story.bylines.all %}<a href="{{ author.get_absolute_url }}">{{ author }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}{% endif %}</span>&nbsp;&nbsp;
                               
-                              <span class="highlight-type">{{ story.pub_date|date:"N j"}}</span>
+                              {% render_template_for story in "includes/date" %}
 
                               {% get_cached_comment_count for story as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
                           </div>
@@ -259,7 +259,7 @@
                                 
                                 <span class="byline">{% if not story.bylines.count %}By {% if story.one_off_byline %}{{ story.one_off_byline }}{% else %}JFP Staff{% endif %}{% else %}{% if story.bylines.count %}By {% for author in story.bylines.all %}<a href="{{ author.get_absolute_url }}">{{ author }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}{% endif %}</span>&nbsp;&nbsp;
                                 
-                                <span class="highlight-type">{{ story.pub_date|date:"N j"}}</span>
+                                {% render_template_for story in "includes/date" %}
 
                                 {% get_cached_comment_count for story as comment_count %}{% if comment_count %}&nbsp;&nbsp;<span class="comment-count-type">{{ comment_count }} comment{{ comment_count|pluralize }}</span>{% endif %}
                             </div>
@@ -442,7 +442,10 @@
 
         <!-- Wire Stories
         ==============================================-->
-          {% if section.id == 27 or section.id == 65 or section.id == 66 or section.id == 67 %} <!-- If opinion section -->
+          {% if section.id == 27 or section.id == 65 or section.id == 66 or section.id == 67 %} <!-- If news section -->
+
+              <h3><a href="/news/covers/">Cover Stories</a></h3>
+              <ul><li><a href="/news/covers/">See all past features from the print edition.</a></li></ul>
 
               {% get_latest_section_content for news.story 'wire' as wire_stories limit 10 %}
               <h3>From the Wire</h3>

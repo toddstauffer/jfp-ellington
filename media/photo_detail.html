@@ -15,7 +15,7 @@
 {% block content_title_wrapper %}{% endblock %}
 
 {% block content %}
-  {% load mogrify banned comments content %}
+  {% load mogrify banned comments content permissions %}
 
   <p><img src="{% mogrify object.photo.url thumbnail "670" %}" alt="Photo detail"></p>
   {% if object.caption %}<p class="caption">{{ object.caption|striptags }}</p>{% endif %}
@@ -33,6 +33,9 @@
     {% endif %}
     </p>
     <p class="datetime">{{ object.pub_date|date }}</p>
+    {% if user|can_change:object %}
+      <p class="highlight-type edit-link"><a href="/admin/media/photo/{{ object.pk }}/">edit</p></span>
+    {% endif %}
   </div>
 
   {% render_template_for object in "includes/tools" %}

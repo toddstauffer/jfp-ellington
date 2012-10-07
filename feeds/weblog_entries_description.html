@@ -1,0 +1,6 @@
+
+{% if obj.summary %}
+	{{ obj.summary|safe }}
+{% else %}
+	{{ obj.body|safe|truncatewords:25 }}
+{% endif %}

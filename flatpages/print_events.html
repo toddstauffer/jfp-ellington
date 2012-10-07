@@ -56,7 +56,7 @@
         var mdate = new Date(y,m,t);
         console.log('mdate: ' + mdate);
         if (type == 'printdate') {
-          var monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
+          var monthNames = [ "Jan.", "Feb.", "March", "April", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec." ];
           var day = mdate.getDate().toString();
           if (day.substring(0,1) == '0') {
             day = day.substring(0,1);
@@ -264,7 +264,7 @@
             // Include header, format without place
             s += '<p>';
             s += '<strong>Events at ' + e.place + '</strong> ' + address;
-            s += '<ul>';
+            s += '<ul style="list-style-type:disc;">';
           }
 
           if (inSeries) {
@@ -284,7 +284,11 @@
             if (events[i].event_times_recurring) {
               s += event_times(e.event_times_recurring, 'recurring');
             }
-            s += ', ';
+            if (!inSeries) {
+              s += ', ';
+            } else {
+              s += ' ';
+            }
           }
           
           /* Place */
@@ -310,7 +314,7 @@
               } else if (e.event_cost_high) {
                 s += '$' + e.event_cost_high;
               } else if (!e.event_cost_high && !e.event_cost_low) {
-                s += 'Free'
+                s += 'Free';
               }
             }
 
@@ -322,7 +326,7 @@
 
             /* Contact */
             if (e.contact_phone || e.place_phone) {
-              s += 'Call ' + (e.contact_phone ? e.contact_phone : e.place_phone);
+              s += 'call ' + (e.contact_phone ? e.contact_phone : e.place_phone);
             }
 
             if (e.contact_email  || e.place_email || e.related_link) {
@@ -332,7 +336,7 @@
             }
 
             if (e.contact_email || e.place_email) {
-              s += 'Email ' + (e.contact_email ? e.contact_email : e.place_email);
+              s += 'email ' + (e.contact_email ? e.contact_email : e.place_email);
             }
 
             if (e.related_link) {
@@ -396,7 +400,7 @@
     <h3><span class="query_start_date">{{request.GET.start_date}}</span>-<span class="query_end_date">{{request.GET.end_date}}</span></h3>
     {% with request_start=request.GET.start_date|add:"" %}
     {% with request_end=request.GET.end_date|add:"" %}
-      {% get_events as event_list start_date "2012-09-05" end_date "2012-12-04" limit 5000 %}
+      {% get_events as event_list start_date "2012-10-08" end_date "2012-10-17" limit 5000 %}
     
     {% get_section_front for "noise" as sfront %}
 

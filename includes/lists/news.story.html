@@ -18,7 +18,7 @@
 
     <li>{% render_template_for story in "includes/byline" %}</li>
     
-    <li>{{ object.pub_date|date }}</li>
+    <li>{% render_template_for story in "includes/date" %}</li>
     {% if object.comments_allowed %}
       {% get_cached_comment_count for object as comment_count %} 
       {% if comment_count %}

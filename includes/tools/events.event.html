@@ -1,0 +1,12 @@
+{% extends "includes/tools/default.html" %}
+
+
+{% block tools %}
+  {{ block.super }}
+  <li class="reminder">
+    <a href="./reminder/">Remind me</a>
+    <small>
+      <a href="./reminder/">Email</a>, <a href="./smsreminder/">SMS</a>, <a href="./ical/">iCal</a>
+    </small>
+  </li>
+{% endblock %}

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+<channel>
+<title>Jackson Free Press: Restaurants</title>
+<link>http://jacksonfreepress.www.clients.ellingtoncms.com/restaurants/</link>
+<description>A list of local restaurants from the Jackson Free Press.</description>
+<atom:link href="http://jacksonfreepress.www.clients.ellingtoncms.com/restaurants/rss" rel="self"></atom:link>
+<language>en-us</language>
+<copyright>Copyright 2012, Jackson Free Press</copyright>
+<lastBuildDate>{% now "r" %}</lastBuildDate>
+  
+  {% load generic_content metadata mogrify %}
+  {% get_latest_objects restaurants.Restaurant 500 as restaurant_list %}
+  {% if restaurant_list %}
+    {% for obj in restaurant_list|dictsort:"place.name" %}
+      {% with place=obj.place %}
+              <item>
+                <title>{{ place.name }}</title>
+                <link>http://www.jacksonfreepress.com/{{ place.get_absolute_url }}</link>
+                <description>
+                  {% get_metadata for place as metadata %}
+                  {% if metadata.menu_guide %}
+                    {% with img="http://jacksonfreepress.media.clients.ellingtoncms.com/"|add:metadata.menu_guide.content %}
+                      <img src="{% mogrify img thumbnail "670" %}"></a>
+                    {% endwith %}
+                  {% else %}
+                    {% if place.lead_art %}
+                      <img src="{% mogrify place.lead_art.url thumbnail "670" %}">
+                    {% else %}
+                      {% if obj.icon %}
+                      <img src="{% mogrify obj.icon.url thumbnail "670" %}">
+                      {% endif %}
+                    {% endif %}
+                  {% endif %}                 
+                  {% if place.description %}&lt;p&gt;{{ place.description }}&lt;/p&gt;{% endif %}
+                  {% if place.get_address %}&lt;p&gt;{{ place.get_address }}&lt;/p&gt;{% endif %}
+                  {% if place.phone1 %}&lt;p&gt;{{ place.phone1 }}&lt;/p&gt;{% endif %}
+                </description>
+                <guid>http://www.jacksonfreepress.com/{{ place.get_absolute_url }}</guid>
+              </item>      
+        {% endwith %}
+      {% endfor %}
+  {% endif %}
+
+
+</channel>
+</rss>

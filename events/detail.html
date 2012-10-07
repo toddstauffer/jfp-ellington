@@ -25,14 +25,19 @@
 {% block content_title_wrapper %}{% endblock %}
 
 {% block content %}
-  {% load banned comments mailfriend weblogs social content oembed_tags metadata %}
+  {% load banned comments mailfriend weblogs social content oembed_tags metadata permissions %}
 
   <div class="title">
     <h2>{% if event.event.is_cancelled %}CANCELLED: {% else %}{% if event.event.is_sold_out %}SOLD OUT: {% endif %}{% endif %}{{ event.event.title }}</h2>
+    
     {% if event.event.short_description %}<h3>{{ event.event.short_description }}</h3>{% endif %}
+    
   </div>
 
   <ul class="title_info">
+    {% if user|can_change:event %}
+      <li><a href="/admin/events/event/{{ event.event.pk }}/">edit</a></li>
+    {% endif %}
     {% get_metadata for event.event as eventmeta %}
     <li><strong>When:</strong> <span>{% if event.is_in_the_past or not event.happens_this_year %}{{ event.event_date|date:"l, F j, Y" }}{% else %}{{ event.event_date|date:"l, F j" }}{% endif %}, {{ event.get_time }}</span></li>
     <li><strong>Where:</strong> <span>{% if event.event.one_off_place %}{{ event.event.one_off_place }}{% else %}<a href="{{ event.event.place.get_absolute_url }}">{{ event.event.place.name }}</a>, {{ event.event.place.city.city }}{% endif %}</span></li>
@@ -53,6 +58,7 @@
     {% if eventmeta.contact_phone %}<li><strong>Contact Phone:</strong> <span>{{ eventmeta.contact_phone.content }}</span></li>{% endif %}
     {% if eventmeta.contact_email %}<li><strong>Contact E-mail:</strong> <span>{{ eventmeta.contact_email.content }}</span></li>{% endif %}
     <li><strong>Categories:</strong> <span>{% for category in event.event.categories.all %}<a href="/events/search/?category={{ category.id }}">{{ category.display_name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</span></li>
+    
   </ul>
 
   {% if event.event.long_description %}

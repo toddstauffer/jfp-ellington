@@ -25,7 +25,7 @@
 {% block content_title_wrapper %}{% endblock %}
 
 {% block content %}
-  {% load banned comments mailfriend weblogs social content oembed_tags metadata %}
+  {% load banned comments mailfriend weblogs social content oembed_tags metadata permissions %}
 
   <div class="title">
     <h2>{% if event.is_cancelled %}CANCELLED: {% else %}{% if event.is_sold_out %}SOLD OUT: {% endif %}{% endif %}{{ event.title }}</h2>
@@ -34,6 +34,9 @@
 
 
   <ul class="title_info">
+    {% if user|can_change:event %}
+      <li><a href="/admin/events/event/{{ event.pk }}/">edit</a></li>
+    {% endif %}
     {% get_metadata for event as eventmeta %}
     <li><strong>Ongoing:</strong> <span>{% if expire_date %}until {{ expire_date|date:"l, F j, Y" }}{% else %}indefinitely{% endif %}</span></li>
     {% for time in event.recurring_event_times.all %}

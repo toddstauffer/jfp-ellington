@@ -20,6 +20,8 @@
     </div>
 
     <div class="signup_fields" style="display:none;">
+        {% fragment jfp_site_description as site_description %}
+        <p style="display:none;">{{site_description.content|safe}}</p>
 
       {% fragment old_username_message as username_message %}
       <p>{{username_message.content|safe}}</p>
@@ -75,12 +77,10 @@
     {% facebook_button %}
     {% facebook_js %}
   {% endif %}
-{% comment %}
   {% auth_enabled twitter as twitter_enabled %}
   {% if twitter_enabled %}
     {% twitter_button %}
   {% endif %}
-{% endcomment %}
   <form action="{% url openid_redirect %}" method="get" class="google_button">
     <input type="hidden" name="openid_provider" value="https://www.google.com/accounts/o8/id" />
     <button type="submit">Google</button>

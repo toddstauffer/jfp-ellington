@@ -1,0 +1,20 @@
+
+<span class="date">
+    {% with today=now|date:"dmY" %}
+    {% with pdate=object.pub_date|date:"dmY" %}
+        {% if pdate == today %}
+            {{ object.pub_date|timesince}} ago ...
+        {% else %}
+            {% with thisyear=now|date:"Y" %}
+            {% with pyear=object.pub_date|date:"Y" %}
+                {% if pyear == thisyear %}
+                    {{ object.pub_date|date:"N j"}}
+                {% else %}
+                    {{ object.pub_date|date:"N j, Y"}}
+                {% endif %}
+            {% endwith %}
+            {% endwith %}
+        {% endif %}
+    {% endwith %}
+    {% endwith %}
+</span>

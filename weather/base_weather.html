@@ -1,0 +1,20 @@
+{% extends "base_generic.html" %}
+
+
+{% block title %}Weather{% endblock %}
+{% block body_class %}weather{% endblock %}
+
+
+{% block subnav %}
+  {% load weblogs %}
+
+  <div id="subnav">
+    <div class="wrapper">
+      <ul>
+        <li><a href="{% url ellington_weather_index %}">Current conditions</a></li>
+        <li><a href="{% url ellington_weather_severe %}">Severe weather</a></li>
+        {%comment%}<li><a href="{% url ellington_weather_radar %}">Radar images</a></li>{%endcomment%}
+      </ul>
+    </div>
+  </div>
+{% endblock %}

@@ -29,6 +29,7 @@
         <li class="blog_list"><a href="/weblogs/list/">Blogs</a></li>
         <li class="blog_groups_home"><a href="/weblogs/groups/">Groups</a></li>
         {% get_blogs_for_user user as user_blogs %}
+        
         {% if user_blogs %}
         <li class="blog_dashboard"><a href="/weblogs/dashboard/">Manage</a></li>
         <li class="blog_entry_form"><a href="{% if user_blogs.1 %}#{% else %}/weblogs/post/{% endif %}">Post entry</a>
@@ -69,6 +70,9 @@
     {% if blog and blog.header_image %}
       <p class="header_image"><a href="{{ blog.get_absolute_url }}"><img src="{% mogrify blog.header_image.url thumbnail "300" %}" alt=""></a></p>
     {% endif %}
+  {% endif %}
+  {% if blog.id == 35 %}
+    <span class="highlight-type" style="float:right;"><a href="/news/jackblog/">Read the Jackblog Archives (2005-2012)</a></span>
   {% endif %}
   {{ block.super }}
 {% endblock %}

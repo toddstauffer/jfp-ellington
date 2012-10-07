@@ -1,0 +1,116 @@
+{% extends "base_generic.html" %}
+
+
+{% load anonymity %}
+
+
+{% block title %}{{ person|display_name }}{% endblock %}
+{% block body_class %}users{% endblock %}
+
+
+{% block subnav %}
+  <div id="subnav">
+    <div class="wrapper">
+      <ul>
+         {% if not user.is_anonymous and user.is_authenticated %}
+          {% if person == user %}
+          <li><a href="{% filter force_escape %}{% firstof person.get_absolute_url user.get_absolute_url %}{% endfilter %}">My profile</a></li>
+          {% else %}
+          <li><a href="{% filter force_escape %}{{ user.get_absolute_url }}{% endfilter %}">My profile</a></li>
+          {% endif %}
+          <li><a href="/social/favorites/">My favorites</a></li>
+          <li><a href="/accounts/activity/">Friend&apos;s activity</a></li>
+          <li><a href="/accounts/profile/edit/">Edit profile</a></li>
+          <li><a href="/accounts/password/change/">Change password</a></li>
+          <!-- <li><a href="/alerts/manage/">Manage alerts</a></li> -->
+          <li><a href="/searchalerts/edit/">Search alerts</a></li>
+          <li><a href="/accounts/activity/preferences/">Email preferences</a></li>
+          <li><a href="/social/privacy/">Privacy</a></li>
+          <li><a href="/accounts/profile/anonymity/">Anonymity</a></li>
+        {% endif %}
+        
+      </ul>
+    </div>
+  </div>
+{% endblock %}
+
+
+{% block sidebar %}
+  {% load social listutil mogrify humanize %}
+
+  <div class="user_info">
+    {% if person %}
+      <a class="avatar" href="{{ person.get_absolute_url }}"><img src="{% if person.get_profile.avatar and not person.get_profile.supress_avatar %}{% mogrify person.get_profile.avatar.url thumbnail "300" %}{% else %}{{ STATIC_MEDIA_URL }}ellington_defaults/2.3.0/images/avatars/blank_avatar_300x250.gif{% endif %}"></a>
+      <div class="body">
+        <h2>{{ person|display_name }}</h2>
+				<ul class="social_counts clear">
+				  <li>Following <a href="{% url ellington_accounts_public_user_following person.username %}">{{ person|following|length }}</a></li>
+				  <li>Followers <a href="{% url ellington_accounts_public_user_followers person.username %}">{{ person|followers|length }}</a></li>
+				</ul>
+        <p class="last_login">Last login: {{ person.last_login|naturalday:"l, F j, Y" }}</p>
+
+        {% if user.is_authenticated %}
+          {% get_relationship user person as relationship %}
+
+          {% if user != person %}
+            {% if relationship == "friend" or relationship == "contact" %}
+              <a class="button unfollow" href="/social/disconnect/{{ person.username }}/">Unfollow</a>
+            {% else %}
+              <a class="button follow" href="/social/connect/{{ person.username }}/">Follow</a>
+            {% endif %}
+          {% endif %}
+        {% endif %}
+
+        {% get_relationships for person as user_relationships %}
+        {% merge_lists user_relationships.friends by "creation_date" user_relationships.contacts by "creation_date" as following %}
+
+        {% if following %}
+          <ul class="friend_list">
+            {% for friend in following|slice:":10" %}
+              {% with friend.to_user as person %}
+              <li>
+                <a href="{{ person.get_absolute_url }}">
+                  <a href="{{ person.get_absolute_url }}"><img src="{% if person.get_profile.avatar and not person.get_profile.supress_avatar %}{% mogrify person.get_profile.avatar.url resize "48x48" %}{% else %}{{ STATIC_MEDIA_URL }}ellington_defaults/2.3.0/images/avatars/blank_avatar_48x48.gif{% endif %}"></a>
+                </a>
+              </li>
+              {% endwith %}
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    {% else %}
+      {% if user %}
+        <a class="avatar" href="{{ user.get_absolute_url }}"><img src="{% if user.get_profile.avatar and not user.get_profile.supress_avatar %}{% mogrify user.get_profile.avatar.url thumbnail "300" %}{% else %}{{ STATIC_MEDIA_URL }}ellington_defaults/2.3.0/images/avatars/blank_avatar_300x250.gif{% endif %}"></a>
+        <div class="body">
+          <h2>{{ user|display_name }}</h2>
+          <p class="last_login">Last login: {{ user.last_login|naturalday:"l, F j, Y" }}</p>
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+  {% comment %}{# REMOVED-GROUP-CONTENT #}
+  {% if person %}
+    <div class="user_group_info">
+      <ul>
+        <li>Topics started <span>{{ person.topics.published.count }}</span></li>
+        <li>Comments made <span>{{ person.comment_comments.count }}</span></li>
+        <li>Groups joined <span>{{ person.membership_set.count }}</span></li>
+        <li>Groups started <span>{{ person.groups_owned.non_removed.count }}</span></li>
+      </ul>
+    </div>
+  {% endif %}
+  {% endcomment %}
+
+  {% if person %}
+    {% if user != person %}
+      <form action="{{ person.get_absolute_url }}contact/" method="post" class="contact_form">{% csrf_token %}
+        <h4>Leave a message for {% filter force_escape %}{% firstof person.first_name person.username %}{% endfilter %}</h4>
+        <p><textarea id="id_message" rows="10" cols="40" name="message"></textarea></p>
+        <p class="submit"><button type="submit">Send</button></p>
+      </form>
+    {% endif %}
+  {% endif %}
+{% endblock %}
+
+
+{% block sidebar_ad %}{% endblock %}
